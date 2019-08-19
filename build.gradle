@@ -1,115 +1,97 @@
 buildscript {
     repositories {
         jcenter()
-        maven { url = "http://files.minecraftforge.net/maven" }
+        maven {
+            name = "forge"
+            url = "http://files.minecraftforge.net/maven"
+        }
+        maven {
+            name = "sponge"
+            url = "https://repo.spongepowered.org/maven"
+        }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT'
-        classpath 'gradle.plugin.com.matthewprenger:CurseGradle:1.0.9'
+        classpath "net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT"
+        classpath "gradle.plugin.com.matthewprenger:CurseGradle:1.4.0"
+        classpath "org.spongepowered:mixingradle:0.6-SNAPSHOT"
     }
 }
 
 plugins {
-    id 'com.matthewprenger.cursegradle' version '1.0.9'
+    id "com.matthewprenger.cursegradle" version "1.4.0"
 }
 
-def api = new groovy.json.JsonSlurper().parseText(file("${api_token_path}").text)
-def keystore = new groovy.json.JsonSlurper().parseText(file("${keystore_path}").text)
 def mcVersion = project.mc_version
 
-apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: "net.minecraftforge.gradle.forge"
+apply plugin: "org.spongepowered.mixin"
+
 version = project.version
 group = "stevekung.mods.indicatia"
 archivesBaseName = "Indicatia-All"
-sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
+sourceCompatibility = targetCompatibility = 1.8
 
 minecraft {
-    version = "1.8.9-11.15.1.2318-1.8.9"
+    version = "${forge_version}"
     runDir = "run"
-    mappings = "stable_20"
+    mappings = "${mcp_mapping}"
     makeObfSourceJar = false
+}
 
-    replace '@FINGERPRINT@', keystore.sha1
-    replaceIn "IndicatiaMod.java"
+configurations {
+    provided
+    compile.extendsFrom(provided)
+}
+
+dependencies {
+    provided("org.spongepowered:mixin:0.6.4-SNAPSHOT") {
+        exclude module: "launchwrapper"
+        exclude module: "guava"
+        exclude module: "gson"
+        exclude module: "commons-io"
+        exclude module: "log4j-core"
+    }
 }
 
 repositories {
+    // Curse Gradle
     maven {
         url "https://plugins.gradle.org/m2/"
     }
-}
-
-ext.finalJar = "build/libs/" + "Indicatia-" + mcVersion + "-" + version + ".jar"
-ext.coreJar = "build/libs/" + archivesBaseName + "-" + version + ".jar"
-ext.coreFiles = ['stevekung/mods/indicatia/**', 'assets/indicatia/**', 'assets/minecraft/**', 'license.txt', 'META-INF/indicatia_at.cfg']
-ext.internalFiles = ['stevekung/mods/indicatia/internal/**']
-
-jar
-{
-    if (!project.hasProperty("internal"))
-    {
-        excludes.addAll(project.ext.internalFiles)
+    // Mixin
+    maven {
+        url = "http://repo.spongepowered.org/maven/"
     }
 }
 
+jar {
+    from(configurations.provided.asFileTree.files.collect { it.isDirectory() ? it : zipTree(it) }) {
+        exclude "LICENSE.txt", "META-INF/*.txt", "META-INF/MANIFSET.MF", "META-INF/maven/**", "META-INF/*.RSA", "META-INF/*.SF"
+    }
+    manifest.attributes(
+            "FMLAT": "indicatia_at.cfg",
+            "MixinConfigs": "mixins.indicatia.json",
+            "TweakOrder": "0",
+            "TweakClass": "stevekung.mods.indicatia.tweaker.FMLLoadingPlugin"
+    )
+    baseName = "Indicatia-" + mcVersion
+}
+
+mixin {
+    defaultObfuscationEnv searge
+    add sourceSets.main, "mixins.indicatia.refmap.json"
+}
+
 curseforge {
-    apiKey = api.indicatia
+    apiKey = project.indicatia_api
     project {
-        id = '272146'
-        changelog = 'To read full change log use command /inchangelog in-game.\n\n or follow this link: https://raw.githubusercontent.com/SteveKunG/Indicatia/' + mcVersion + '/src/main/resources/assets/indicatia/change_log.txt'
-        releaseType = 'release'
+        id = "272146"
+        changelog = "Change Log"
+        releaseType = "beta"
         addGameVersion mcVersion
 
-        mainArtifact(file('build/libs/Indicatia-' + mcVersion + '-' + version + '.jar')) {
+        mainArtifact(jar) {
             displayName = "Indicatia-" + mcVersion + "-" + version
         }
     }
 }
-
-// signing jar first
-task buildJar(type: SignJar, dependsOn: "processJar") {
-    keyStore = keystore.keystore_path
-    alias = keystore.alias
-    storePass = keystore.keystore_pass
-    keyPass = keystore.keystore_pass
-    inputFile = project.ext.finalJar
-    outputFile = project.ext.finalJar
-}
-
-// processing jar
-task processJar(type: Jar, dependsOn: "rePackAllJar") {
-    outputs.upToDateWhen { false }
-    baseName = "Indicatia-" + mcVersion
-
-    from(zipTree(project.ext.coreJar)) {
-        includes.addAll(project.ext.coreFiles)
-    }
-    manifest {
-        attributes.put("FMLAT", "indicatia_at.cfg")
-        attributes.put("FMLCorePluginContainsFMLMod", "true")
-    }
-}
-
-task rePackAllJar(type: Jar, dependsOn: "copyModFiles") {
-    from 'temporary'
-}
-
-task copyModFiles(type: Copy, dependsOn: "reobfJar") {
-    from(zipTree(project.ext.coreJar))
-    into 'temporary'
-}
-
-task deleteTemporary(type: Delete) {
-    delete 'temporary'
-}
-
-task buildDeobfJar(type: Jar) {
-    from sourceSets.main.output
-    classifier = 'deobf'
-    manifest {
-        attributes.put("FMLAT", "indicatia_at.cfg")
-        attributes.put("FMLCorePluginContainsFMLMod", "true")
-    }
-}
-
-buildJar.finalizedBy(deleteTemporary)

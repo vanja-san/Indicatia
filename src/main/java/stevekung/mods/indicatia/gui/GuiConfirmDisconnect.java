@@ -1,9 +1,6 @@
 package stevekung.mods.indicatia.gui;
 
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiIngameMenu;
-import net.minecraft.client.gui.GuiMainMenu;
-import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.*;
 import net.minecraft.client.resources.I18n;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -25,7 +22,7 @@ public class GuiConfirmDisconnect extends GuiScreen
         {
             this.mc.theWorld.sendQuittingDisconnectingPacket();
             this.mc.loadWorld(null);
-            this.mc.displayGuiScreen(new GuiMultiplayerCustom(new GuiMainMenu()));
+            this.mc.displayGuiScreen(new GuiMultiplayer(new GuiMainMenu()));
         }
         else
         {

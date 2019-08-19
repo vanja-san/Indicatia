@@ -1,19 +1,20 @@
 package stevekung.mods.indicatia.renderer;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemBow;
 import net.minecraft.item.ItemStack;
-import stevekung.mods.indicatia.config.ConfigManager;
+import stevekung.mods.indicatia.config.EnumEquipment;
 import stevekung.mods.indicatia.config.ExtendedConfig;
-import stevekung.mods.indicatia.core.IndicatiaMod;
+import stevekung.mods.indicatia.utils.ColorUtils;
 
 public class HorizontalEquipment
 {
     private final ItemStack itemStack;
-    private int width;
-    private String itemDamage = "";
-    private int itemDamageWidth;
     private final boolean isArmor;
+    private int width;
+    private int itemDamageWidth;
+    private String itemDamage = "";
 
     public HorizontalEquipment(ItemStack itemStack, boolean isArmor)
     {
@@ -29,24 +30,22 @@ public class HorizontalEquipment
 
     public void render(int x, int y)
     {
-        boolean isRightSide = ConfigManager.equipmentPosition.equals("right");
+        boolean isRightSide = EnumEquipment.Position.getById(ExtendedConfig.instance.equipmentPosition).equalsIgnoreCase("right");
         HUDInfo.renderItem(this.itemStack, isRightSide ? x - 18 : x, y);
-        IndicatiaMod.coloredFontRenderer.drawString(ColoredFontRenderer.color(ExtendedConfig.EQUIPMENT_COLOR_R, ExtendedConfig.EQUIPMENT_COLOR_G, ExtendedConfig.EQUIPMENT_COLOR_B) + this.itemDamage, isRightSide ? x - 20 - this.itemDamageWidth : x + 18, y + 4, 16777215, true);
+        Minecraft.getMinecraft().fontRendererObj.drawString(ColorUtils.stringToRGB(ExtendedConfig.instance.equipmentStatusColor).toColoredFont() + this.itemDamage, isRightSide ? x - 20 - this.itemDamageWidth : x + 18, y + 4, 16777215, true);
 
         if (this.itemStack.getItem() instanceof ItemBow)
         {
-            int arrowCount = HUDInfo.getInventoryArrowCount(IndicatiaMod.MC.thePlayer.inventory);
+            int arrowCount = HUDInfo.getInventoryArrowCount(Minecraft.getMinecraft().thePlayer.inventory);
             GlStateManager.disableDepth();
-            IndicatiaMod.coloredFontRenderer.setUnicodeFlag(true);
-            IndicatiaMod.coloredFontRenderer.drawString(ColoredFontRenderer.color(ExtendedConfig.ARROW_COUNT_COLOR_R, ExtendedConfig.ARROW_COUNT_COLOR_G, ExtendedConfig.ARROW_COUNT_COLOR_B) + HUDInfo.getArrowStackCount(arrowCount), isRightSide ? x - 10 : x + 8, y + 8, 16777215, true);
-            IndicatiaMod.coloredFontRenderer.setUnicodeFlag(false);
+            ColorUtils.unicodeFontRenderer.drawString(ColorUtils.stringToRGB(ExtendedConfig.instance.arrowCountColor).toColoredFont() + HUDInfo.getArrowStackCount(arrowCount), isRightSide ? x - 10 : x + 8, y + 8, 16777215, true);
             GlStateManager.enableDepth();
         }
     }
 
     private void initSize()
     {
-        String itemCount = HUDInfo.getInventoryItemCount(IndicatiaMod.MC.thePlayer.inventory, this.itemStack);
+        String itemCount = HUDInfo.getInventoryItemCount(Minecraft.getMinecraft().thePlayer.inventory, this.itemStack);
 
         if (this.isArmor)
         {
@@ -54,10 +53,10 @@ public class HorizontalEquipment
         }
         else
         {
-            String status = ConfigManager.equipmentStatus;
-            this.itemDamage = this.itemStack.isItemStackDamageable() ? HUDInfo.getArmorDurabilityStatus(this.itemStack) : status.equals("none") ? "" : HUDInfo.getItemStackCount(this.itemStack, Integer.parseInt(itemCount));
+            String status = EnumEquipment.Status.getById(ExtendedConfig.instance.equipmentStatus);
+            this.itemDamage = this.itemStack.isItemStackDamageable() ? HUDInfo.getArmorDurabilityStatus(this.itemStack) : status.equalsIgnoreCase("none") ? "" : HUDInfo.getItemStackCount(this.itemStack, Integer.parseInt(itemCount));
         }
-        this.itemDamageWidth = IndicatiaMod.MC.fontRendererObj.getStringWidth(this.itemDamage);
+        this.itemDamageWidth = Minecraft.getMinecraft().fontRendererObj.getStringWidth(this.itemDamage);
         this.width = 20 + this.itemDamageWidth;
     }
 }

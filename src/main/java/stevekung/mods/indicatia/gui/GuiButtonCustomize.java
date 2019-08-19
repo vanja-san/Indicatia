@@ -3,12 +3,10 @@ package stevekung.mods.indicatia.gui;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import stevekung.mods.indicatia.core.IndicatiaMod;
 
 @SideOnly(Side.CLIENT)
 public class GuiButtonCustomize extends GuiButton
@@ -16,20 +14,18 @@ public class GuiButtonCustomize extends GuiButton
     private static final ResourceLocation main = new ResourceLocation("indicatia:textures/gui/main_lobby.png");
     private static final ResourceLocation play = new ResourceLocation("indicatia:textures/gui/play_icon.png");
     private final boolean isPlay;
-    private final GuiScreen parent;
+    private final int parentWidth;
     private final String tooltips;
-    public final String command;
-    public String group;
+    public String command;
     private static int buttonId = 1000;
 
-    public GuiButtonCustomize(int xPos, int yPos, GuiScreen parent, String tooltips, String command, String group, boolean isPlay)
+    public GuiButtonCustomize(int parentWidth, String tooltips, String command, boolean isPlay)
     {
-        super(buttonId++, xPos, yPos, 20, 20, "");
+        super(buttonId++, parentWidth - 130, 20, 20, 20, "");
         this.isPlay = isPlay;
-        this.parent = parent;
+        this.parentWidth = parentWidth;
         this.tooltips = tooltips;
-        this.group = group;
-        this.command = isPlay ? "/play " + command : "/lobby " + command;
+        this.command = command.startsWith("/") ? command : isPlay ? "/play " + command : "/lobby " + command;
     }
 
     @Override
@@ -54,7 +50,7 @@ public class GuiButtonCustomize extends GuiButton
             if (isHover)
             {
                 int k = 0;
-                int l = IndicatiaMod.MC.fontRendererObj.getStringWidth(this.tooltips);
+                int l = Minecraft.getMinecraft().fontRendererObj.getStringWidth(this.tooltips);
                 k = l;
                 int i1 = mouseX + 12;
                 int j1 = mouseY - 12;
@@ -65,7 +61,7 @@ public class GuiButtonCustomize extends GuiButton
                 int i4 = i2 & -16777216;
                 int j2 = i3 >> 1 | i4;
 
-            if (i1 + k > this.parent.width)
+            if (i1 + k > this.parentWidth)
             {
                 i1 -= 28 + k;
             }
@@ -80,7 +76,7 @@ public class GuiButtonCustomize extends GuiButton
             this.drawGradientRect(i1 + k + 2, j1 - 3 + 1, i1 + k + 3, j1 + k1 + 3 - 1, i2, j2);
             this.drawGradientRect(i1 - 3, j1 - 3, i1 + k + 3, j1 - 3 + 1, i2, i2);
             this.drawGradientRect(i1 - 3, j1 + k1 + 2, i1 + k + 3, j1 + k1 + 3, j2, j2);
-            IndicatiaMod.MC.fontRendererObj.drawStringWithShadow(this.tooltips, i1, j1, -1);
+            Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(this.tooltips, i1, j1, -1);
             this.zLevel = 0.0F;
             GlStateManager.enableDepth();
             }

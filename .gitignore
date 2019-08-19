@@ -6,9 +6,10 @@ bin
 build
 eclipse
 run
-src/main/java/stevekung/mods/indicatia/internal
 
 # file
+!gradlew.bat
+*.bat
 *.launch
 .metadata
 .classpath

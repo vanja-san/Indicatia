@@ -2,7 +2,7 @@ package stevekung.mods.indicatia.command;
 
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
-import stevekung.mods.indicatia.util.ThreadCheckMojangStatus;
+import stevekung.mods.indicatia.utils.ThreadCheckMojangStatus;
 
 public class CommandMojangStatusCheck extends ClientCommandBase
 {
@@ -15,6 +15,7 @@ public class CommandMojangStatusCheck extends ClientCommandBase
     @Override
     public void processCommand(ICommandSender sender, String[] args) throws CommandException
     {
-        new ThreadCheckMojangStatus(false).start();
+        ThreadCheckMojangStatus thread = new ThreadCheckMojangStatus();
+        thread.start();
     }
 }

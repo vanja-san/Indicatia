@@ -1,0 +1,27 @@
+{
+    "package": "stevekung.mods.indicatia.mixin",
+    "refmap": "mixins.indicatia.refmap.json",
+    "compatibilityLevel": "JAVA_8",
+    "verbose": true,
+    "mixins": [
+        "EntityPlayerSPMixin",
+        "GuiIngameForgeMixin",
+        "ItemRendererMixin",
+        "GuiMultiplayerMixin",
+        "GuiNewChatMixin",
+        "GuiPlayerTabOverlayMixin",
+        "ServerListEntryNormalMixin",
+        "LayerArrowMixin",
+        "LayerCapeMixin",
+        "LayerArmorBaseMixin",
+        "RenderFishMixin",
+        "ColoredFontRendererMixin",
+        "GuiChatMixin",
+        "GuiScreenMixin",
+        "EntityEndermanMixin",
+        "RenderPlayerMixin",
+        "EntityRendererMixin",
+        "TileEntitySkullRendererMixin",
+        "BlockFarmlandMixin"
+    ]
+}

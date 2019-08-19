@@ -1,8 +1,7 @@
 package stevekung.mods.indicatia.command;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.io.File;
+import java.util.*;
 
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -11,32 +10,24 @@ import net.minecraft.command.WrongUsageException;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
-import stevekung.mods.indicatia.config.ConfigManager;
 import stevekung.mods.indicatia.config.ExtendedConfig;
-import stevekung.mods.indicatia.core.IndicatiaMod;
-import stevekung.mods.indicatia.profile.ProfileConfigData;
-import stevekung.mods.indicatia.profile.ProfileData;
-import stevekung.mods.indicatia.profile.ProfileData.ProfileSettingData;
-import stevekung.mods.indicatia.profile.RenderProfileConfig;
-import stevekung.mods.indicatia.util.JsonUtil;
+import stevekung.mods.indicatia.utils.JsonUtils;
+import stevekung.mods.indicatia.utils.LangUtils;
 
 public class CommandProfile extends ClientCommandBase
 {
     @Override
     public String getCommandName()
     {
-        return "profileiu";
+        return "inprofile";
     }
 
     @Override
     public void processCommand(ICommandSender sender, String[] args) throws CommandException
     {
-        JsonUtil json = IndicatiaMod.json;
-        ProfileConfigData configData = new ProfileConfigData();
-
         if (args.length < 1)
         {
-            throw new WrongUsageException("commands.profileiu.usage");
+            throw new WrongUsageException("commands.inprofile.usage");
         }
         else
         {
@@ -44,117 +35,166 @@ public class CommandProfile extends ClientCommandBase
             {
                 if (args.length < 2)
                 {
-                    throw new WrongUsageException("commands.profileiu.add.usage");
+                    throw new WrongUsageException("commands.inprofile.add.usage");
                 }
-                if (RenderProfileConfig.profileData.getProfile(args[1]) != null)
+
+                String name = args[1];
+                boolean exist = false;
+
+                if (name.equalsIgnoreCase("default"))
                 {
-                    sender.addChatMessage(json.text("Profile data was already set for name: " + args[1] + "!").setChatStyle(json.red()));
+                    sender.addChatMessage(JsonUtils.create(LangUtils.translate("message.create_profile_default")).setChatStyle(JsonUtils.red()));
                     return;
                 }
-                RenderProfileConfig.profileData.addProfileData(args[1], ConfigManager.enableFPS, ConfigManager.enableXYZ, ConfigManager.enableBiome, ConfigManager.enablePing, ConfigManager.enableServerIP,
-                        ConfigManager.enableRenderEquippedItem, ConfigManager.enablePotionStatusHUD, ConfigManager.enableKeystroke, ConfigManager.enableCPS, ConfigManager.enableRCPS, ConfigManager.enableSlimeChunkFinder,
-                        ConfigManager.enableCurrentRealTime, ConfigManager.enableCurrentGameTime, ConfigManager.enableGameWeather, ConfigManager.enableMoonPhase, ConfigManager.keystrokePosition, ConfigManager.equipmentOrdering,
-                        ConfigManager.equipmentDirection, ConfigManager.equipmentStatus, ConfigManager.equipmentPosition, ConfigManager.potionStatusHUDStyle, ConfigManager.potionStatusHUDPosition, ExtendedConfig.ARMOR_STATUS_OFFSET,
-                        ExtendedConfig.POTION_STATUS_OFFSET, ExtendedConfig.KEYSTROKE_Y_OFFSET, ExtendedConfig.CPS_X_OFFSET, ExtendedConfig.CPS_Y_OFFSET, ExtendedConfig.TOP_DONATOR_FILE_PATH, ExtendedConfig.RECENT_DONATOR_FILE_PATH);
-                sender.addChatMessage(json.text("Add profile data name: " + args[1]));
-                RenderProfileConfig.save();
+
+                for (File file : ExtendedConfig.userDir.listFiles())
+                {
+                    if (name.equalsIgnoreCase(file.getName().replace(".dat", "")))
+                    {
+                        exist = file.getName().equalsIgnoreCase(name + ".dat") && file.exists();
+                    }
+                }
+
+                if (exist)
+                {
+                    sender.addChatMessage(JsonUtils.create(LangUtils.translate("message.already_created", name)).setChatStyle(JsonUtils.red()));
+                }
+                else
+                {
+                    sender.addChatMessage(JsonUtils.create(LangUtils.translate("message.profile_added", name)));
+                    ExtendedConfig.instance.save(name);
+                }
             }
             else if ("load".equalsIgnoreCase(args[0]))
             {
                 if (args.length < 2)
                 {
-                    throw new WrongUsageException("commands.profileiu.load.usage");
-                }
-                if (RenderProfileConfig.profileData.getProfileList().isEmpty())
-                {
-                    sender.addChatMessage(json.text("Cannot load profile data, empty profile data file"));
-                    return;
+                    throw new WrongUsageException("commands.inprofile.load.usage");
                 }
 
-                for (ProfileData.ProfileSettingData data : RenderProfileConfig.profileData.getProfileList())
+                String name = args[1];
+
+                for (File file : ExtendedConfig.userDir.listFiles())
                 {
-                    if (RenderProfileConfig.profileData.getProfile(args[1]) != null)
+                    if (file.getName().contains(name) && file.getName().endsWith(".dat") && !file.exists())
                     {
-                        if (args[1].equals(data.getProfileName()))
-                        {
-                            configData.load(data);
-                            ConfigManager.getConfig().save();
-                            ExtendedConfig.save();
-                            RenderProfileConfig.save();
-                            sender.addChatMessage(json.text("Load profile data for name: " + args[1]));
-                        }
-                    }
-                    else
-                    {
-                        sender.addChatMessage(json.text("Cannot load profile data from: " + args[1]).setChatStyle(json.red()));
+                        sender.addChatMessage(JsonUtils.create(LangUtils.translate("message.cant_load_profile")));
                         return;
                     }
                 }
+
+                ExtendedConfig.instance.setCurrentProfile(name);
+                ExtendedConfig.saveProfileFile(name);
+                ExtendedConfig.instance.load();
+                sender.addChatMessage(JsonUtils.create(LangUtils.translate("message.load_profile", name)));
+                ExtendedConfig.instance.save(name); // save current settings
             }
             else if ("save".equalsIgnoreCase(args[0]))
             {
                 if (args.length < 2)
                 {
-                    throw new WrongUsageException("commands.profileiu.save.usage");
+                    throw new WrongUsageException("commands.inprofile.save.usage");
                 }
-                for (ProfileData.ProfileSettingData data : RenderProfileConfig.profileData.getProfileList())
+
+                String name = args[1];
+                boolean exist = false;
+
+                for (File file : ExtendedConfig.userDir.listFiles())
                 {
-                    if (RenderProfileConfig.profileData.getProfile(args[1]) == null)
+                    if (name.equalsIgnoreCase(file.getName().replace(".dat", "")))
                     {
-                        sender.addChatMessage(json.text("Cannot save profile data to: " + args[1]).setChatStyle(json.red()));
-                        return;
+                        exist = file.getName().equalsIgnoreCase(name + ".dat") && file.exists();
                     }
-                    if (args[1].equals(data.getProfileName()))
-                    {
-                        RenderProfileConfig.profileData.saveProfileData(args[1], ConfigManager.enableFPS, ConfigManager.enableXYZ, ConfigManager.enableBiome, ConfigManager.enablePing, ConfigManager.enableServerIP,
-                                ConfigManager.enableRenderEquippedItem, ConfigManager.enablePotionStatusHUD, ConfigManager.enableKeystroke, ConfigManager.enableCPS, ConfigManager.enableRCPS, ConfigManager.enableSlimeChunkFinder,
-                                ConfigManager.enableCurrentRealTime, ConfigManager.enableCurrentGameTime, ConfigManager.enableGameWeather, ConfigManager.enableMoonPhase, ConfigManager.keystrokePosition, ConfigManager.equipmentOrdering,
-                                ConfigManager.equipmentDirection, ConfigManager.equipmentStatus, ConfigManager.equipmentPosition, ConfigManager.potionStatusHUDStyle, ConfigManager.potionStatusHUDPosition, ExtendedConfig.ARMOR_STATUS_OFFSET,
-                                ExtendedConfig.POTION_STATUS_OFFSET, ExtendedConfig.KEYSTROKE_Y_OFFSET, ExtendedConfig.CPS_X_OFFSET, ExtendedConfig.CPS_Y_OFFSET, ExtendedConfig.TOP_DONATOR_FILE_PATH, ExtendedConfig.RECENT_DONATOR_FILE_PATH);
-                        RenderProfileConfig.save();
-                        sender.addChatMessage(json.text("Save profile data for name: " + args[1]));
-                    }
+                }
+
+                if (exist)
+                {
+                    ExtendedConfig.instance.save(name);
+                    sender.addChatMessage(JsonUtils.create(LangUtils.translate("message.save_profile", name)));
+                }
+                else
+                {
+                    sender.addChatMessage(JsonUtils.create(LangUtils.translate("message.cant_save_profile", name)).setChatStyle(JsonUtils.red()));
                 }
             }
             else if ("remove".equalsIgnoreCase(args[0]))
             {
                 if (args.length < 2)
                 {
-                    throw new WrongUsageException("commands.profileiu.remove.usage");
+                    throw new WrongUsageException("commands.inprofile.remove.usage");
                 }
-                if (RenderProfileConfig.profileData.getProfile(args[1]) != null)
+
+                String name = args[1];
+
+                if (name.equals("default"))
                 {
-                    RenderProfileConfig.profileData.removeProfile(args[1]);
-                    sender.addChatMessage(json.text("Remove profile data for name: " + args[1]));
+                    sender.addChatMessage(JsonUtils.create(LangUtils.translate("message.cannot_remove_default")).setChatStyle(JsonUtils.red()));
+                    return;
+                }
+
+                boolean exist = false;
+
+                for (File file : ExtendedConfig.userDir.listFiles())
+                {
+                    if (name.equalsIgnoreCase(file.getName().replace(".dat", "")))
+                    {
+                        exist = file.getName().equalsIgnoreCase(name + ".dat") && file.exists();
+                    }
+                }
+
+                if (exist)
+                {
+                    File toDel = new File(ExtendedConfig.userDir, name + ".dat");
+                    toDel.delete();
+                    ExtendedConfig.instance.setCurrentProfile("default");
+                    ExtendedConfig.instance.load();
+                    sender.addChatMessage(JsonUtils.create(LangUtils.translate("message.remove_profile", name)));
                 }
                 else
                 {
-                    sender.addChatMessage(json.text("Cannot remove or find profile data from: " + args[1]).setChatStyle(json.red()));
+                    sender.addChatMessage(JsonUtils.create(LangUtils.translate("message.cant_remove_profile", name)).setChatStyle(JsonUtils.red()));
                 }
             }
             else if ("list".equalsIgnoreCase(args[0]))
             {
-                Collection<ProfileSettingData> collection = RenderProfileConfig.profileData.getProfileList();
+                Collection<File> collection = new ArrayList<>(Arrays.asList(ExtendedConfig.userDir.listFiles()));
 
                 if (collection.isEmpty())
                 {
-                    throw new CommandException("commands.profileiu.list.empty");
+                    throw new CommandException("commands.inprofile.list.empty");
                 }
                 else
                 {
-                    ChatComponentTranslation textcomponenttranslation = new ChatComponentTranslation("commands.profileiu.list.count", new Object[] {Integer.valueOf(collection.size())});
-                    textcomponenttranslation.getChatStyle().setColor(EnumChatFormatting.DARK_GREEN);
-                    sender.addChatMessage(textcomponenttranslation);
+                    int realSize = 0;
 
-                    for (ProfileData.ProfileSettingData data : collection)
+                    for (File file : collection)
                     {
-                        sender.addChatMessage(new ChatComponentTranslation("commands.profileiu.list.entry", new Object[] {data.getProfileName()}));
+                        if (file.getName().endsWith(".dat"))
+                        {
+                            ++realSize;
+                        }
                     }
+
+                    ChatComponentTranslation translation = new ChatComponentTranslation("commands.inprofile.list.count", realSize);
+                    translation.getChatStyle().setColor(EnumChatFormatting.DARK_GREEN);
+                    sender.addChatMessage(translation);
+
+                    collection.forEach(file ->
+                    {
+                        String name = file.getName();
+                        String realName = name.replace(".dat", "");
+                        boolean current = realName.equals(ExtendedConfig.currentProfile);
+
+                        if (name.endsWith(".dat"))
+                        {
+                            sender.addChatMessage(new ChatComponentTranslation("commands.inprofile.list.entry", realName, current ? "- " + EnumChatFormatting.RED + LangUtils.translate("commands.inprofile.current_profile") : ""));
+                        }
+                    });
                 }
             }
             else
             {
-                throw new WrongUsageException("commands.profileiu.usage");
+                throw new WrongUsageException("commands.inprofile.usage");
             }
         }
     }
@@ -166,18 +206,25 @@ public class CommandProfile extends ClientCommandBase
         {
             return CommandBase.getListOfStringsMatchingLastWord(args, "add", "load", "save", "remove", "list");
         }
-        if (args.length == 2)
+        else if (args.length == 2)
         {
             if ("load".equalsIgnoreCase(args[0]) || "remove".equalsIgnoreCase(args[0]) || "save".equalsIgnoreCase(args[0]))
             {
-                Collection<ProfileSettingData> collection = RenderProfileConfig.profileData.getProfileList();
-                List<String> list = new ArrayList<>();
-
-                for (ProfileData.ProfileSettingData data : collection)
+                if (ExtendedConfig.userDir.exists())
                 {
-                    list.add(data.getProfileName());
+                    List<String> list = new LinkedList<>();
+
+                    for (File file : ExtendedConfig.userDir.listFiles())
+                    {
+                        String name = file.getName();
+
+                        if (("load".equalsIgnoreCase(args[0]) || "save".equalsIgnoreCase(args[0]) || !name.equals("default.dat")) && name.endsWith(".dat"))
+                        {
+                            list.add(name.replace(".dat", ""));
+                        }
+                    }
+                    return CommandBase.getListOfStringsMatchingLastWord(args, list);
                 }
-                return CommandBase.getListOfStringsMatchingLastWord(args, list);
             }
         }
         return super.addTabCompletionOptions(sender, args, pos);

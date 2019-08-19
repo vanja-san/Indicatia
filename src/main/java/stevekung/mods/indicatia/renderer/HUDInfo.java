@@ -1,6 +1,6 @@
 package stevekung.mods.indicatia.renderer;
 
-import java.text.SimpleDateFormat;
+import java.text.DateFormat;
 import java.util.*;
 
 import net.minecraft.client.Minecraft;
@@ -14,13 +14,16 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.chunk.Chunk;
-import stevekung.mods.indicatia.config.ConfigManager;
+import net.minecraftforge.common.ForgeVersion;
+import stevekung.mods.indicatia.config.EnumEquipment;
+import stevekung.mods.indicatia.config.EnumPotionStatus;
 import stevekung.mods.indicatia.config.ExtendedConfig;
-import stevekung.mods.indicatia.core.IndicatiaMod;
-import stevekung.mods.indicatia.util.InfoUtil;
-import stevekung.mods.indicatia.util.LangUtil;
+import stevekung.mods.indicatia.utils.ColorUtils;
+import stevekung.mods.indicatia.utils.InfoUtils;
+import stevekung.mods.indicatia.utils.LangUtils;
 
 public class HUDInfo
 {
@@ -29,17 +32,17 @@ public class HUDInfo
     public static String getFPS()
     {
         int fps = Minecraft.getDebugFPS();
-        String color = ColoredFontRenderer.color(ExtendedConfig.FPS_M40_COLOR_R, ExtendedConfig.FPS_M40_COLOR_G, ExtendedConfig.FPS_M40_COLOR_B);
+        String color = ColorUtils.stringToRGB(ExtendedConfig.instance.fpsValueColor).toColoredFont();
 
-        if (fps > 25 && fps <= 40)
+        if (fps >= 26 && fps <= 49)
         {
-            color = ColoredFontRenderer.color(ExtendedConfig.FPS_26_40_COLOR_R, ExtendedConfig.FPS_26_40_COLOR_G, ExtendedConfig.FPS_26_40_COLOR_B);
+            color = ColorUtils.stringToRGB(ExtendedConfig.instance.fps26And49Color).toColoredFont();
         }
         else if (fps <= 25)
         {
-            color = ColoredFontRenderer.color(ExtendedConfig.FPS_L25_COLOR_R, ExtendedConfig.FPS_L25_COLOR_G, ExtendedConfig.FPS_L25_COLOR_B);
+            color = ColorUtils.stringToRGB(ExtendedConfig.instance.fpsLow25Color).toColoredFont();
         }
-        return ColoredFontRenderer.color(ExtendedConfig.FPS_COLOR_R, ExtendedConfig.FPS_COLOR_G, ExtendedConfig.FPS_COLOR_B) + "FPS: " + color + fps;
+        return ColorUtils.stringToRGB(ExtendedConfig.instance.fpsColor).toColoredFont() + "FPS: " + color + fps;
     }
 
     public static String getXYZ(Minecraft mc)
@@ -49,7 +52,7 @@ public class HUDInfo
         int y = pos.getY();
         int z = pos.getZ();
         String nether = mc.thePlayer.dimension == -1 ? "Nether " : "";
-        return ColoredFontRenderer.color(ExtendedConfig.XYZ_COLOR_R, ExtendedConfig.XYZ_COLOR_G, ExtendedConfig.XYZ_COLOR_B) + nether + "XYZ: " + ColoredFontRenderer.color(ExtendedConfig.XYZ_VALUE_COLOR_R, ExtendedConfig.XYZ_VALUE_COLOR_G, ExtendedConfig.XYZ_VALUE_COLOR_B) + x + " " + y + " " + z;
+        return ColorUtils.stringToRGB(ExtendedConfig.instance.xyzColor).toColoredFont() + nether + "XYZ: " + ColorUtils.stringToRGB(ExtendedConfig.instance.xyzValueColor).toColoredFont() + x + " " + y + " " + z;
     }
 
     public static String getOverworldXYZFromNether(Minecraft mc)
@@ -58,7 +61,7 @@ public class HUDInfo
         int x = pos.getX();
         int y = pos.getY();
         int z = pos.getZ();
-        return ColoredFontRenderer.color(ExtendedConfig.XYZ_COLOR_R, ExtendedConfig.XYZ_COLOR_G, ExtendedConfig.XYZ_COLOR_B) + "Overworld XYZ: " + ColoredFontRenderer.color(ExtendedConfig.XYZ_VALUE_COLOR_R, ExtendedConfig.XYZ_VALUE_COLOR_G, ExtendedConfig.XYZ_VALUE_COLOR_B) + x * 8 + " " + y + " " + z * 8;
+        return ColorUtils.stringToRGB(ExtendedConfig.instance.xyzColor).toColoredFont() + "Overworld XYZ: " + ColorUtils.stringToRGB(ExtendedConfig.instance.xyzValueColor).toColoredFont() + x * 8 + " " + y + " " + z * 8;
     }
 
     public static String getBiome(Minecraft mc)
@@ -71,7 +74,7 @@ public class HUDInfo
             if (!chunk.isEmpty())
             {
                 String biomeName = chunk.getBiome(pos, mc.theWorld.getWorldChunkManager()).biomeName.replaceAll("(\\p{Ll})(\\p{Lu})", "$1 $2");
-                return ColoredFontRenderer.color(ExtendedConfig.BIOME_COLOR_R, ExtendedConfig.BIOME_COLOR_G, ExtendedConfig.BIOME_COLOR_B) + "Biome: " + ColoredFontRenderer.color(ExtendedConfig.BIOME_VALUE_COLOR_R, ExtendedConfig.BIOME_VALUE_COLOR_G, ExtendedConfig.BIOME_VALUE_COLOR_B) + biomeName;
+                return ColorUtils.stringToRGB(ExtendedConfig.instance.biomeColor).toColoredFont() + "Biome: " + ColorUtils.stringToRGB(ExtendedConfig.instance.biomeValueColor).toColoredFont() + biomeName;
             }
             else
             {
@@ -86,23 +89,23 @@ public class HUDInfo
 
     public static String getPing()
     {
-        int responseTime = InfoUtil.INSTANCE.getPing();
-        return ColoredFontRenderer.color(ExtendedConfig.PING_COLOR_R, ExtendedConfig.PING_COLOR_G, ExtendedConfig.PING_COLOR_B) + "Ping: " + HUDInfo.getResponseTimeColor(responseTime) + responseTime + "ms";
+        int responseTime = InfoUtils.INSTANCE.getPing();
+        return ColorUtils.stringToRGB(ExtendedConfig.instance.pingColor).toColoredFont() + "Ping: " + HUDInfo.getResponseTimeColor(responseTime) + responseTime + "ms";
     }
 
     public static String getPingToSecond()
     {
-        double responseTime = InfoUtil.INSTANCE.getPing() / 1000D;
-        return ColoredFontRenderer.color(ExtendedConfig.PING_COLOR_R, ExtendedConfig.PING_COLOR_G, ExtendedConfig.PING_COLOR_B) + "Delay: " + HUDInfo.getResponseTimeColor((int) (responseTime * 1000D)) + responseTime + "s";
+        double responseTime = InfoUtils.INSTANCE.getPing() / 1000D;
+        return ColorUtils.stringToRGB(ExtendedConfig.instance.pingToSecondColor).toColoredFont() + "Delay: " + HUDInfo.getResponseTimeColor((int) (responseTime * 1000D)) + responseTime + "s";
     }
 
     public static String getServerIP(Minecraft mc)
     {
-        String ip = ColoredFontRenderer.color(ExtendedConfig.IP_COLOR_R, ExtendedConfig.IP_COLOR_G, ExtendedConfig.IP_COLOR_B) + "IP: " + "" + ColoredFontRenderer.color(ExtendedConfig.IP_VALUE_COLOR_R, ExtendedConfig.IP_VALUE_COLOR_G, ExtendedConfig.IP_VALUE_COLOR_B) + mc.getCurrentServerData().serverIP;
+        String ip = ColorUtils.stringToRGB(ExtendedConfig.instance.serverIPColor).toColoredFont() + "IP: " + "" + ColorUtils.stringToRGB(ExtendedConfig.instance.serverIPValueColor).toColoredFont() + mc.getCurrentServerData().serverIP;
 
-        if (ConfigManager.enableServerIPMCVersion)
+        if (ExtendedConfig.instance.serverIPMCVersion)
         {
-            ip = ip + "/" + IndicatiaMod.MC_VERSION;
+            ip = ip + "/" + ForgeVersion.mcVersion;
         }
         return ip;
     }
@@ -157,43 +160,37 @@ public class HUDInfo
             direction = "Unknown";
             break;
         }
-        return ColoredFontRenderer.color(ExtendedConfig.DIRECTION_COLOR_R, ExtendedConfig.DIRECTION_COLOR_G, ExtendedConfig.DIRECTION_COLOR_B) + "Direction: " + ColoredFontRenderer.color(ExtendedConfig.DIRECTION_VALUE_COLOR_R, ExtendedConfig.DIRECTION_VALUE_COLOR_G, ExtendedConfig.DIRECTION_VALUE_COLOR_B) + direction;
-    }
-
-    public static String getCPS()
-    {
-        return ColoredFontRenderer.color(ExtendedConfig.CPS_COLOR_R, ExtendedConfig.CPS_COLOR_G, ExtendedConfig.CPS_COLOR_B) + "CPS: " + "" + ColoredFontRenderer.color(ExtendedConfig.CPS_VALUE_COLOR_R, ExtendedConfig.CPS_VALUE_COLOR_G, ExtendedConfig.CPS_VALUE_COLOR_B) + InfoUtil.INSTANCE.getCPS();
-    }
-
-    public static String getRCPS()
-    {
-        return ColoredFontRenderer.color(ExtendedConfig.RCPS_COLOR_R, ExtendedConfig.RCPS_COLOR_G, ExtendedConfig.RCPS_COLOR_B) + "RCPS: " + "" + ColoredFontRenderer.color(ExtendedConfig.RCPS_VALUE_COLOR_R, ExtendedConfig.RCPS_VALUE_COLOR_G, ExtendedConfig.RCPS_VALUE_COLOR_B) + InfoUtil.INSTANCE.getRCPS();
+        return ColorUtils.stringToRGB(ExtendedConfig.instance.directionColor).toColoredFont() + "Direction: " + ColorUtils.stringToRGB(ExtendedConfig.instance.directionValueColor).toColoredFont() + direction;
     }
 
     public static String getCurrentTime()
     {
-        String currentTime = new SimpleDateFormat("d/M/yyyy HH:mm:ss a", Locale.ENGLISH).format(new Date());
-        return currentTime = "Time: " + currentTime.replace("\u0e2b\u0e25\u0e31\u0e07\u0e40\u0e17\u0e35\u0e48\u0e22\u0e07", "PM").replace("\u0e01\u0e48\u0e2d\u0e19\u0e40\u0e17\u0e35\u0e48\u0e22\u0e07", "AM");
+        Date date = new Date();
+        boolean isThai = Calendar.getInstance().getTimeZone().getID().equals("Asia/Bangkok");
+        String dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM, isThai ? new Locale("th", "TH") : Locale.getDefault()).format(date);
+        String timeFormat = DateFormat.getTimeInstance(DateFormat.MEDIUM, isThai ? new Locale("th", "TH") : Locale.getDefault()).format(date);
+        String currentTime = ColorUtils.stringToRGB(ExtendedConfig.instance.realTimeDDMMYYValueColor).toColoredFont() + dateFormat + " " + ColorUtils.stringToRGB(ExtendedConfig.instance.realTimeHHMMSSValueColor).toColoredFont() + timeFormat;
+        return ColorUtils.stringToRGB(ExtendedConfig.instance.realTimeColor).toColoredFont() + "Time: " + currentTime;
     }
 
     public static String getCurrentGameTime(Minecraft mc)
     {
-        return InfoUtil.INSTANCE.getCurrentGameTime(mc.theWorld.getWorldTime() % 24000);
+        return InfoUtils.INSTANCE.getCurrentGameTime(mc.theWorld.getWorldTime() % 24000);
     }
 
     public static String getGameWeather(Minecraft mc)
     {
         String weather = mc.theWorld.isRaining() && !mc.theWorld.isThundering() ? "Raining" : mc.theWorld.isRaining() && mc.theWorld.isThundering() ? "Thunder" : "";
-        return "Weather: " + weather;
+        return ColorUtils.stringToRGB(ExtendedConfig.instance.gameWeatherColor).toColoredFont() + "Weather: " + ColorUtils.stringToRGB(ExtendedConfig.instance.gameWeatherValueColor).toColoredFont() + weather;
     }
 
     public static void renderHorizontalEquippedItems(Minecraft mc)
     {
-        String ordering = ConfigManager.equipmentOrdering;
+        String ordering = EnumEquipment.Ordering.getById(ExtendedConfig.instance.equipmentOrdering);
         ScaledResolution res = new ScaledResolution(mc);
-        boolean isRightSide = ConfigManager.equipmentPosition.equals("right");
+        boolean isRightSide = EnumEquipment.Position.getById(ExtendedConfig.instance.equipmentPosition).equalsIgnoreCase("right");
         int baseXOffset = 2;
-        int baseYOffset = ExtendedConfig.ARMOR_STATUS_OFFSET;
+        int baseYOffset = ExtendedConfig.instance.armorHUDYOffset;
         ItemStack mainHandItem = mc.thePlayer.getCurrentEquippedItem();
         List<HorizontalEquipment> element = new ArrayList<>();
         int prevX = 0;
@@ -255,15 +252,15 @@ public class HUDInfo
 
     public static void renderVerticalEquippedItems(Minecraft mc)
     {
-        String ordering = ConfigManager.equipmentOrdering;
-        String status = ConfigManager.equipmentStatus;
+        String ordering = EnumEquipment.Ordering.getById(ExtendedConfig.instance.equipmentOrdering);
+        String status = EnumEquipment.Status.getById(ExtendedConfig.instance.equipmentStatus);
         List<ItemStack> itemStackList = new ArrayList<>();
         List<String> itemStatusList = new ArrayList<>();
         List<String> arrowCountList = new ArrayList<>();
         ScaledResolution res = new ScaledResolution(mc);
-        boolean isRightSide = ConfigManager.equipmentPosition.equals("right");
+        boolean isRightSide = EnumEquipment.Position.getById(ExtendedConfig.instance.equipmentPosition).equalsIgnoreCase("right");
         int baseXOffset = isRightSide ? res.getScaledWidth() - 18 : 2;
-        int baseYOffset = ExtendedConfig.ARMOR_STATUS_OFFSET;
+        int baseYOffset = ExtendedConfig.instance.armorHUDYOffset;
         ItemStack mainHandItem = mc.thePlayer.getHeldItem();
         int arrowCount = HUDInfo.getInventoryArrowCount(mc.thePlayer.inventory);
 
@@ -340,7 +337,6 @@ public class HUDInfo
         for (int i = 0; i < itemStackList.size(); ++i)
         {
             ItemStack itemStack = itemStackList.get(i);
-            mc.mcProfiler.startSection("item_stack_render");
 
             if (!itemStackList.isEmpty())
             {
@@ -348,7 +344,6 @@ public class HUDInfo
                 HUDInfo.renderItem(itemStack, baseXOffset, yOffset);
                 yOffset += 16;
             }
-            mc.mcProfiler.endSection();
         }
 
         float yOffset = 0;
@@ -358,15 +353,13 @@ public class HUDInfo
         for (int i = 0; i < itemStatusList.size(); ++i)
         {
             String string = itemStatusList.get(i);
-            fontHeight = IndicatiaMod.coloredFontRenderer.FONT_HEIGHT + 7.0625F;
+            fontHeight = mc.fontRendererObj.FONT_HEIGHT + 7.0625F;
 
             if (!string.isEmpty())
             {
                 yOffset = baseYOffset + 4 + fontHeight * i;
-                mc.mcProfiler.startSection("armor_durability_info");
                 float xOffset = isRightSide ? res.getScaledWidth() - mc.fontRendererObj.getStringWidth(string) - 20.0625F : baseXOffset + 18.0625F;
-                IndicatiaMod.coloredFontRenderer.drawString(ColoredFontRenderer.color(ExtendedConfig.EQUIPMENT_COLOR_R, ExtendedConfig.EQUIPMENT_COLOR_G, ExtendedConfig.EQUIPMENT_COLOR_B) + string, xOffset, yOffset, 16777215, true);
-                mc.mcProfiler.endSection();
+                mc.fontRendererObj.drawString(ColorUtils.stringToRGB(ExtendedConfig.instance.equipmentStatusColor).toColoredFont() + string, xOffset, yOffset, 16777215, true);
             }
         }
 
@@ -378,13 +371,9 @@ public class HUDInfo
 
             if (!string.isEmpty())
             {
-                mc.mcProfiler.startSection("arrow_count");
                 GlStateManager.disableDepth();
-                IndicatiaMod.coloredFontRenderer.setUnicodeFlag(true);
-                IndicatiaMod.coloredFontRenderer.drawString(ColoredFontRenderer.color(ExtendedConfig.ARROW_COUNT_COLOR_R, ExtendedConfig.ARROW_COUNT_COLOR_G, ExtendedConfig.ARROW_COUNT_COLOR_B) + string, isRightSide ? res.getScaledWidth() - mc.fontRendererObj.getStringWidth(string) - 2.0625F : baseXOffset + 8.0625F, yOffset, 16777215, true);
-                IndicatiaMod.coloredFontRenderer.setUnicodeFlag(false);
+                ColorUtils.unicodeFontRenderer.drawString(ColorUtils.stringToRGB(ExtendedConfig.instance.arrowCountColor).toColoredFont() + string, isRightSide ? res.getScaledWidth() - ColorUtils.unicodeFontRenderer.getStringWidth(string) - 2.0625F : baseXOffset + 8.0625F, yOffset, 16777215, true);
                 GlStateManager.enableDepth();
-                mc.mcProfiler.endSection();
             }
         }
     }
@@ -399,7 +388,7 @@ public class HUDInfo
         ScaledResolution res = new ScaledResolution(mc);
         ItemStack mainHandItem = mc.thePlayer.getHeldItem();
         int arrowCount = HUDInfo.getInventoryArrowCount(mc.thePlayer.inventory);
-        String status = ConfigManager.equipmentStatus;
+        String status = EnumEquipment.Status.getById(ExtendedConfig.instance.equipmentStatus);
 
         for (int i = 2; i <= 3; i++)
         {
@@ -442,7 +431,6 @@ public class HUDInfo
         for (int i = 0; i < leftItemStackList.size(); ++i)
         {
             ItemStack itemStack = leftItemStackList.get(i);
-            mc.mcProfiler.startSection("item_stack_render");
 
             if (!leftItemStackList.isEmpty())
             {
@@ -450,14 +438,12 @@ public class HUDInfo
                 int yOffset = res.getScaledHeight() - 16 * i - 18;
                 HUDInfo.renderItem(itemStack, baseXOffset, yOffset);
             }
-            mc.mcProfiler.endSection();
         }
 
         // right item render stuff
         for (int i = 0; i < rightItemStackList.size(); ++i)
         {
             ItemStack itemStack = rightItemStackList.get(i);
-            mc.mcProfiler.startSection("item_stack_render");
 
             if (!rightItemStackList.isEmpty())
             {
@@ -465,30 +451,25 @@ public class HUDInfo
                 int yOffset = res.getScaledHeight() - 16 * i - 18;
                 HUDInfo.renderItem(itemStack, baseXOffset, yOffset);
             }
-            mc.mcProfiler.endSection();
         }
 
         // left durability/item count stuff
         for (int i = 0; i < leftItemStatusList.size(); ++i)
         {
             String string = leftItemStatusList.get(i);
-            mc.mcProfiler.startSection("armor_durability_info");
             int stringWidth = mc.fontRendererObj.getStringWidth(string);
             float xOffset = res.getScaledWidth() / 2 - 114 - stringWidth;
             int yOffset = res.getScaledHeight() - 16 * i - 14;
-            IndicatiaMod.coloredFontRenderer.drawString(ColoredFontRenderer.color(ExtendedConfig.EQUIPMENT_COLOR_R, ExtendedConfig.EQUIPMENT_COLOR_G, ExtendedConfig.EQUIPMENT_COLOR_B) + string, xOffset, yOffset, 16777215, true);
-            mc.mcProfiler.endSection();
+            mc.fontRendererObj.drawString(ColorUtils.stringToRGB(ExtendedConfig.instance.equipmentStatusColor).toColoredFont() + string, xOffset, yOffset, 16777215, true);
         }
 
         // right durability/item count stuff
         for (int i = 0; i < rightItemStatusList.size(); ++i)
         {
             String string = rightItemStatusList.get(i);
-            mc.mcProfiler.startSection("armor_durability_info");
             float xOffset = res.getScaledWidth() / 2 + 114;
             int yOffset = res.getScaledHeight() - 16 * i - 14;
-            IndicatiaMod.coloredFontRenderer.drawString(ColoredFontRenderer.color(ExtendedConfig.EQUIPMENT_COLOR_R, ExtendedConfig.EQUIPMENT_COLOR_G, ExtendedConfig.EQUIPMENT_COLOR_B) + string, xOffset, yOffset, 16777215, true);
-            mc.mcProfiler.endSection();
+            mc.fontRendererObj.drawString(ColorUtils.stringToRGB(ExtendedConfig.instance.equipmentStatusColor).toColoredFont() + string, xOffset, yOffset, 16777215, true);
         }
 
         // left arrow count stuff
@@ -501,185 +482,133 @@ public class HUDInfo
 
             if (!string.isEmpty())
             {
-                mc.mcProfiler.startSection("arrow_count");
                 GlStateManager.disableDepth();
-                IndicatiaMod.coloredFontRenderer.setUnicodeFlag(true);
-                IndicatiaMod.coloredFontRenderer.drawString(ColoredFontRenderer.color(ExtendedConfig.ARROW_COUNT_COLOR_R, ExtendedConfig.ARROW_COUNT_COLOR_G, ExtendedConfig.ARROW_COUNT_COLOR_B) + string, xOffset, yOffset, 16777215, true);
-                IndicatiaMod.coloredFontRenderer.setUnicodeFlag(false);
+                ColorUtils.unicodeFontRenderer.drawString(ColorUtils.stringToRGB(ExtendedConfig.instance.arrowCountColor).toColoredFont() + string, xOffset, yOffset, 16777215, true);
                 GlStateManager.enableDepth();
-                mc.mcProfiler.endSection();
             }
         }
     }
 
-    public static void renderPotionStatusHUD(Minecraft mc)
+    public static void renderPotionHUD(Minecraft mc)
     {
-        if (ConfigManager.enablePotionStatusHUD)
+        boolean iconAndTime = EnumPotionStatus.Style.getById(ExtendedConfig.instance.potionHUDStyle).equalsIgnoreCase("icon_and_time");
+        boolean right = EnumPotionStatus.Position.getById(ExtendedConfig.instance.potionHUDPosition).equalsIgnoreCase("right");
+        boolean showIcon = ExtendedConfig.instance.potionHUDIcon;
+        String potionPos = EnumPotionStatus.Position.getById(ExtendedConfig.instance.potionHUDPosition);
+        ScaledResolution scaledRes = new ScaledResolution(mc);
+        int size = ExtendedConfig.instance.maximumPotionDisplay;
+        int length = ExtendedConfig.instance.potionLengthYOffset;
+        int lengthOverlap = ExtendedConfig.instance.potionLengthYOffsetOverlap;
+        Collection<PotionEffect> collection = mc.thePlayer.getActivePotionEffects();
+        int xPotion = 0;
+        int yPotion = 0;
+
+        if (potionPos.equalsIgnoreCase("hotbar_left"))
         {
-            boolean iconAndTime = ConfigManager.potionStatusHUDStyle.equals("icon_and_time");
-            boolean showIcon = ConfigManager.enablePotionHUDIcon;
-            ScaledResolution scaledRes = new ScaledResolution(mc);
-            int size = ExtendedConfig.MAX_POTION_DISPLAY;
-            int length = ExtendedConfig.POTION_LENGTH_Y_OFFSET;
-            int lengthOverlap = ExtendedConfig.POTION_LENGTH_Y_OFFSET_OVERLAP;
-            Collection<PotionEffect> collection = mc.thePlayer.getActivePotionEffects();
+            xPotion = scaledRes.getScaledWidth() / 2 - 91 - 35;
+            yPotion = scaledRes.getScaledHeight() - 46;
+        }
+        else if (potionPos.equalsIgnoreCase("hotbar_right"))
+        {
+            xPotion = scaledRes.getScaledWidth() / 2 + 91 - 20;
+            yPotion = scaledRes.getScaledHeight() - 42;
+        }
+        else
+        {
+            xPotion = right ? scaledRes.getScaledWidth() - 32 : -24;
+            yPotion = scaledRes.getScaledHeight() - 220 + ExtendedConfig.instance.potionHUDYOffset + 90;
+        }
 
-            if (ConfigManager.potionStatusHUDPosition.equals("hotbar_left"))
+        if (!collection.isEmpty())
+        {
+            if (collection.size() > size)
             {
-                int xPotion = scaledRes.getScaledWidth() / 2 - 91 - 35;
-                int yPotion = scaledRes.getScaledHeight() - 46;
-
-                if (!collection.isEmpty())
-                {
-                    if (collection.size() > size)
-                    {
-                        length = lengthOverlap / (collection.size() - 1);
-                    }
-
-                    for (PotionEffect potioneffect : mc.thePlayer.getActivePotionEffects())
-                    {
-                        Potion potion = Potion.potionTypes[potioneffect.getPotionID()];
-                        String s = Potion.getDurationString(potioneffect);
-                        String s1 = LangUtil.translate(potion.getName());
-                        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-
-                        if (showIcon)
-                        {
-                            mc.getTextureManager().bindTexture(HUDInfo.inventoryBackground);
-                            int i1 = potion.getStatusIconIndex();
-                            mc.ingameGUI.drawTexturedModalRect(xPotion + 12, yPotion + 6, 0 + i1 % 8 * 18, 198 + i1 / 8 * 18, 18, 18);
-                        }
-
-                        if (potioneffect.getAmplifier() == 1)
-                        {
-                            s1 = s1 + " " + LangUtil.translate("enchantment.level.2");
-                        }
-                        else if (potioneffect.getAmplifier() == 2)
-                        {
-                            s1 = s1 + " " + LangUtil.translate("enchantment.level.3");
-                        }
-                        else if (potioneffect.getAmplifier() == 3)
-                        {
-                            s1 = s1 + " " + LangUtil.translate("enchantment.level.4");
-                        }
-                        int stringwidth1 = IndicatiaMod.coloredFontRenderer.getStringWidth(s);
-                        int stringwidth2 = IndicatiaMod.coloredFontRenderer.getStringWidth(s1);
-
-                        if (!iconAndTime)
-                        {
-                            IndicatiaMod.coloredFontRenderer.drawString(s1, showIcon ? xPotion + 8 - stringwidth2 : xPotion + 28 - stringwidth2, yPotion + 6, ConfigManager.alternatePotionHUDTextColor ? InfoUtil.INSTANCE.getAlternatePotionHUDTextColor(potion) : 16777215, true);
-                        }
-                        IndicatiaMod.coloredFontRenderer.drawString(s, showIcon ? xPotion + 8 - stringwidth1 : xPotion + 28 - stringwidth1, iconAndTime ? yPotion + 11 : yPotion + 16, ConfigManager.alternatePotionHUDTextColor ? InfoUtil.INSTANCE.getAlternatePotionHUDTextColor(potion) : 16777215, true);
-                        yPotion -= length;
-                    }
-                }
+                length = lengthOverlap / (collection.size() - 1);
             }
-            else if (ConfigManager.potionStatusHUDPosition.equals("hotbar_right"))
+
+            for (PotionEffect potioneffect : mc.thePlayer.getActivePotionEffects())
             {
-                int xPotion = scaledRes.getScaledWidth() / 2 + 91 - 20;
-                int yPotion = scaledRes.getScaledHeight() - 42;
+                float alpha = 1.0F;
+                Potion potion = Potion.potionTypes[potioneffect.getPotionID()];
+                String s = Potion.getDurationString(potioneffect);
+                String s1 = LangUtils.translate(potion.getName());
 
-                if (!collection.isEmpty())
+                if (!potioneffect.getIsAmbient() && potioneffect.getDuration() <= 200)
                 {
-                    if (collection.size() > size)
+                    int j1 = 10 - potioneffect.getDuration() / 20;
+                    alpha = MathHelper.clamp_float(potioneffect.getDuration() / 10.0F / 5.0F * 0.5F, 0.0F, 0.5F) + MathHelper.cos(potioneffect.getDuration() * (float)Math.PI / 5.0F) * MathHelper.clamp_float(j1 / 10.0F * 0.25F, 0.0F, 0.25F);
+                }
+
+                GlStateManager.enableBlend();
+                GlStateManager.color(1.0F, 1.0F, 1.0F, alpha);
+
+                if (showIcon)
+                {
+                    mc.getTextureManager().bindTexture(HUDInfo.inventoryBackground);
+                    int index = potion.getStatusIconIndex();
+
+                    if (potionPos.equalsIgnoreCase("hotbar_left"))
                     {
-                        length = lengthOverlap / (collection.size() - 1);
+                        mc.ingameGUI.drawTexturedModalRect(xPotion + 12, yPotion + 6, index % 8 * 18, 198 + index / 8 * 18, 18, 18);
                     }
-
-                    for (PotionEffect potioneffect : mc.thePlayer.getActivePotionEffects())
+                    else if (potionPos.equalsIgnoreCase("hotbar_right"))
                     {
-                        Potion potion = Potion.potionTypes[potioneffect.getPotionID()];
-                        String s = Potion.getDurationString(potioneffect);
-                        String s1 = LangUtil.translate(potion.getName());
-                        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-
-                        if (showIcon)
-                        {
-                            mc.getTextureManager().bindTexture(HUDInfo.inventoryBackground);
-                            int i1 = potion.getStatusIconIndex();
-                            mc.ingameGUI.drawTexturedModalRect(xPotion + 24, yPotion + 6, 0 + i1 % 8 * 18, 198 + i1 / 8 * 18, 18, 18);
-                        }
-
-                        if (potioneffect.getAmplifier() == 1)
-                        {
-                            s1 = s1 + " " + LangUtil.translate("enchantment.level.2");
-                        }
-                        else if (potioneffect.getAmplifier() == 2)
-                        {
-                            s1 = s1 + " " + LangUtil.translate("enchantment.level.3");
-                        }
-                        else if (potioneffect.getAmplifier() == 3)
-                        {
-                            s1 = s1 + " " + LangUtil.translate("enchantment.level.4");
-                        }
-
-                        if (!iconAndTime)
-                        {
-                            IndicatiaMod.coloredFontRenderer.drawString(s1, showIcon ? xPotion + 46 : xPotion + 28, yPotion + 6, ConfigManager.alternatePotionHUDTextColor ? InfoUtil.INSTANCE.getAlternatePotionHUDTextColor(potion) : 16777215, true);
-                        }
-                        IndicatiaMod.coloredFontRenderer.drawString(s, showIcon ? xPotion + 46 : xPotion + 28, iconAndTime ? yPotion + 11 : yPotion + 16, ConfigManager.alternatePotionHUDTextColor ? InfoUtil.INSTANCE.getAlternatePotionHUDTextColor(potion) : 16777215, true);
-                        yPotion -= length;
+                        mc.ingameGUI.drawTexturedModalRect(xPotion + 24, yPotion + 6, index % 8 * 18, 198 + index / 8 * 18, 18, 18);
+                    }
+                    else
+                    {
+                        mc.ingameGUI.drawTexturedModalRect(right ? xPotion + 12 : xPotion + 28, yPotion + 6, index % 8 * 18, 198 + index / 8 * 18, 18, 18);
                     }
                 }
-            }
-            else
-            {
-                boolean right = ConfigManager.potionStatusHUDPosition.equals("right");
-                int xPotion = right ? scaledRes.getScaledWidth() - 32 : -24;
-                int yPotion = scaledRes.getScaledHeight() - 220 + ExtendedConfig.POTION_STATUS_OFFSET + 90;
 
-                if (!collection.isEmpty())
+                if (potioneffect.getAmplifier() == 1)
                 {
-                    if (collection.size() > size)
-                    {
-                        length = lengthOverlap / (collection.size() - 1);
-                    }
-
-                    for (PotionEffect potioneffect : mc.thePlayer.getActivePotionEffects())
-                    {
-                        Potion potion = Potion.potionTypes[potioneffect.getPotionID()];
-                        String s = Potion.getDurationString(potioneffect);
-                        String s1 = LangUtil.translate(potion.getName());
-                        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-
-                        if (showIcon)
-                        {
-                            mc.getTextureManager().bindTexture(HUDInfo.inventoryBackground);
-                            int i1 = potion.getStatusIconIndex();
-                            mc.ingameGUI.drawTexturedModalRect(right ? xPotion + 12 : xPotion + 28, yPotion + 6, 0 + i1 % 8 * 18, 198 + i1 / 8 * 18, 18, 18);
-                        }
-
-                        if (potioneffect.getAmplifier() == 1)
-                        {
-                            s1 = s1 + " " + LangUtil.translate("enchantment.level.2");
-                        }
-                        else if (potioneffect.getAmplifier() == 2)
-                        {
-                            s1 = s1 + " " + LangUtil.translate("enchantment.level.3");
-                        }
-                        else if (potioneffect.getAmplifier() == 3)
-                        {
-                            s1 = s1 + " " + LangUtil.translate("enchantment.level.4");
-                        }
-
-                        int stringwidth1 = IndicatiaMod.coloredFontRenderer.getStringWidth(s);
-                        int stringwidth2 = IndicatiaMod.coloredFontRenderer.getStringWidth(s1);
-
-                        if (!iconAndTime)
-                        {
-                            IndicatiaMod.coloredFontRenderer.drawString(s1, right ? showIcon ? xPotion + 8 - stringwidth2 : xPotion + 28 - stringwidth2 : showIcon ? xPotion + 50 : xPotion + 28, yPotion + 6, ConfigManager.alternatePotionHUDTextColor ? InfoUtil.INSTANCE.getAlternatePotionHUDTextColor(potion) : 16777215, true);
-                        }
-                        IndicatiaMod.coloredFontRenderer.drawString(s, right ? showIcon ? xPotion + 8 - stringwidth1 : xPotion + 28 - stringwidth1 : showIcon ? xPotion + 50 : xPotion + 28, iconAndTime ? yPotion + 11 : yPotion + 16, ConfigManager.alternatePotionHUDTextColor ? InfoUtil.INSTANCE.getAlternatePotionHUDTextColor(potion) : 16777215, true);
-                        yPotion += length;
-                    }
+                    s1 = s1 + " " + LangUtils.translate("enchantment.level.2");
                 }
+                else if (potioneffect.getAmplifier() == 2)
+                {
+                    s1 = s1 + " " + LangUtils.translate("enchantment.level.3");
+                }
+                else if (potioneffect.getAmplifier() == 3)
+                {
+                    s1 = s1 + " " + LangUtils.translate("enchantment.level.4");
+                }
+
+                int stringwidth1 = mc.fontRendererObj.getStringWidth(s);
+                int stringwidth2 = mc.fontRendererObj.getStringWidth(s1);
+
+                if (potionPos.equalsIgnoreCase("hotbar_left"))
+                {
+                    if (!iconAndTime)
+                    {
+                        mc.fontRendererObj.drawString(s1, showIcon ? xPotion + 8 - stringwidth2 : xPotion + 28 - stringwidth2, yPotion + 6, ExtendedConfig.instance.alternatePotionHUDTextColor ? potion.getLiquidColor() : 16777215, true);
+                    }
+                    mc.fontRendererObj.drawString(s, showIcon ? xPotion + 8 - stringwidth1 : xPotion + 28 - stringwidth1, iconAndTime ? yPotion + 11 : yPotion + 16, ExtendedConfig.instance.alternatePotionHUDTextColor ? potion.getLiquidColor() : 16777215, true);
+                }
+                else if (potionPos.equalsIgnoreCase("hotbar_right"))
+                {
+                    if (!iconAndTime)
+                    {
+                        mc.fontRendererObj.drawString(s1, showIcon ? xPotion + 46 : xPotion + 28, yPotion + 6, ExtendedConfig.instance.alternatePotionHUDTextColor ? potion.getLiquidColor() : 16777215, true);
+                    }
+                    mc.fontRendererObj.drawString(s, showIcon ? xPotion + 46 : xPotion + 28, iconAndTime ? yPotion + 11 : yPotion + 16, ExtendedConfig.instance.alternatePotionHUDTextColor ? potion.getLiquidColor() : 16777215, true);
+                }
+                else
+                {
+                    if (!iconAndTime)
+                    {
+                        mc.fontRendererObj.drawString(s1, right ? showIcon ? xPotion + 8 - stringwidth2 : xPotion + 28 - stringwidth2 : showIcon ? xPotion + 50 : xPotion + 28, yPotion + 6, ExtendedConfig.instance.alternatePotionHUDTextColor ? potion.getLiquidColor() : 16777215, true);
+                    }
+                    mc.fontRendererObj.drawString(s, right ? showIcon ? xPotion + 8 - stringwidth1 : xPotion + 28 - stringwidth1 : showIcon ? xPotion + 50 : xPotion + 28, iconAndTime ? yPotion + 11 : yPotion + 16, ExtendedConfig.instance.alternatePotionHUDTextColor ? potion.getLiquidColor() : 16777215, true);
+                }
+                yPotion -= length;
             }
         }
     }
 
     static String getArmorDurabilityStatus(ItemStack itemStack)
     {
-        String status = ConfigManager.equipmentStatus;
+        String status = EnumEquipment.Status.getById(ExtendedConfig.instance.equipmentStatus);
 
         switch (status)
         {
@@ -704,19 +633,19 @@ public class HUDInfo
     {
         if (responseTime >= 200 && responseTime < 300)
         {
-            return ColoredFontRenderer.color(ExtendedConfig.PING_200_300_COLOR_R, ExtendedConfig.PING_200_300_COLOR_G, ExtendedConfig.PING_200_300_COLOR_B);
+            return ColorUtils.stringToRGB(ExtendedConfig.instance.ping200And300Color).toColoredFont();
         }
         else if (responseTime >= 300 && responseTime < 500)
         {
-            return ColoredFontRenderer.color(ExtendedConfig.PING_300_500_COLOR_R, ExtendedConfig.PING_300_500_COLOR_G, ExtendedConfig.PING_300_500_COLOR_B);
+            return ColorUtils.stringToRGB(ExtendedConfig.instance.ping300And500Color).toColoredFont();
         }
         else if (responseTime >= 500)
         {
-            return ColoredFontRenderer.color(ExtendedConfig.PING_M500_COLOR_R, ExtendedConfig.PING_M500_COLOR_G, ExtendedConfig.PING_M500_COLOR_B);
+            return ColorUtils.stringToRGB(ExtendedConfig.instance.pingMax500Color).toColoredFont();
         }
         else
         {
-            return ColoredFontRenderer.color(ExtendedConfig.PING_L200_COLOR_R, ExtendedConfig.PING_L200_COLOR_G, ExtendedConfig.PING_L200_COLOR_B);
+            return ColorUtils.stringToRGB(ExtendedConfig.instance.pingValueColor).toColoredFont();
         }
     }
 
@@ -726,7 +655,7 @@ public class HUDInfo
         GlStateManager.enableRescaleNormal();
         GlStateManager.enableBlend();
         GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
-        IndicatiaMod.MC.getRenderItem().renderItemAndEffectIntoGUI(itemStack, x, y);
+        Minecraft.getMinecraft().getRenderItem().renderItemAndEffectIntoGUI(itemStack, x, y);
         GlStateManager.disableRescaleNormal();
         GlStateManager.disableBlend();
         RenderHelper.disableStandardItemLighting();
@@ -739,7 +668,7 @@ public class HUDInfo
             GlStateManager.enableColorMaterial();
             GlStateManager.disableLighting();
             GlStateManager.enableCull();
-            IndicatiaMod.MC.getRenderItem().renderItemOverlays(IndicatiaMod.coloredFontRenderer, itemStack, x, y);
+            Minecraft.getMinecraft().getRenderItem().renderItemOverlays(Minecraft.getMinecraft().fontRendererObj, itemStack, x, y);
             GlStateManager.blendFunc(770, 771);
             GlStateManager.disableLighting();
         }

@@ -9,8 +9,8 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import stevekung.mods.indicatia.util.MojangServerStatus;
-import stevekung.mods.indicatia.util.MojangStatusChecker;
+import stevekung.mods.indicatia.utils.MojangServerStatus;
+import stevekung.mods.indicatia.utils.MojangStatusChecker;
 
 @SideOnly(Side.CLIENT)
 public class GuiMojangStatusChecker extends GuiScreen
@@ -65,7 +65,7 @@ public class GuiMojangStatusChecker extends GuiScreen
             {
                 try
                 {
-                    for (MojangStatusChecker checker : MojangStatusChecker.valuesCached())
+                    for (MojangStatusChecker checker : MojangStatusChecker.values)
                     {
                         MojangServerStatus status = checker.getServiceStatus();
                         GuiMojangStatusChecker.statusList.add(checker.getName() + ": " + status.getColor() + status.getStatus());
