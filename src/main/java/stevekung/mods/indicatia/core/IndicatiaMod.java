@@ -27,6 +27,7 @@ import stevekung.mods.indicatia.config.ConfigManagerIN;
 import stevekung.mods.indicatia.config.ExtendedConfig;
 import stevekung.mods.indicatia.event.ClientEventHandler;
 import stevekung.mods.indicatia.event.HUDRenderEventHandler;
+import stevekung.mods.indicatia.event.HypixelEventHandler;
 import stevekung.mods.indicatia.event.IndicatiaEventHandler;
 import stevekung.mods.indicatia.gui.GuiIndicatiaChat;
 import stevekung.mods.indicatia.handler.KeyBindingHandler;
@@ -64,6 +65,7 @@ public class IndicatiaMod
         CommonUtils.registerEventHandler(this);
         CommonUtils.registerEventHandler(new IndicatiaEventHandler());
         CommonUtils.registerEventHandler(new HUDRenderEventHandler());
+        CommonUtils.registerEventHandler(new HypixelEventHandler());
         CommonUtils.registerEventHandler(new ClientEventHandler());
 
         ClientUtils.registerCommand(new CommandMojangStatusCheck());
