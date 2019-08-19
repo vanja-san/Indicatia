@@ -1,7 +1,6 @@
 package stevekung.mods.indicatia.mixin;
 
 import org.lwjgl.opengl.GL11;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -10,7 +9,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.util.ResourceLocation;
 
 @Mixin(FontRenderer.class)
 public abstract class ColoredFontRendererMixin
@@ -26,13 +24,6 @@ public abstract class ColoredFontRendererMixin
     private float alpha;
 
     @Shadow
-    @Final
-    protected ResourceLocation locationFontTexture;
-
-    @Shadow
-    protected int[] charWidth;
-
-    @Shadow
     protected float posX;
 
     @Shadow
@@ -45,18 +36,6 @@ public abstract class ColoredFontRendererMixin
     protected abstract void setColor(float r, float g, float b, float a);
 
     @Shadow
-    protected abstract void enableAlpha();
-
-    @Shadow
-    protected abstract void resetStyles();
-
-    @Shadow
-    protected abstract int renderString(String text, float x, float y, int color, boolean dropShadow);
-
-    @Shadow
-    protected abstract void bindTexture(ResourceLocation location);
-
-    @Shadow
     protected abstract void loadGlyphTexture(int page);
 
     @Inject(method = "renderString(Ljava/lang/String;FFIZ)I", cancellable = true, at = @At("HEAD"))
@@ -65,8 +44,8 @@ public abstract class ColoredFontRendererMixin
         this.dropShadow = dropShadow;
     }
 
-    @Overwrite
-    protected float renderDefaultChar(int ch, boolean italic)
+    @Inject(method = "renderDefaultChar(IZ)F", cancellable = true, at = @At("HEAD"))
+    private void renderDefaultChar(int ch, boolean italic, CallbackInfoReturnable info)
     {
         if (ch >= MARKER && ch <= MARKER + 255)
         {
@@ -85,7 +64,7 @@ public abstract class ColoredFontRendererMixin
                 break;
             default:
                 this.setColor(1.0F, 1.0F, 1.0F, this.alpha);
-                return 0.0F;
+                info.setReturnValue(0.0F);
             }
 
             this.state = ++this.state % 3;
@@ -100,30 +79,13 @@ public abstract class ColoredFontRendererMixin
                 color = (color & 16579836) >> 2 | color & -16777216;
             }
             this.setColor((color >> 16 & 255) / 255.0F, (color >> 8 & 255) / 255.0F, (color >> 0 & 255) / 255.0F, this.alpha);
-            return 0.0F;
+            info.setReturnValue(0.0F);
         }
         if (this.state != 0)
         {
             this.state = 0;
             this.setColor(1.0F, 1.0F, 1.0F, this.alpha);
         }
-        int i = ch % 16 * 8;
-        int j = ch / 16 * 8;
-        int k = italic ? 1 : 0;
-        this.bindTexture(this.locationFontTexture);
-        int l = this.charWidth[ch];
-        float f = l - 0.01F;
-        GL11.glBegin(GL11.GL_TRIANGLE_STRIP);
-        GL11.glTexCoord2f(i / 128.0F, j / 128.0F);
-        GL11.glVertex3f(this.posX + k, this.posY, 0.0F);
-        GL11.glTexCoord2f(i / 128.0F, (j + 7.99F) / 128.0F);
-        GL11.glVertex3f(this.posX - k, this.posY + 7.99F, 0.0F);
-        GL11.glTexCoord2f((i + f - 1.0F) / 128.0F, j / 128.0F);
-        GL11.glVertex3f(this.posX + f - 1.0F + k, this.posY, 0.0F);
-        GL11.glTexCoord2f((i + f - 1.0F) / 128.0F, (j + 7.99F) / 128.0F);
-        GL11.glVertex3f(this.posX + f - 1.0F - k, this.posY + 7.99F, 0.0F);
-        GL11.glEnd();
-        return l;
     }
 
     @Overwrite
