@@ -25,7 +25,7 @@ public class ThreadMinigameData extends Thread
     {
         try
         {
-            URL url = new URL("https://raw.githubusercontent.com/SteveKunG/Indicatia/1.12.2/minigames.json");
+            URL url = new URL("https://raw.githubusercontent.com/SteveKunG/Indicatia/1.8.9_skyblock/minigames.json");
             URLConnection connection = url.openConnection();
             BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
             JsonElement element = new JsonParser().parse(in);

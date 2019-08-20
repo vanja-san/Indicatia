@@ -1,0 +1,48 @@
+[
+    {
+        "name": "Main",
+        "sort": false,
+        "commands": [
+            {
+                "name": "Main Lobby",
+                "command": "main",
+                "minigame": false
+            },
+            {
+                "name": "Housing",
+                "command": "/home",
+                "minigame": false
+            },
+            {
+                "name": "Limbo",
+                "command": "/achat §",
+                "minigame": false
+            }
+        ]
+    },
+    {
+        "name": "Prototype: Sky Block",
+        "commands": [
+            {
+                "name": "Prototype Lobby",
+                "command": "ptl",
+                "minigame": false
+            },
+            {
+                "name": "Sky Block",
+                "command": "skyblock",
+                "minigame": true
+            },
+            {
+                "name": "Sky Block: Home",
+                "command": "/warp home",
+                "minigame": true
+            },
+            {
+                "name": "Sky Block: Hub",
+                "command": "/warp hub",
+                "minigame": true
+            }
+        ]
+    }
+]
