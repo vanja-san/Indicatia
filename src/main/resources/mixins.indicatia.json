@@ -24,6 +24,7 @@
         "TileEntitySkullRendererMixin",
         "BlockFarmlandMixin",
         "RenderWitherMixin",
-        "SoundManagerMixin"
+        "SoundManagerMixin",
+        "ItemMixin"
     ]
 }
