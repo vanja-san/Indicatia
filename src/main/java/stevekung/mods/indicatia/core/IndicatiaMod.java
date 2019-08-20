@@ -39,8 +39,8 @@ public class IndicatiaMod
     protected static final String NAME = "Indicatia";
     public static final String MOD_ID = "indicatia";
     private static final int MAJOR_VERSION = 1;
-    private static final int MINOR_VERSION = 1;
-    private static final int BUILD_VERSION = 9;
+    private static final int MINOR_VERSION = 0;
+    private static final int BUILD_VERSION = 0;
     protected static final String GUI_FACTORY = "stevekung.mods.indicatia.config.ConfigGuiFactory";
     public static final String VERSION = IndicatiaMod.MAJOR_VERSION + "." + IndicatiaMod.MINOR_VERSION + "." + IndicatiaMod.BUILD_VERSION;
     protected static final String FORGE_VERSION = "after:Forge@[11.15.1.2318,);";

@@ -39,7 +39,7 @@ public class HypixelEventHandler
     @SubscribeEvent
     public void onMouseClick(MouseEvent event)
     {
-        if (event.button == 1 && event.buttonstate && this.mc.pointedEntity != null && this.mc.pointedEntity instanceof EntityOtherPlayerMP && !this.mc.thePlayer.isSneaking() && this.mc.thePlayer.getHeldItem() != null && InfoUtils.INSTANCE.isHypixel() && ExtendedConfig.instance.rightClickToAddParty)
+        if (event.button == 1 && event.buttonstate && this.mc.pointedEntity != null && this.mc.pointedEntity instanceof EntityOtherPlayerMP && !this.mc.thePlayer.isSneaking() && this.mc.thePlayer.getHeldItem() == null && InfoUtils.INSTANCE.isHypixel() && ExtendedConfig.instance.rightClickToAddParty)
         {
             EntityOtherPlayerMP player = (EntityOtherPlayerMP)this.mc.pointedEntity;
 
