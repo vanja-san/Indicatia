@@ -10,6 +10,8 @@ import org.apache.commons.io.IOUtils;
 
 import com.google.common.base.Splitter;
 
+import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -56,6 +58,48 @@ public class IndicatiaMod
         IndicatiaMod.initProfileFile();
     }
 
+    public static final Block.SoundType CROPS = new Block.SoundType("crops", 1.0F, 1.0F)
+    {
+        @Override
+        public String getBreakSound()
+        {
+            return "indicatia:block.crop.break";
+        }
+
+        @Override
+        public String getPlaceSound()
+        {
+            return "";
+        }
+
+        @Override
+        public String getStepSound()
+        {
+            return "step.grass";
+        }
+    };
+
+    public static final Block.SoundType NETHERWARTS = new Block.SoundType("netherwart", 1.0F, 1.0F)
+    {
+        @Override
+        public String getBreakSound()
+        {
+            return "indicatia:block.nether_wart.break";
+        }
+
+        @Override
+        public String getPlaceSound()
+        {
+            return "";
+        }
+
+        @Override
+        public String getStepSound()
+        {
+            return "step.grass";
+        }
+    };
+
     @EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
@@ -90,6 +134,10 @@ public class IndicatiaMod
         {
             ColorUtils.init();
         }
+        Blocks.wheat.setStepSound(IndicatiaMod.CROPS);
+        Blocks.carrots.setStepSound(IndicatiaMod.CROPS);
+        Blocks.potatoes.setStepSound(IndicatiaMod.CROPS);
+        Blocks.nether_wart.setStepSound(IndicatiaMod.NETHERWARTS);
     }
 
     @SubscribeEvent
