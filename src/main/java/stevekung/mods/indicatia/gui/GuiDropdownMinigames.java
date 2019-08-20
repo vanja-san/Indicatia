@@ -130,11 +130,7 @@ public class GuiDropdownMinigames extends GuiButton
         ExtendedConfig.instance.hypixelMinigameScrollPos += amount;
         int i = this.minigameLists.size();
 
-        if (ExtendedConfig.instance.hypixelMinigameScrollPos > i - this.displayLength)
-        {
-            ExtendedConfig.instance.hypixelMinigameScrollPos = i - this.displayLength;
-        }
-        if (ExtendedConfig.instance.hypixelMinigameScrollPos <= 0)
+        if (ExtendedConfig.instance.hypixelMinigameScrollPos > i - this.displayLength || ExtendedConfig.instance.hypixelMinigameScrollPos <= 0)
         {
             ExtendedConfig.instance.hypixelMinigameScrollPos = 0;
         }
