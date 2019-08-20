@@ -22,6 +22,7 @@
         "RenderPlayerMixin",
         "EntityRendererMixin",
         "TileEntitySkullRendererMixin",
-        "BlockFarmlandMixin"
+        "BlockFarmlandMixin",
+        "RenderWitherMixin"
     ]
 }
