@@ -74,7 +74,7 @@ jar {
             "TweakOrder": "0",
             "TweakClass": "stevekung.mods.indicatia.tweaker.FMLLoadingPlugin"
     )
-    baseName = "Indicatia-" + mcVersion
+    baseName = "IndicatiaSkyBlock-" + mcVersion
 }
 
 mixin {
@@ -91,7 +91,7 @@ curseforge {
         addGameVersion mcVersion
 
         mainArtifact(jar) {
-            displayName = "Indicatia-" + mcVersion + "-" + version
+            displayName = "IndicatiaSkyBlock-" + mcVersion + "-" + version
         }
     }
 }
