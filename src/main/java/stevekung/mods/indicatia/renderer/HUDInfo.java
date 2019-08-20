@@ -14,6 +14,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.chunk.Chunk;
@@ -130,6 +131,26 @@ public class HUDInfo
             facing = 7;
         }
 
+        EnumFacing coordFacing = entity.getHorizontalFacing();
+        String coord = "";
+
+        switch (coordFacing)
+        {
+        default:
+        case NORTH:
+            coord = "-Z";
+            break;
+        case SOUTH:
+            coord = "+Z";
+            break;
+        case WEST:
+            coord = "-X";
+            break;
+        case EAST:
+            coord = "+X";
+            break;
+        }
+
         switch (facing)
         {
         case 0:
@@ -160,6 +181,7 @@ public class HUDInfo
             direction = "Unknown";
             break;
         }
+        direction += " (" + coord + ")";
         return ColorUtils.stringToRGB(ExtendedConfig.instance.directionColor).toColoredFont() + "Direction: " + ColorUtils.stringToRGB(ExtendedConfig.instance.directionValueColor).toColoredFont() + direction;
     }
 
