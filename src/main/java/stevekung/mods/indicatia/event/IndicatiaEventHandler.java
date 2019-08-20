@@ -96,7 +96,7 @@ public class IndicatiaEventHandler
 
                 if (scoreObj != null)
                 {
-                    IndicatiaEventHandler.isSkyBlock = scoreObj.getDisplayName().contains("SKYBLOCK");
+                    IndicatiaEventHandler.isSkyBlock = EnumChatFormatting.getTextWithoutFormattingCodes(scoreObj.getDisplayName()).contains("SKYBLOCK");
                 }
                 else
                 {
