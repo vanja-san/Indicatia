@@ -12,7 +12,7 @@ import stevekung.mods.indicatia.event.IndicatiaEventHandler;
 @Mixin(Item.class)
 public abstract class ItemMixin
 {
-    @Inject(method = "shouldCauseReequipAnimation(Lnet/minecraft/item/ItemStack;Lnet/minecraft/item/ItemStack;Z)Z", cancellable = true, at = @At("HEAD"))
+    @Inject(method = "shouldCauseReequipAnimation(Lnet/minecraft/item/ItemStack;Lnet/minecraft/item/ItemStack;Z)Z", cancellable = true, at = @At("HEAD"), remap = false)
     private void disableReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged, CallbackInfoReturnable info)
     {
         boolean itemEqual = newStack != null && oldStack.getItem() == newStack.getItem();
