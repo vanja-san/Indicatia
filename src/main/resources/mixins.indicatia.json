@@ -23,6 +23,7 @@
         "EntityRendererMixin",
         "TileEntitySkullRendererMixin",
         "BlockFarmlandMixin",
-        "RenderWitherMixin"
+        "RenderWitherMixin",
+        "SoundManagerMixin"
     ]
 }
