@@ -98,6 +98,11 @@ public class HypixelEventHandler
 
             if (gui.tileSign != null)
             {
+                if (!(gui.tileSign.signText[2].getUnformattedText().contains("Enter your") && gui.tileSign.signText[3].getUnformattedText().contains("username here")))
+                {
+                    return;
+                }
+
                 ExtendedConfig.instance.hypixelNickName = gui.tileSign.signText[0].getUnformattedText();
 
                 if (mc.thePlayer.ticksExisted % 40 == 0)
