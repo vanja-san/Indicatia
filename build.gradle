@@ -95,3 +95,18 @@ curseforge {
         }
     }
 }
+
+task deobfJar(type: Jar) {
+    from sourceSets.main.output
+    from(configurations.provided.asFileTree.files.collect { it.isDirectory() ? it : zipTree(it) }) {
+        exclude "LICENSE.txt", "META-INF/*.txt", "META-INF/MANIFSET.MF", "META-INF/maven/**", "META-INF/*.RSA", "META-INF/*.SF"
+    }
+    manifest.attributes(
+            "FMLAT": "indicatia_at.cfg",
+            "MixinConfigs": "mixins.indicatia.json",
+            "TweakOrder": "0",
+            "TweakClass": "stevekung.mods.indicatia.tweaker.FMLLoadingPlugin"
+    )
+    baseName = "IndicatiaSkyBlock-" + mcVersion
+    classifier = "deobf"
+}
