@@ -21,6 +21,7 @@ public class GuiHypixelSettings extends GuiScreen
     static
     {
         OPTIONS.add(ExtendedConfig.Options.RIGHT_CLICK_ADD_PARTY);
+        OPTIONS.add(ExtendedConfig.Options.ADD_PARTY_VISIT_ISLAND);
     }
 
     public GuiHypixelSettings(GuiScreen parent)

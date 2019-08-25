@@ -133,6 +133,7 @@ game_time_value_color.extended_config=Game Time Value Color
 game_weather_value_color.extended_config=Game Weather Value Color
 moon_phase_value_color.extended_config=Moon Phase Value Color
 right_click_add_party.extended_config=Right Click to Add Party
+add_party_visit_island.extended_config=Add Party when people visit island
 
 # MESSAGE
 message.stop_afk=I'm back from %s! AFK Time is : %s minutes

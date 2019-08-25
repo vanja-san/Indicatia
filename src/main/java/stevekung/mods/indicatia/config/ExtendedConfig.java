@@ -111,6 +111,7 @@ public class ExtendedConfig
 
     // Hypixel
     public boolean rightClickToAddParty = false;
+    public boolean addPartyVisitIsland = false;
     public String hypixelNickName = "";
     public int selectedHypixelMinigame = 0;
     public int hypixelMinigameScrollPos = 0;
@@ -213,6 +214,7 @@ public class ExtendedConfig
 
             // Hypixel
             this.rightClickToAddParty = ExtendedConfig.getBoolean(nbt, "RightClickToAddParty", this.rightClickToAddParty);
+            this.addPartyVisitIsland = ExtendedConfig.getBoolean(nbt, "AddPartyVisitIsland", this.addPartyVisitIsland);
             this.hypixelNickName = ExtendedConfig.getString(nbt, "HypixelNickName", this.hypixelNickName);
             this.selectedHypixelMinigame = ExtendedConfig.getInteger(nbt, "SelectedHypixelMinigame", this.selectedHypixelMinigame);
             this.hypixelMinigameScrollPos = ExtendedConfig.getInteger(nbt, "HypixelMinigameScrollPos", this.hypixelMinigameScrollPos);
@@ -312,6 +314,7 @@ public class ExtendedConfig
 
             // Hypixel
             nbt.setBoolean("RightClickToAddParty", this.rightClickToAddParty);
+            nbt.setBoolean("AddPartyVisitIsland", this.addPartyVisitIsland);
             nbt.setString("HypixelNickName", this.hypixelNickName);
             nbt.setInteger("SelectedHypixelMinigame", this.selectedHypixelMinigame);
             nbt.setInteger("HypixelMinigameScrollPos", this.hypixelMinigameScrollPos);
@@ -547,6 +550,10 @@ public class ExtendedConfig
         {
             this.rightClickToAddParty = !this.rightClickToAddParty;
         }
+        else if (options == ExtendedConfig.Options.ADD_PARTY_VISIT_ISLAND)
+        {
+            this.addPartyVisitIsland = !this.addPartyVisitIsland;
+        }
     }
 
     public void setOptionFloatValue(ExtendedConfig.Options options, float value)
@@ -762,6 +769,8 @@ public class ExtendedConfig
 
         case RIGHT_CLICK_ADD_PARTY:
             return this.rightClickToAddParty;
+        case ADD_PARTY_VISIT_ISLAND:
+            return this.addPartyVisitIsland;
         default:
             return false;
         }
@@ -914,6 +923,7 @@ public class ExtendedConfig
         MOON_PHASE_VALUE_COLOR(false, false, true),
 
         RIGHT_CLICK_ADD_PARTY(false, true),
+        ADD_PARTY_VISIT_ISLAND(false, true),
         ;
 
         private final boolean isFloat;

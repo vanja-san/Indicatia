@@ -86,6 +86,11 @@ public class HypixelEventHandler
                     ExtendedConfig.instance.hypixelNickName = nickMatcher.group("nick");
                     ExtendedConfig.instance.save();
                 }
+                if (unformattedText.contains("is visiting Your Island!") && ExtendedConfig.instance.addPartyVisitIsland)
+                {
+                    String name = unformattedText.replace("[SkyBlock] ", "").replace("[VIP] ", "").replace("[VIP+] ", "").replace("[MVP] ", "").replace("[MVP+] ", "").replace(" is visiting Your Island!", "");
+                    this.mc.thePlayer.sendChatMessage("/p " + name);
+                }
             }
         }
     }
