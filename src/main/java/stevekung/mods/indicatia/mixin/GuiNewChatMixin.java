@@ -48,6 +48,8 @@ public abstract class GuiNewChatMixin extends Gui
     @Overwrite
     public void drawChat(int updateCounter)
     {
+        GlStateManager.disableDepth();
+
         if (this.mc.gameSettings.chatVisibility != EntityPlayer.EnumChatVisibility.HIDDEN)
         {
             int i = this.getLineCount();
@@ -133,6 +135,7 @@ public abstract class GuiNewChatMixin extends Gui
                 GlStateManager.popMatrix();
             }
         }
+        GlStateManager.enableDepth();
     }
 
     @Overwrite
