@@ -1,8 +1,5 @@
 package stevekung.mods.indicatia.gui.config;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
@@ -11,21 +8,14 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import stevekung.mods.indicatia.config.ExtendedConfig;
 import stevekung.mods.indicatia.utils.ColorUtils;
-import stevekung.mods.indicatia.utils.LangUtils;
 import stevekung.mods.indicatia.utils.RenderUtils;
 
 @SideOnly(Side.CLIENT)
 public class GuiConfigSlider extends GuiButton
 {
-    private static final List<String> SMALL_TEXT = new ArrayList<>();
     private float sliderValue;
     public boolean dragging;
     private final ExtendedConfig.Options options;
-
-    static
-    {
-        SMALL_TEXT.add("potion_length_y_offset_overlap.extended_config");
-    }
 
     public GuiConfigSlider(int buttonId, int x, int y, int width, ExtendedConfig.Options option)
     {
@@ -119,7 +109,7 @@ public class GuiConfigSlider extends GuiButton
                     color = 16777120;
                 }
             }
-            boolean smallText = SMALL_TEXT.stream().anyMatch(text -> this.displayString.trim().contains(LangUtils.translate(text)));
+            boolean smallText = this.displayString.length() > 32;
             this.drawCenteredString(smallText ? ColorUtils.unicodeFontRenderer : mc.fontRendererObj, this.displayString, this.xPosition + this.width / 2, this.yPosition + (this.height - 8) / 2, color);
         }
     }

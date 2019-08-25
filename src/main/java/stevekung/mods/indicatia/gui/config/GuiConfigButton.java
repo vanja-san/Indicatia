@@ -1,8 +1,5 @@
 package stevekung.mods.indicatia.gui.config;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
@@ -10,20 +7,11 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import stevekung.mods.indicatia.config.ExtendedConfig;
 import stevekung.mods.indicatia.utils.ColorUtils;
-import stevekung.mods.indicatia.utils.LangUtils;
 
 @SideOnly(Side.CLIENT)
 public class GuiConfigButton extends GuiButton
 {
-    private static final List<String> SMALL_TEXT = new ArrayList<>();
     private final ExtendedConfig.Options options;
-
-    static
-    {
-        SMALL_TEXT.add("equipment.damage_and_max_damage");
-        SMALL_TEXT.add("indicatia.hotbar_left");
-        SMALL_TEXT.add("indicatia.hotbar_right");
-    }
 
     public GuiConfigButton(int id, int x, int y, String text)
     {
@@ -68,7 +56,7 @@ public class GuiConfigButton extends GuiButton
                     color = 16777120;
                 }
             }
-            boolean smallText = SMALL_TEXT.stream().anyMatch(text -> this.displayString.trim().contains(LangUtils.translate(text)));
+            boolean smallText = this.displayString.length() > 32;
             this.drawCenteredString(smallText ? ColorUtils.unicodeFontRenderer : mc.fontRendererObj, this.displayString, this.xPosition + this.width / 2, this.yPosition + (this.height - 8) / 2, color);
         }
     }
