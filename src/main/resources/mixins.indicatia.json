@@ -25,6 +25,7 @@
         "BlockFarmlandMixin",
         "RenderWitherMixin",
         "SoundManagerMixin",
-        "ItemMixin"
+        "ItemMixin",
+        "ClientCommandHandlerMixin"
     ]
 }
