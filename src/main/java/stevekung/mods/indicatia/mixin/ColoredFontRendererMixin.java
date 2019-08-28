@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.minecraft.client.gui.FontRenderer;
+import stevekung.mods.indicatia.utils.ThaiUtils;
 
 @Mixin(FontRenderer.class)
 public abstract class ColoredFontRendererMixin
@@ -91,6 +92,42 @@ public abstract class ColoredFontRendererMixin
     @Overwrite
     protected float renderUnicodeChar(char ch, boolean italic)
     {
+        int th = this.glyphWidth[ch] & 255;
+
+        if (ThaiUtils.isSpecialThaiChar(ch))
+        {
+            float posYShift = 0.0F;
+            float height = 2.99F;
+            this.loadGlyphTexture(0x0E);
+
+            if (ThaiUtils.isLowerThaiChar(ch))
+            {
+                height = 1.99F;
+                posYShift = 6.0F;
+            }
+
+            float heightX2 = height * 2;
+            float startTexcoordX = th >>> 4;
+            float charWidth = (th & 15) + 1;
+            float texcoordX = ch % 16 * 16 + startTexcoordX;
+            float texcoordY = (ch & 255) / 16 * 16 + posYShift * 2;
+            float texcoordXEnd = charWidth - startTexcoordX - 0.02F;
+            float skew = italic ? 1.0F : 0.0F;
+            float posX = this.posX - ((charWidth - startTexcoordX) / 2.0F + 0.5F);
+            float posY = this.posY + posYShift;
+
+            GL11.glBegin(GL11.GL_TRIANGLE_STRIP);
+            GL11.glTexCoord2f(texcoordX / 256.0F, texcoordY / 256.0F);
+            GL11.glVertex3f(posX + skew, posY, 0.0F);
+            GL11.glTexCoord2f(texcoordX / 256.0F, (texcoordY + heightX2) / 256.0F);
+            GL11.glVertex3f(posX - skew, posY + height, 0.0F);
+            GL11.glTexCoord2f((texcoordX + texcoordXEnd) / 256.0F, texcoordY / 256.0F);
+            GL11.glVertex3f(posX + texcoordXEnd / 2.0F + skew, posY, 0.0F);
+            GL11.glTexCoord2f((texcoordX + texcoordXEnd) / 256.0F, (texcoordY + heightX2) / 256.0F);
+            GL11.glVertex3f(posX + texcoordXEnd / 2.0F - skew, posY + height, 0.0F);
+            GL11.glEnd();
+            return 0.0F;
+        }
         if (ch >= MARKER && ch <= MARKER + 255)
         {
             int value = ch & 255;

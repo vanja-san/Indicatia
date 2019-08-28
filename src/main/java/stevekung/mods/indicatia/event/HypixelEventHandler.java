@@ -73,7 +73,7 @@ public class HypixelEventHandler
                 }
                 else if (unformattedText.contains("You were spawned in Limbo."))
                 {
-                    event.message = (JsonUtils.create("You were spawned in Limbo.").setChatStyle(JsonUtils.green()));
+                    event.message = JsonUtils.create("You were spawned in Limbo.").setChatStyle(JsonUtils.green());
                 }
                 else if (unformattedText.contains("Your nick has been reset!"))
                 {
