@@ -6,6 +6,8 @@ import java.util.regex.Pattern;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.client.gui.inventory.GuiEditSign;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemSword;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -39,14 +41,24 @@ public class HypixelEventHandler
     @SubscribeEvent
     public void onMouseClick(MouseEvent event)
     {
-        if (event.button == 1 && event.buttonstate && this.mc.pointedEntity != null && this.mc.pointedEntity instanceof EntityOtherPlayerMP && !this.mc.thePlayer.isSneaking() && this.mc.thePlayer.getHeldItem() == null && InfoUtils.INSTANCE.isHypixel() && ExtendedConfig.instance.rightClickToAddParty)
+        if (event.button == 1 && event.buttonstate && InfoUtils.INSTANCE.isHypixel())
         {
-            EntityOtherPlayerMP player = (EntityOtherPlayerMP)this.mc.pointedEntity;
-
-            if (this.mc.thePlayer.sendQueue.getPlayerInfoMap().stream().anyMatch(info -> info.getGameProfile().getName().equals(player.getName())))
+            if (this.mc.pointedEntity != null && this.mc.pointedEntity instanceof EntityOtherPlayerMP)
             {
-                this.mc.thePlayer.sendChatMessage("/p " + player.getName());
-                event.setCanceled(true);
+                EntityOtherPlayerMP player = (EntityOtherPlayerMP)this.mc.pointedEntity;
+
+                if (!this.mc.thePlayer.isSneaking() && this.mc.thePlayer.getHeldItem() == null && ExtendedConfig.instance.rightClickToAddParty)
+                {
+                    if (this.mc.thePlayer.sendQueue.getPlayerInfoMap().stream().anyMatch(info -> info.getGameProfile().getName().equals(player.getName())))
+                    {
+                        this.mc.thePlayer.sendChatMessage("/p " + player.getName());
+                        event.setCanceled(true);
+                    }
+                }
+                if (this.mc.thePlayer.getHeldItem() != null && (this.mc.thePlayer.getHeldItem().getItem() == Items.bow || this.mc.thePlayer.getHeldItem().getItem() instanceof ItemSword))
+                {
+                    event.setCanceled(true);
+                }
             }
         }
     }
