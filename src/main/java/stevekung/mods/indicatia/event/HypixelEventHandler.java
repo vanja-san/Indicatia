@@ -1,15 +1,24 @@
 package stevekung.mods.indicatia.event;
 
+import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.client.gui.inventory.GuiEditSign;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemSword;
+import net.minecraft.scoreboard.Score;
+import net.minecraft.scoreboard.ScoreObjective;
+import net.minecraft.scoreboard.ScorePlayerTeam;
+import net.minecraft.scoreboard.Scoreboard;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.MouseEvent;
+import net.minecraftforge.client.event.sound.PlaySoundEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import stevekung.mods.indicatia.config.ExtendedConfig;
@@ -19,6 +28,7 @@ import stevekung.mods.indicatia.utils.JsonUtils;
 public class HypixelEventHandler
 {
     private static final Pattern nickPattern = Pattern.compile("^You are now nicked as (?<nick>\\w+)!");
+    private static final Pattern LETTERS_NUMBERS = Pattern.compile("[^a-z A-Z:0-9/]");
     private Minecraft mc;
 
     public HypixelEventHandler()
@@ -107,6 +117,31 @@ public class HypixelEventHandler
         }
     }
 
+    @SubscribeEvent
+    public void onPlaySound(PlaySoundEvent event)
+    {
+        String name = event.name;
+
+        if (this.mc.theWorld != null)
+        {
+            Scoreboard scoreboard = this.mc.theWorld.getScoreboard();
+            ScoreObjective sidebarObjective = this.mc.theWorld.getScoreboard().getObjectiveInDisplaySlot(1);
+            Collection<Score> collection = scoreboard.getSortedScores(sidebarObjective);
+
+            for (Score score1 : collection)
+            {
+                ScorePlayerTeam scorePlayerTeam = scoreboard.getPlayersTeam(score1.getPlayerName());
+                String locationString = this.keepLettersAndNumbersOnly(EnumChatFormatting.getTextWithoutFormattingCodes(ScorePlayerTeam.formatPlayerName(scorePlayerTeam, score1.getPlayerName())));
+
+                if (locationString.endsWith("Blazing Fortress") && name.equals("records.13"))
+                {
+                    this.mc.ingameGUI.displayTitle(JsonUtils.create("Preparing spawn...").setChatStyle(JsonUtils.red()).getFormattedText(), JsonUtils.create("").setChatStyle(JsonUtils.red()).getFormattedText(), 0, 1200, 20);
+                    this.mc.getSoundHandler().playSound(new PositionedSoundRecord(new ResourceLocation("random.orb"), 0.75F, 1.0F, (float)this.mc.thePlayer.posX + 0.5F, (float)this.mc.thePlayer.posY + 0.5F, (float)this.mc.thePlayer.posZ + 0.5F));
+                }
+            }
+        }
+    }
+
     private static void getHypixelNickedPlayer(Minecraft mc)
     {
         if (InfoUtils.INSTANCE.isHypixel() && mc.currentScreen instanceof GuiEditSign)
@@ -128,5 +163,10 @@ public class HypixelEventHandler
                 }
             }
         }
+    }
+
+    private String keepLettersAndNumbersOnly(String text)
+    {
+        return LETTERS_NUMBERS.matcher(text).replaceAll("");
     }
 }
