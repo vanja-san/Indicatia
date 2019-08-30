@@ -28,6 +28,7 @@
         "ItemMixin",
         "ClientCommandHandlerMixin",
         "RendererLivingEntityMixin",
-        "RenderMixin"
+        "RenderMixin",
+        "RenderLightningBoltMixin"
     ]
 }
