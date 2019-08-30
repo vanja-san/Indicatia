@@ -5,26 +5,16 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.GL11;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiIngameMenu;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiMultiplayer;
 import net.minecraft.client.multiplayer.ServerAddress;
 import net.minecraft.client.multiplayer.ServerData;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.client.renderer.entity.RendererLivingEntity;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumAction;
 import net.minecraft.network.EnumConnectionState;
@@ -37,12 +27,10 @@ import net.minecraft.network.status.server.S00PacketServerInfo;
 import net.minecraft.network.status.server.S01PacketPong;
 import net.minecraft.potion.Potion;
 import net.minecraft.scoreboard.ScoreObjective;
-import net.minecraft.scoreboard.Team;
 import net.minecraft.util.*;
 import net.minecraftforge.client.GuiIngameForge;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
-import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
@@ -357,70 +345,6 @@ public class IndicatiaEventHandler
         }
     }
 
-    @SubscribeEvent
-    public void onPreRenderLivingSpecials(RenderLivingEvent.Specials.Pre<EntityLivingBase> event)
-    {
-        EntityLivingBase entity = event.entity;
-        event.setCanceled(true);
-
-        if (this.canRenderName(entity))
-        {
-            double d0 = entity.getDistanceSqToEntity(this.mc.getRenderManager().livingPlayer);
-            float f = entity.isSneaking() ? RendererLivingEntity.NAME_TAG_RANGE_SNEAK : RendererLivingEntity.NAME_TAG_RANGE;
-
-            if (d0 < f * f)
-            {
-                String name = entity.getDisplayName().getFormattedText();
-                GlStateManager.alphaFunc(516, 0.1F);
-                IndicatiaEventHandler.renderEntityName(this.mc, entity, name, event.x, event.y, event.z);
-            }
-        }
-    }
-
-    private boolean canRenderName(EntityLivingBase entity)
-    {
-        if (entity instanceof EntityLiving)
-        {
-            return this.getDefaultCanRenderName(entity) && (entity.getAlwaysRenderNameTagForRender() || entity.hasCustomName() && entity == this.mc.getRenderManager().pointedEntity);
-        }
-        else if (entity instanceof EntityArmorStand)
-        {
-            return entity.getAlwaysRenderNameTag();
-        }
-        return this.getDefaultCanRenderName(entity);
-    }
-
-    private boolean getDefaultCanRenderName(EntityLivingBase entity)
-    {
-        EntityPlayerSP playerSP = this.mc.thePlayer;
-
-        if (entity instanceof EntityPlayer && entity != playerSP)
-        {
-            Team team = entity.getTeam();
-            Team team1 = playerSP.getTeam();
-
-            if (team != null)
-            {
-                Team.EnumVisible visible = team.getNameTagVisibility();
-
-                switch (visible)
-                {
-                case ALWAYS:
-                    return true;
-                case NEVER:
-                    return false;
-                case HIDE_FOR_OTHER_TEAMS:
-                    return team1 == null || team.isSameTeam(team1);
-                case HIDE_FOR_OWN_TEAM:
-                    return team1 == null || !team.isSameTeam(team1);
-                default:
-                    return true;
-                }
-            }
-        }
-        return Minecraft.isGuiEnabled() && entity != this.mc.getRenderManager().livingPlayer && !entity.isInvisibleToPlayer(playerSP) && entity.riddenByEntity == null;
-    }
-
     private static void getRealTimeServerPing(ServerData server)
     {
         IndicatiaEventHandler.serverPinger.submit(() ->
@@ -575,66 +499,5 @@ public class IndicatiaEventHandler
             }
         }
         return defaultEyeHeight;
-    }
-
-    private static void renderEntityName(Minecraft mc, EntityLivingBase entity, String str, double x, double y, double z)
-    {
-        int maxDistance = 64;
-        double d0 = entity.getDistanceSqToEntity(mc.getRenderViewEntity());
-
-        if (d0 <= maxDistance * maxDistance)
-        {
-            boolean flag = entity.isSneaking();
-            float f = mc.getRenderManager().playerViewY;
-            float f1 = mc.getRenderManager().playerViewX;
-            boolean flag1 = mc.getRenderManager().options.thirdPersonView == 2;
-            float f2 = entity.height + 0.5F - (flag ? 0.25F : 0.0F);
-            int i = "deadmau5".equals(str) ? -10 : 0;
-            IndicatiaEventHandler.drawNameplate(mc.getRenderManager().getFontRenderer(), str, (float)x, (float)y + f2, (float)z, i, f, f1, flag1, flag);
-        }
-    }
-
-    private static void drawNameplate(FontRenderer fontRenderer, String str, float x, float y, float z, int verticalShift, float viewerYaw, float viewerPitch, boolean isThirdPersonFrontal, boolean isSneaking)
-    {
-        GlStateManager.pushMatrix();
-        GlStateManager.translate(x, y, z);
-        GL11.glNormal3f(0.0F, 1.0F, 0.0F);
-        GlStateManager.rotate(-viewerYaw, 0.0F, 1.0F, 0.0F);
-        GlStateManager.rotate((isThirdPersonFrontal ? -1 : 1) * viewerPitch, 1.0F, 0.0F, 0.0F);
-        GlStateManager.scale(-0.025F, -0.025F, 0.025F);
-        GlStateManager.disableLighting();
-        GlStateManager.depthMask(false);
-
-        if (!isSneaking)
-        {
-            GlStateManager.disableDepth();
-        }
-
-        GlStateManager.enableBlend();
-        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
-        int i = fontRenderer.getStringWidth(str) / 2;
-        GlStateManager.disableTexture2D();
-        Tessellator tessellator = Tessellator.getInstance();
-        WorldRenderer vertexbuffer = tessellator.getWorldRenderer();
-        vertexbuffer.begin(7, DefaultVertexFormats.POSITION_COLOR);
-        vertexbuffer.pos(-i - 1, -1 + verticalShift, 0.0D).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
-        vertexbuffer.pos(-i - 1, 8 + verticalShift, 0.0D).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
-        vertexbuffer.pos(i + 1, 8 + verticalShift, 0.0D).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
-        vertexbuffer.pos(i + 1, -1 + verticalShift, 0.0D).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
-        tessellator.draw();
-        GlStateManager.enableTexture2D();
-
-        if (!isSneaking)
-        {
-            fontRenderer.drawString(str, -fontRenderer.getStringWidth(str) / 2, verticalShift, 553648127);
-            GlStateManager.enableDepth();
-        }
-
-        GlStateManager.depthMask(true);
-        fontRenderer.drawString(str, -fontRenderer.getStringWidth(str) / 2, verticalShift, isSneaking ? 553648127 : -1);
-        GlStateManager.enableLighting();
-        GlStateManager.disableBlend();
-        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-        GlStateManager.popMatrix();
     }
 }

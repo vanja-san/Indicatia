@@ -26,6 +26,8 @@
         "RenderWitherMixin",
         "SoundManagerMixin",
         "ItemMixin",
-        "ClientCommandHandlerMixin"
+        "ClientCommandHandlerMixin",
+        "RendererLivingEntityMixin",
+        "RenderMixin"
     ]
 }
