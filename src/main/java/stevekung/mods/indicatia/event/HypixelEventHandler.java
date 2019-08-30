@@ -65,7 +65,7 @@ public class HypixelEventHandler
                         event.setCanceled(true);
                     }
                 }
-                if (this.mc.thePlayer.getHeldItem() != null && (this.mc.thePlayer.getHeldItem().getItem() == Items.bow || this.mc.thePlayer.getHeldItem().getItem() instanceof ItemSword))
+                if (IndicatiaEventHandler.isSkyBlock && this.mc.thePlayer.getHeldItem() != null && (this.mc.thePlayer.getHeldItem().getItem() == Items.bow || this.mc.thePlayer.getHeldItem().getItem() instanceof ItemSword))
                 {
                     event.setCanceled(true);
                 }
