@@ -11,7 +11,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
-import stevekung.mods.indicatia.event.IndicatiaEventHandler;
+import stevekung.mods.indicatia.event.HypixelEventHandler;
 
 @Mixin(BlockFarmland.class)
 public abstract class BlockFarmlandMixin extends Block
@@ -24,7 +24,7 @@ public abstract class BlockFarmlandMixin extends Block
     @Inject(method = "onFallenUpon(Lnet/minecraft/world/World;Lnet/minecraft/util/BlockPos;Lnet/minecraft/entity/Entity;F)V", cancellable = true, at = @At("HEAD"))
     private void onFallenUpon(World world, BlockPos pos, Entity entity, float fallDistance, CallbackInfo info)
     {
-        if (IndicatiaEventHandler.isSkyBlock)
+        if (HypixelEventHandler.isSkyBlock && !HypixelEventHandler.skyBlockOwnIsland)
         {
             info.cancel();
         }

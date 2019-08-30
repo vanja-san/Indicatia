@@ -26,7 +26,6 @@ import net.minecraft.network.status.client.C01PacketPing;
 import net.minecraft.network.status.server.S00PacketServerInfo;
 import net.minecraft.network.status.server.S01PacketPong;
 import net.minecraft.potion.Potion;
-import net.minecraft.scoreboard.ScoreObjective;
 import net.minecraft.util.*;
 import net.minecraftforge.client.GuiIngameForge;
 import net.minecraftforge.client.event.GuiScreenEvent;
@@ -65,7 +64,7 @@ public class IndicatiaEventHandler
     private static long sneakTimeOld = 0L;
     private static boolean sneakingOld = false;
 
-    public static boolean isSkyBlock = false;
+
 
     public IndicatiaEventHandler()
     {
@@ -80,16 +79,6 @@ public class IndicatiaEventHandler
             if (event.phase == TickEvent.Phase.START)
             {
                 IndicatiaEventHandler.runAFK(this.mc.thePlayer);
-                ScoreObjective scoreObj = this.mc.theWorld.getScoreboard().getObjectiveInDisplaySlot(1);
-
-                if (scoreObj != null)
-                {
-                    IndicatiaEventHandler.isSkyBlock = EnumChatFormatting.getTextWithoutFormattingCodes(scoreObj.getDisplayName()).contains("SKYBLOCK");
-                }
-                else
-                {
-                    IndicatiaEventHandler.isSkyBlock = false;
-                }
 
                 if (this.disconnectClickCooldown > 0)
                 {

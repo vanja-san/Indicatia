@@ -1,8 +1,13 @@
 package stevekung.mods.indicatia.event;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -29,6 +34,9 @@ public class HypixelEventHandler
 {
     private static final Pattern nickPattern = Pattern.compile("^You are now nicked as (?<nick>\\w+)!");
     private static final Pattern LETTERS_NUMBERS = Pattern.compile("[^a-z A-Z:0-9/]");
+    public static boolean isSkyBlock = false;
+    public static boolean skyBlockOwnIsland = false;
+    public static boolean skyBlockBlazingFortress = false;
     private Minecraft mc;
 
     public HypixelEventHandler()
@@ -44,6 +52,56 @@ public class HypixelEventHandler
             if (event.phase == TickEvent.Phase.START)
             {
                 HypixelEventHandler.getHypixelNickedPlayer(this.mc);
+
+                if (this.mc.theWorld != null)
+                {
+                    ScoreObjective scoreObj = this.mc.theWorld.getScoreboard().getObjectiveInDisplaySlot(1);
+                    Scoreboard scoreboard = this.mc.theWorld.getScoreboard();
+                    Collection<Score> collection = scoreboard.getSortedScores(scoreObj);
+                    List<Score> list = Lists.newArrayList(collection.stream().filter(score -> score.getPlayerName() != null && !score.getPlayerName().startsWith("#")).collect(Collectors.toList()));
+
+                    if (list.size() > 15)
+                    {
+                        collection = Lists.newArrayList(Iterables.skip(list, collection.size() - 15));
+                    }
+                    else
+                    {
+                        collection = list;
+                    }
+
+                    for (Score score1 : collection)
+                    {
+                        ScorePlayerTeam scorePlayerTeam = scoreboard.getPlayersTeam(score1.getPlayerName());
+                        String location = this.keepLettersAndNumbersOnly(EnumChatFormatting.getTextWithoutFormattingCodes(ScorePlayerTeam.formatPlayerName(scorePlayerTeam, score1.getPlayerName())));
+
+                        if (location.endsWith("Your Island"))
+                        {
+                            HypixelEventHandler.skyBlockOwnIsland = true;
+                        }
+                        else
+                        {
+                            HypixelEventHandler.skyBlockOwnIsland = false;
+                        }
+
+                        if (location.endsWith("Blazing Fortress"))
+                        {
+                            HypixelEventHandler.skyBlockBlazingFortress = true;
+                        }
+                        else
+                        {
+                            HypixelEventHandler.skyBlockBlazingFortress = false;
+                        }
+                    }
+
+                    if (scoreObj != null)
+                    {
+                        HypixelEventHandler.isSkyBlock = EnumChatFormatting.getTextWithoutFormattingCodes(scoreObj.getDisplayName()).contains("SKYBLOCK");
+                    }
+                    else
+                    {
+                        HypixelEventHandler.isSkyBlock = false;
+                    }
+                }
             }
         }
     }
@@ -65,7 +123,7 @@ public class HypixelEventHandler
                         event.setCanceled(true);
                     }
                 }
-                if (IndicatiaEventHandler.isSkyBlock && this.mc.thePlayer.getHeldItem() != null && (this.mc.thePlayer.getHeldItem().getItem() == Items.bow || this.mc.thePlayer.getHeldItem().getItem() instanceof ItemSword))
+                if (HypixelEventHandler.isSkyBlock && this.mc.thePlayer.getHeldItem() != null && (this.mc.thePlayer.getHeldItem().getItem() == Items.bow || this.mc.thePlayer.getHeldItem().getItem() instanceof ItemSword))
                 {
                     event.setCanceled(true);
                 }
@@ -124,20 +182,10 @@ public class HypixelEventHandler
 
         if (this.mc.theWorld != null)
         {
-            Scoreboard scoreboard = this.mc.theWorld.getScoreboard();
-            ScoreObjective sidebarObjective = this.mc.theWorld.getScoreboard().getObjectiveInDisplaySlot(1);
-            Collection<Score> collection = scoreboard.getSortedScores(sidebarObjective);
-
-            for (Score score1 : collection)
+            if (HypixelEventHandler.skyBlockBlazingFortress && name.equals("records.13"))
             {
-                ScorePlayerTeam scorePlayerTeam = scoreboard.getPlayersTeam(score1.getPlayerName());
-                String locationString = this.keepLettersAndNumbersOnly(EnumChatFormatting.getTextWithoutFormattingCodes(ScorePlayerTeam.formatPlayerName(scorePlayerTeam, score1.getPlayerName())));
-
-                if (locationString.endsWith("Blazing Fortress") && name.equals("records.13"))
-                {
-                    this.mc.ingameGUI.displayTitle(JsonUtils.create("Preparing spawn...").setChatStyle(JsonUtils.red()).getFormattedText(), JsonUtils.create("").setChatStyle(JsonUtils.red()).getFormattedText(), 0, 1200, 20);
-                    this.mc.getSoundHandler().playSound(new PositionedSoundRecord(new ResourceLocation("random.orb"), 0.75F, 1.0F, (float)this.mc.thePlayer.posX + 0.5F, (float)this.mc.thePlayer.posY + 0.5F, (float)this.mc.thePlayer.posZ + 0.5F));
-                }
+                this.mc.ingameGUI.displayTitle(JsonUtils.create("Preparing spawn...").setChatStyle(JsonUtils.red()).getFormattedText(), JsonUtils.create("").setChatStyle(JsonUtils.red()).getFormattedText(), 0, 1200, 20);
+                this.mc.getSoundHandler().playSound(new PositionedSoundRecord(new ResourceLocation("random.orb"), 0.75F, 1.0F, (float)this.mc.thePlayer.posX + 0.5F, (float)this.mc.thePlayer.posY + 0.5F, (float)this.mc.thePlayer.posZ + 0.5F));
             }
         }
     }
