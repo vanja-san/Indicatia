@@ -28,7 +28,7 @@ public class EnumEquipment
 
     public static enum Status
     {
-        DAMAGE_AND_MAX_DAMAGE, PERCENT, ONLY_DAMAGE, NONE;
+        DAMAGE_AND_MAX_DAMAGE, PERCENT, ONLY_DAMAGE, NONE, COUNT, COUNT_AND_STACK;
 
         private static final Status[] values = values();
 

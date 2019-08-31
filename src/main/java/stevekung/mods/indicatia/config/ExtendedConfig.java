@@ -27,7 +27,7 @@ public class ExtendedConfig
     private static final String[] HEALTH_STATUS = new String[] {"indicatia.disabled", "health_status.always", "health_status.pointed"};
     private static final String[] EQUIPMENT_ORDERING = new String[] {"indicatia.default", "equipment.reverse"};
     private static final String[] EQUIPMENT_DIRECTION = new String[] {"equipment.vertical", "equipment.horizontal"};
-    private static final String[] EQUIPMENT_STATUS = new String[] {"equipment.damage_and_max_damage", "equipment.percent", "equipment.only_damage", "indicatia.none"};
+    private static final String[] EQUIPMENT_STATUS = new String[] {"equipment.damage_and_max_damage", "equipment.percent", "equipment.only_damage", "indicatia.none", "equipment.count", "equipment.count_and_stack"};
     private static final String[] EQUIPMENT_POSITION = new String[] {"indicatia.left", "indicatia.right", "indicatia.hotbar"};
     private static final String[] POTION_STATUS_HUD_STYLE = new String[] {"indicatia.default", "potion_hud.icon_and_time"};
     private static final String[] POTION_STATUS_HUD_POSITION = new String[] {"indicatia.left", "indicatia.right", "indicatia.hotbar_left", "indicatia.hotbar_right"};
@@ -462,7 +462,7 @@ public class ExtendedConfig
         }
         else if (options == ExtendedConfig.Options.EQUIPMENT_STATUS)
         {
-            this.equipmentStatus = (this.equipmentStatus + value) % 4;
+            this.equipmentStatus = (this.equipmentStatus + value) % 6;
         }
         else if (options == ExtendedConfig.Options.EQUIPMENT_POSITION)
         {

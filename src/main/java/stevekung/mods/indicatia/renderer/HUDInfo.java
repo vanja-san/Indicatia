@@ -3,6 +3,8 @@ package stevekung.mods.indicatia.renderer;
 import java.text.DateFormat;
 import java.util.*;
 
+import com.google.common.math.DoubleMath;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
@@ -437,7 +439,7 @@ public class HUDInfo
         {
             leftItemStackList.add(mainHandItem);
             String itemCount = HUDInfo.getInventoryItemCount(mc.thePlayer.inventory, mainHandItem);
-            leftItemStatusList.add(mainHandItem.isItemStackDamageable() ? HUDInfo.getArmorDurabilityStatus(mainHandItem) : status.equals("none") ? "" : HUDInfo.getItemStackCount(mainHandItem, Integer.parseInt(itemCount)));
+            leftItemStatusList.add(!(status.equals("count") || status.equals("count_and_stack")) && mainHandItem.isItemStackDamageable() ? HUDInfo.getArmorDurabilityStatus(mainHandItem) : status.equals("none") ? "" : HUDInfo.getItemStackCount(mainHandItem, Integer.parseInt(itemCount)));
 
             if (mainHandItem.getItem() == Items.bow)
             {
@@ -642,6 +644,8 @@ public class HUDInfo
         case "damage":
             return String.valueOf(itemStack.getMaxDamage() - itemStack.getItemDamage());
         case "none":
+        case "count":
+        case "count_and_stack":
             return "";
         }
     }
@@ -698,13 +702,23 @@ public class HUDInfo
 
     static String getInventoryItemCount(InventoryPlayer inventory, ItemStack other)
     {
+        String status = EnumEquipment.Status.getById(ExtendedConfig.instance.equipmentStatus);
         int count = 0;
 
         for (int i = 0; i < inventory.getSizeInventory(); i++)
         {
             ItemStack playerItems = inventory.getStackInSlot(i);
 
-            if (playerItems != null && playerItems.getItem() == other.getItem() && playerItems.getItemDamage() == other.getItemDamage() && ItemStack.areItemStackTagsEqual(playerItems, other))
+            if (playerItems == null)
+            {
+                continue;
+            }
+            if (other.isItemStackDamageable() && (status.equals("count") || status.equals("count_and_stack")))
+            {
+                break;
+            }
+
+            if (playerItems.getItem() == other.getItem() && playerItems.getItemDamage() == other.getItemDamage() && ItemStack.areItemStackTagsEqual(playerItems, other))
             {
                 count += playerItems.stackSize;
             }
@@ -730,7 +744,16 @@ public class HUDInfo
 
     static String getItemStackCount(ItemStack itemStack, int count)
     {
-        return count == 0 || count == 1 || count == 1 && itemStack.hasTagCompound() && itemStack.getTagCompound().getBoolean("Unbreakable") ? "" : String.valueOf(count);
+        String status = EnumEquipment.Status.getById(ExtendedConfig.instance.equipmentStatus);
+        double stack = count / 64.0D;
+        int stackInt = count / 64;
+        String stackText = String.format("%.2f", stack);
+
+        if (DoubleMath.isMathematicalInteger(stack))
+        {
+            stackText = String.valueOf(stackInt);
+        }
+        return count == 0 || count == 1 || count == 1 && itemStack.hasTagCompound() && itemStack.getTagCompound().getBoolean("Unbreakable") ? "" : String.valueOf(status.equals("count_and_stack") ? count + "/" + stackText : count);
     }
 
     static String getArrowStackCount(int count)
