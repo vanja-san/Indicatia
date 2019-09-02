@@ -585,6 +585,21 @@ public abstract class MinecraftMixin
             this.that.gameSettings.smoothCamera = !this.that.gameSettings.smoothCamera;
         }
 
+        for (int l = 0; l < 9; ++l)
+        {
+            if (this.that.gameSettings.keyBindsHotbar[l].isPressed())
+            {
+                if (this.that.thePlayer.isSpectator())
+                {
+                    this.that.ingameGUI.getSpectatorGui().func_175260_a(l);
+                }
+                else
+                {
+                    this.that.thePlayer.inventory.currentItem = l;
+                }
+            }
+        }
+
         while (this.that.gameSettings.keyBindInventory.isPressed())
         {
             if (this.that.playerController.isRidingHorse())
