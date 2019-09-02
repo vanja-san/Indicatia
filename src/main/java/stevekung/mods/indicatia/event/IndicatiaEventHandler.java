@@ -146,14 +146,6 @@ public class IndicatiaEventHandler
         {
             ++movement.moveForward;
         }
-        if (Keyboard.isKeyDown(Keyboard.KEY_F3) && Keyboard.isKeyDown(Keyboard.KEY_D))
-        {
-            ++movement.moveStrafe;
-        }
-        if (Keyboard.isKeyDown(Keyboard.KEY_F3) && Keyboard.isKeyDown(Keyboard.KEY_A))
-        {
-            --movement.moveStrafe;
-        }
 
         // toggle sneak
         movement.sneak = this.mc.gameSettings.keyBindSneak.isKeyDown() || ExtendedConfig.instance.toggleSneak && !event.getEntityPlayer().isSpectator();

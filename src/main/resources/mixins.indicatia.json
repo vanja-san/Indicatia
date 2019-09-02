@@ -29,6 +29,7 @@
         "ClientCommandHandlerMixin",
         "RendererLivingEntityMixin",
         "RenderMixin",
-        "RenderLightningBoltMixin"
+        "RenderLightningBoltMixin",
+        "MinecraftMixin"
     ]
 }
