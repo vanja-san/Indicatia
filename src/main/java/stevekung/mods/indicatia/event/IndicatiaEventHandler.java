@@ -64,8 +64,6 @@ public class IndicatiaEventHandler
     private static long sneakTimeOld = 0L;
     private static boolean sneakingOld = false;
 
-
-
     public IndicatiaEventHandler()
     {
         this.mc = Minecraft.getMinecraft();
@@ -173,7 +171,7 @@ public class IndicatiaEventHandler
         }
 
         // afk stuff
-        if (!IndicatiaEventHandler.afkMode.equals("360_move"))
+        if (IndicatiaEventHandler.afkMode.equals("move") || IndicatiaEventHandler.afkMode.equals("360_move"))
         {
             int afkMoveTick = IndicatiaEventHandler.afkMoveTicks;
 
@@ -402,11 +400,11 @@ public class IndicatiaEventHandler
             }
             else if (IndicatiaEventHandler.afkMode.equals("360"))
             {
-                player.setAngles((float)(Math.random() + 1.0F), 0.0F);
+                player.setAngles((float)(Math.random() + 1.0F), angle);
             }
             else if (IndicatiaEventHandler.afkMode.equals("360_move"))
             {
-                player.setAngles((float)(Math.random() + 1.0F), 0.0F);
+                player.setAngles((float)(Math.random() + 1.0F), angle);
                 IndicatiaEventHandler.afkMoveTicks++;
                 IndicatiaEventHandler.afkMoveTicks %= 8;
             }
