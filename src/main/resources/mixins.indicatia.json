@@ -30,6 +30,7 @@
         "RendererLivingEntityMixin",
         "RenderMixin",
         "RenderLightningBoltMixin",
-        "MinecraftMixin"
+        "MinecraftMixin",
+        "NetworkManagerMixin"
     ]
 }
