@@ -9,6 +9,8 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.relauncher.Side;
@@ -27,6 +29,28 @@ public class GuiButtonItem extends GuiButton
     @Override
     public void drawButton(Minecraft mc, int mouseX, int mouseY)
     {
+        boolean hasVisibleEffect = false;
+
+        for (PotionEffect potioneffect : mc.thePlayer.getActivePotionEffects())
+        {
+            Potion potion = Potion.potionTypes[potioneffect.getPotionID()];
+
+            if (potion.shouldRender(potioneffect))
+            {
+                hasVisibleEffect = true;
+                break;
+            }
+        }
+
+        if (!mc.thePlayer.getActivePotionEffects().isEmpty() && hasVisibleEffect)
+        {
+            this.xPosition = mc.currentScreen.width / 2 + 121;
+        }
+        else
+        {
+            this.xPosition = mc.currentScreen.width / 2 + 61;
+        }
+
         if (this.visible)
         {
             mc.getTextureManager().bindTexture(TEXTURE);
