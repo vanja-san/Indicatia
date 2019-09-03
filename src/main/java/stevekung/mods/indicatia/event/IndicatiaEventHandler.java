@@ -13,6 +13,7 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiIngameMenu;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiMultiplayer;
+import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.multiplayer.ServerAddress;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.entity.player.EntityPlayer;
@@ -37,6 +38,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import stevekung.mods.indicatia.config.ConfigManagerIN;
 import stevekung.mods.indicatia.config.ExtendedConfig;
+import stevekung.mods.indicatia.gui.GuiButtonItem;
 import stevekung.mods.indicatia.gui.GuiButtonMojangStatus;
 import stevekung.mods.indicatia.gui.GuiConfirmDisconnect;
 import stevekung.mods.indicatia.gui.GuiMojangStatusChecker;
@@ -125,7 +127,7 @@ public class IndicatiaEventHandler
                 {
                     if (action != EnumAction.NONE)
                     {
-                        if (ConfigManagerIN.enableAdditionalBlockhitAnimation && this.mc.gameSettings.keyBindAttack.isKeyDown() && this.mc.thePlayer != null && this.mc.objectMouseOver != null && this.mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && this.mc.thePlayer.getCurrentEquippedItem() != null && this.mc.thePlayer.getCurrentEquippedItem().getItemUseAction() == action)
+                        if (ConfigManagerIN.enableAdditionalBlockhitAnimation && this.mc.gameSettings.keyBindAttack.isKeyDown() && this.mc.objectMouseOver != null && this.mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && this.mc.thePlayer.getCurrentEquippedItem() != null && this.mc.thePlayer.getCurrentEquippedItem().getItemUseAction() == action)
                         {
                             this.mc.thePlayer.swingItem();
                         }
@@ -265,6 +267,11 @@ public class IndicatiaEventHandler
             int height = event.gui.height / 4 + 48;
             event.buttonList.add(new GuiButtonMojangStatus(200, event.gui.width / 2 + 104, height + 84));
         }
+        if (event.gui instanceof GuiInventory && HypixelEventHandler.isSkyBlock)
+        {
+            int height = event.gui.height / 2 - 106;
+            event.buttonList.add(new GuiButtonItem(999, event.gui.width / 2 + 61, height + 84));
+        }
     }
 
     @SubscribeEvent
@@ -310,6 +317,13 @@ public class IndicatiaEventHandler
             if (event.button.id == 200)
             {
                 this.mc.displayGuiScreen(new GuiMojangStatusChecker(event.gui));
+            }
+        }
+        if (event.gui instanceof GuiInventory && HypixelEventHandler.isSkyBlock)
+        {
+            if (event.button.id == 999)
+            {
+                this.mc.thePlayer.sendChatMessage("/enderchest");
             }
         }
     }
