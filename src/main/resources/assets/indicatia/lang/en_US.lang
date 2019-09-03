@@ -19,6 +19,9 @@ gui.config.indicatia.confirm_disconnect_button=This will display confirmation bu
 # KEY BINDING
 key.indicatia.category=Indicatia
 key.quick_config.desc=Quick Config GUI
+key.sb_ender_chest.desc=Sky Block Ender Chest
+key.sb_crafted_minions.desc=Sky Block Crafted Minions
+key.sb_crafting_table.desc=Sky Block Crafting Table
 
 # COMMAND
 commands.afk.usage=/afk <start:reason|stop|change_reason|mode...>

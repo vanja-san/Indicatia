@@ -1,5 +1,6 @@
 package stevekung.mods.indicatia.event;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -12,6 +13,7 @@ import com.google.common.collect.Lists;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
+import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.inventory.GuiEditSign;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemSword;
@@ -25,8 +27,10 @@ import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.sound.PlaySoundEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import stevekung.mods.indicatia.config.ExtendedConfig;
+import stevekung.mods.indicatia.handler.KeyBindingHandler;
 import stevekung.mods.indicatia.utils.InfoUtils;
 import stevekung.mods.indicatia.utils.JsonUtils;
 
@@ -37,6 +41,7 @@ public class HypixelEventHandler
     public static boolean isSkyBlock = false;
     public static boolean skyBlockOwnIsland = false;
     public static boolean skyBlockBlazingFortress = false;
+    private static final List<String> PARTY_LIST = new ArrayList<>();
     private Minecraft mc;
 
     public HypixelEventHandler()
@@ -47,6 +52,11 @@ public class HypixelEventHandler
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent event)
     {
+        if (this.mc.currentScreen != null && this.mc.currentScreen instanceof GuiMainMenu)
+        {
+            HypixelEventHandler.PARTY_LIST.clear();
+        }
+
         if (this.mc.thePlayer != null)
         {
             if (event.phase == TickEvent.Phase.START)
@@ -160,6 +170,11 @@ public class HypixelEventHandler
                     ExtendedConfig.instance.hypixelNickName = "";
                     ExtendedConfig.instance.save();
                 }
+                else if (unformattedText.contains(" joined the party!"))
+                {
+                    String name = unformattedText.replace(" joined the party!", "");
+                    HypixelEventHandler.PARTY_LIST.add(name);
+                }
 
                 if (nickMatcher.matches())
                 {
@@ -169,9 +184,35 @@ public class HypixelEventHandler
                 if (unformattedText.contains("is visiting Your Island!") && ExtendedConfig.instance.addPartyVisitIsland)
                 {
                     String name = unformattedText.replace("[SkyBlock] ", "").replace("[VIP] ", "").replace("[VIP+] ", "").replace("[MVP] ", "").replace("[MVP+] ", "").replace(" is visiting Your Island!", "");
-                    this.mc.thePlayer.sendChatMessage("/p " + name);
+
+                    if (!HypixelEventHandler.PARTY_LIST.stream().anyMatch(pname -> pname.equals(name)))
+                    {
+                        this.mc.thePlayer.sendChatMessage("/p " + name);
+                    }
                 }
             }
+        }
+    }
+
+    @SubscribeEvent
+    public void onPressKey(InputEvent.KeyInputEvent event)
+    {
+        if (!HypixelEventHandler.isSkyBlock)
+        {
+            return;
+        }
+
+        if (KeyBindingHandler.KEY_SB_ENDER_CHEST.isKeyDown())
+        {
+            this.mc.thePlayer.sendChatMessage("/enderchest");
+        }
+        else if (KeyBindingHandler.KEY_SB_CRAFTED_MINIONS.isKeyDown())
+        {
+            this.mc.thePlayer.sendChatMessage("/craftedgenerators");
+        }
+        else if (KeyBindingHandler.KEY_SB_CRAFTING_TABLE.isKeyDown())
+        {
+            this.mc.thePlayer.sendChatMessage("/viewcraftingtable");
         }
     }
 
