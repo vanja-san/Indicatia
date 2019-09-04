@@ -17,7 +17,9 @@ import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.multiplayer.ServerAddress;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.EnumAction;
+import net.minecraft.item.Item;
 import net.minecraft.network.EnumConnectionState;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.handshake.client.C00Handshake;
@@ -262,15 +264,22 @@ public class IndicatiaEventHandler
     @SubscribeEvent
     public void onInitGui(GuiScreenEvent.InitGuiEvent.Post event)
     {
+        int width = event.gui.width / 2;
+
         if (event.gui instanceof GuiMainMenu)
         {
             int height = event.gui.height / 4 + 48;
-            event.buttonList.add(new GuiButtonMojangStatus(200, event.gui.width / 2 + 104, height + 84));
+            event.buttonList.add(new GuiButtonMojangStatus(200, width + 104, height + 84));
         }
         if (event.gui instanceof GuiInventory && HypixelEventHandler.isSkyBlock)
         {
             int height = event.gui.height / 2 - 106;
-            event.buttonList.add(new GuiButtonItem(999, event.gui.width / 2 + 61, height + 84));
+
+            if (HypixelEventHandler.SKY_BLOCK_LOCATION == SkyBlockLocation.VILLAGE)
+            {
+                event.buttonList.add(new GuiButtonItem(1000, width + 10, height + 86, width + 70, Item.getItemFromBlock(Blocks.crafting_table)));
+            }
+            event.buttonList.add(new GuiButtonItem(999, width - 9, height + 86, width + 51, Item.getItemFromBlock(Blocks.ender_chest)));
         }
     }
 
@@ -324,6 +333,10 @@ public class IndicatiaEventHandler
             if (event.button.id == 999)
             {
                 this.mc.thePlayer.sendChatMessage("/enderchest");
+            }
+            else if (event.button.id == 1000)
+            {
+                this.mc.thePlayer.sendChatMessage("/viewcraftingtable");
             }
         }
     }

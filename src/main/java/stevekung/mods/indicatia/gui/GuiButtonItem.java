@@ -7,7 +7,7 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
@@ -20,10 +20,16 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class GuiButtonItem extends GuiButton
 {
     private static final ResourceLocation TEXTURE = new ResourceLocation("indicatia:textures/gui/blank.png");
+    private final int originalX;
+    private final int potionX;
+    private final Item item;
 
-    public GuiButtonItem(int buttonID, int xPos, int yPos)
+    public GuiButtonItem(int buttonID, int xPos, int yPos, int potionX, Item item)
     {
-        super(buttonID, xPos, yPos, 20, 20, "");
+        super(buttonID, xPos, yPos, 18, 18, "");
+        this.originalX = xPos;
+        this.potionX = potionX;
+        this.item = item;
     }
 
     @Override
@@ -44,32 +50,33 @@ public class GuiButtonItem extends GuiButton
 
         if (!mc.thePlayer.getActivePotionEffects().isEmpty() && hasVisibleEffect)
         {
-            this.xPosition = mc.currentScreen.width / 2 + 121;
+            this.xPosition = this.potionX;
         }
         else
         {
-            this.xPosition = mc.currentScreen.width / 2 + 61;
+            this.xPosition = this.originalX;
         }
 
         if (this.visible)
         {
+            ItemStack itemStack = new ItemStack(this.item);
+            boolean flag = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
+
             mc.getTextureManager().bindTexture(TEXTURE);
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-            boolean flag = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
-            Gui.drawModalRectWithCustomSizedTexture(this.xPosition, this.yPosition, flag ? 20 : 0, 0, this.width, this.height, 40, 20);
+            Gui.drawModalRectWithCustomSizedTexture(this.xPosition, this.yPosition, flag ? 18 : 0, 0, this.width, this.height, 36, 18);
 
-            ItemStack itemStack = new ItemStack(Blocks.ender_chest);
             GlStateManager.enableDepth();
             GlStateManager.enableRescaleNormal();
             GlStateManager.enableBlend();
             GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
             RenderHelper.enableGUIStandardItemLighting();
             GlStateManager.enableLighting();
-            mc.getRenderItem().renderItemAndEffectIntoGUI(itemStack, this.xPosition + 2, this.yPosition + 1);
+            mc.getRenderItem().renderItemAndEffectIntoGUI(itemStack, this.xPosition + 1, this.yPosition + 1);
 
             if (flag)
             {
-                GuiUtils.drawHoveringText(Collections.singletonList(Blocks.ender_chest.getLocalizedName()), mouseX, mouseY, mc.currentScreen.width, mc.currentScreen.height, mc.fontRendererObj.getStringWidth(Blocks.ender_chest.getLocalizedName()), mc.fontRendererObj);
+                GuiUtils.drawHoveringText(Collections.singletonList(this.item.getItemStackDisplayName(itemStack)), mouseX, mouseY, mc.currentScreen.width, mc.currentScreen.height, mc.fontRendererObj.getStringWidth(this.item.getItemStackDisplayName(itemStack)), mc.fontRendererObj);
             }
         }
     }

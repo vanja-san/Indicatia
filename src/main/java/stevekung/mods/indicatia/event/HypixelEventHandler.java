@@ -31,16 +31,17 @@ import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import stevekung.mods.indicatia.config.ExtendedConfig;
 import stevekung.mods.indicatia.handler.KeyBindingHandler;
+import stevekung.mods.indicatia.utils.CachedEnum;
 import stevekung.mods.indicatia.utils.InfoUtils;
 import stevekung.mods.indicatia.utils.JsonUtils;
+import stevekung.mods.indicatia.utils.SkyBlockLocation;
 
 public class HypixelEventHandler
 {
     private static final Pattern nickPattern = Pattern.compile("^You are now nicked as (?<nick>\\w+)!");
     private static final Pattern LETTERS_NUMBERS = Pattern.compile("[^a-z A-Z:0-9/]");
     public static boolean isSkyBlock = false;
-    public static boolean skyBlockOwnIsland = false;
-    public static boolean skyBlockBlazingFortress = false;
+    public static SkyBlockLocation SKY_BLOCK_LOCATION = SkyBlockLocation.YOUR_ISLAND;
     private static final List<String> PARTY_LIST = new ArrayList<>();
     private Minecraft mc;
 
@@ -82,24 +83,14 @@ public class HypixelEventHandler
                     for (Score score1 : collection)
                     {
                         ScorePlayerTeam scorePlayerTeam = scoreboard.getPlayersTeam(score1.getPlayerName());
-                        String location = this.keepLettersAndNumbersOnly(EnumChatFormatting.getTextWithoutFormattingCodes(ScorePlayerTeam.formatPlayerName(scorePlayerTeam, score1.getPlayerName())));
+                        String locationScore = this.keepLettersAndNumbersOnly(EnumChatFormatting.getTextWithoutFormattingCodes(ScorePlayerTeam.formatPlayerName(scorePlayerTeam, score1.getPlayerName())));
 
-                        if (location.endsWith("Your Island"))
+                        for (SkyBlockLocation location : CachedEnum.locationValues)
                         {
-                            HypixelEventHandler.skyBlockOwnIsland = true;
-                        }
-                        else
-                        {
-                            HypixelEventHandler.skyBlockOwnIsland = false;
-                        }
-
-                        if (location.endsWith("Blazing Fortress"))
-                        {
-                            HypixelEventHandler.skyBlockBlazingFortress = true;
-                        }
-                        else
-                        {
-                            HypixelEventHandler.skyBlockBlazingFortress = false;
+                            if (locationScore.endsWith(location.getLocation()))
+                            {
+                                HypixelEventHandler.SKY_BLOCK_LOCATION = location;
+                            }
                         }
                     }
 
@@ -223,7 +214,7 @@ public class HypixelEventHandler
 
         if (this.mc.theWorld != null)
         {
-            if (HypixelEventHandler.skyBlockBlazingFortress && name.equals("records.13"))
+            if (HypixelEventHandler.SKY_BLOCK_LOCATION == SkyBlockLocation.BLAZING_FORTRESS && name.equals("records.13"))
             {
                 this.mc.ingameGUI.displayTitle(JsonUtils.create("Preparing spawn...").setChatStyle(JsonUtils.red()).getFormattedText(), JsonUtils.create("").setChatStyle(JsonUtils.red()).getFormattedText(), 0, 1200, 20);
                 this.mc.getSoundHandler().playSound(new PositionedSoundRecord(new ResourceLocation("random.orb"), 0.75F, 1.0F, (float)this.mc.thePlayer.posX + 0.5F, (float)this.mc.thePlayer.posY + 0.5F, (float)this.mc.thePlayer.posZ + 0.5F));

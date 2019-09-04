@@ -14,4 +14,5 @@ public class CachedEnum
     public static final EnumFacing.Axis[] axisValues = EnumFacing.Axis.values();
     public static final EnumChatFormatting[] textFormatValues = EnumChatFormatting.values();
     public static final EnumAction[] actionValues = EnumAction.values();
+    public static final SkyBlockLocation[] locationValues = SkyBlockLocation.values();
 }

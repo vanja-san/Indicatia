@@ -12,6 +12,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import stevekung.mods.indicatia.event.HypixelEventHandler;
+import stevekung.mods.indicatia.utils.SkyBlockLocation;
 
 @Mixin(BlockFarmland.class)
 public abstract class BlockFarmlandMixin extends Block
@@ -24,7 +25,7 @@ public abstract class BlockFarmlandMixin extends Block
     @Inject(method = "onFallenUpon(Lnet/minecraft/world/World;Lnet/minecraft/util/BlockPos;Lnet/minecraft/entity/Entity;F)V", cancellable = true, at = @At("HEAD"))
     private void onFallenUpon(World world, BlockPos pos, Entity entity, float fallDistance, CallbackInfo info)
     {
-        if (HypixelEventHandler.isSkyBlock && !HypixelEventHandler.skyBlockOwnIsland)
+        if (HypixelEventHandler.isSkyBlock && HypixelEventHandler.SKY_BLOCK_LOCATION != SkyBlockLocation.YOUR_ISLAND)
         {
             info.cancel();
         }
