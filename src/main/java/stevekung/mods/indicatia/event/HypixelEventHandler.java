@@ -108,7 +108,7 @@ public class HypixelEventHandler
 
                     if (!found)
                     {
-                        HypixelEventHandler.SKY_BLOCK_LOCATION = null;
+                        HypixelEventHandler.SKY_BLOCK_LOCATION = SkyBlockLocation.NONE;
                     }
                 }
             }

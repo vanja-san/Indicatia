@@ -275,7 +275,7 @@ public class IndicatiaEventHandler
         {
             int height = event.gui.height / 2 - 106;
 
-            if (HypixelEventHandler.SKY_BLOCK_LOCATION == SkyBlockLocation.VILLAGE)
+            if (HypixelEventHandler.SKY_BLOCK_LOCATION.isPublicIsland())
             {
                 event.buttonList.add(new GuiButtonItem(1000, width + 10, height + 86, width + 70, Item.getItemFromBlock(Blocks.crafting_table)));
             }
