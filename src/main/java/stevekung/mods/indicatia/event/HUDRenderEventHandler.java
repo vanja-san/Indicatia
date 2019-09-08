@@ -51,7 +51,7 @@ public class HUDRenderEventHandler
         long now = System.currentTimeMillis();
         boolean isHook = EnumChatFormatting.getTextWithoutFormattingCodes(event.getItemStack().getDisplayName()).equals("Grappling Hook");
 
-        if (isHook && now - this.lastGrapplingHookUse > 2000 + IndicatiaEventHandler.currentServerPing)
+        if (isHook && now - this.lastGrapplingHookUse > 2000)
         {
             this.lastGrapplingHookUse = now;
         }
@@ -63,7 +63,7 @@ public class HUDRenderEventHandler
         long now = System.currentTimeMillis();
         Block block = event.getWorld().getBlockState(event.getPos()).getBlock();
 
-        if (block instanceof BlockLog && now - this.lastBlockBreak > 2000 + IndicatiaEventHandler.currentServerPing)
+        if (block instanceof BlockLog && now - this.lastBlockBreak > 2000)
         {
             this.lastBlockBreak = now;
         }
@@ -290,7 +290,6 @@ public class HUDRenderEventHandler
 
     private double getItemDelay(long delay)
     {
-        delay += IndicatiaEventHandler.currentServerPing;
         long now = System.currentTimeMillis();
         DecimalFormat numberFormat = new DecimalFormat("0.0");
         double seconds = 2.0D - (now - delay) / 1000.0D;

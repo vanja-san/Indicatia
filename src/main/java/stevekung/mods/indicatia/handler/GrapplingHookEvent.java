@@ -14,6 +14,6 @@ public class GrapplingHookEvent extends Event
 
     public ItemStack getItemStack()
     {
-        return itemStack;
+        return this.itemStack;
     }
 }
