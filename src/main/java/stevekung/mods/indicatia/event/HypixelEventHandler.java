@@ -66,6 +66,7 @@ public class HypixelEventHandler
 
                 if (this.mc.theWorld != null)
                 {
+                    boolean found = false;
                     ScoreObjective scoreObj = this.mc.theWorld.getScoreboard().getObjectiveInDisplaySlot(1);
                     Scoreboard scoreboard = this.mc.theWorld.getScoreboard();
                     Collection<Score> collection = scoreboard.getSortedScores(scoreObj);
@@ -90,6 +91,8 @@ public class HypixelEventHandler
                             if (locationScore.endsWith(location.getLocation()))
                             {
                                 HypixelEventHandler.SKY_BLOCK_LOCATION = location;
+                                found = true;
+                                break;
                             }
                         }
                     }
@@ -101,6 +104,11 @@ public class HypixelEventHandler
                     else
                     {
                         HypixelEventHandler.isSkyBlock = false;
+                    }
+
+                    if (!found)
+                    {
+                        HypixelEventHandler.SKY_BLOCK_LOCATION = null;
                     }
                 }
             }
@@ -214,7 +222,7 @@ public class HypixelEventHandler
 
         if (this.mc.theWorld != null)
         {
-            if (HypixelEventHandler.SKY_BLOCK_LOCATION == SkyBlockLocation.BLAZING_FORTRESS && name.equals("records.13"))
+            if (name.equals("records.13") && HypixelEventHandler.SKY_BLOCK_LOCATION == SkyBlockLocation.BLAZING_FORTRESS)
             {
                 this.mc.ingameGUI.displayTitle(JsonUtils.create("Preparing spawn...").setChatStyle(JsonUtils.red()).getFormattedText(), JsonUtils.create("").setChatStyle(JsonUtils.red()).getFormattedText(), 0, 1200, 20);
                 this.mc.getSoundHandler().playSound(new PositionedSoundRecord(new ResourceLocation("random.orb"), 0.75F, 1.0F, (float)this.mc.thePlayer.posX + 0.5F, (float)this.mc.thePlayer.posY + 0.5F, (float)this.mc.thePlayer.posZ + 0.5F));

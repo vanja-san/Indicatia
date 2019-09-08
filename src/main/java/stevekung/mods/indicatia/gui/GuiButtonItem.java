@@ -78,6 +78,7 @@ public class GuiButtonItem extends GuiButton
             {
                 GuiUtils.drawHoveringText(Collections.singletonList(this.item.getItemStackDisplayName(itemStack)), mouseX, mouseY, mc.currentScreen.width, mc.currentScreen.height, mc.fontRendererObj.getStringWidth(this.item.getItemStackDisplayName(itemStack)), mc.fontRendererObj);
             }
+            RenderHelper.enableGUIStandardItemLighting();
         }
     }
 }
