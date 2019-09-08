@@ -121,6 +121,8 @@ real_time_color.extended_config=Real Time Color
 game_time_color.extended_config=Game Time Color
 game_weather_color.extended_config=Game Weather Color
 moon_phase_color.extended_config=Moon Phase Color
+jungle_axe_delay_color.extended_config=Jungle Axe Delay Color
+grappling_hook_delay_color.extended_config=Grappling Hook Delay Color
 fps_value_color.extended_config=FPS Value Color
 fps_26_and_40_color.extended_config=FPS 26 & 40 Color
 fps_low_25_color.extended_config=FPS < 25 Color
@@ -139,6 +141,10 @@ game_weather_value_color.extended_config=Game Weather Value Color
 moon_phase_value_color.extended_config=Moon Phase Value Color
 right_click_add_party.extended_config=Right Click to Add Party
 add_party_visit_island.extended_config=Add Party when people visit island
+jungle_axe_delay.extended_config=Jungle Axe Delay
+grappling_hook_delay.extended_config=Grappling Hook Delay
+jungle_axe_overlay.extended_config=Jungle Axe Overlay
+grappling_hook_overlay.extended_config=Grappling Hook Overlay
 
 # MESSAGE
 message.stop_afk=I'm back from %s! AFK Time is : %s minutes

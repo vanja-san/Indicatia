@@ -86,6 +86,8 @@ public class ExtendedConfig
     public String gameTimeColor = defaultWhite;
     public String gameWeatherColor = defaultWhite;
     public String moonPhaseColor = defaultWhite;
+    public String jungleAxeDelayColor = defaultWhite;
+    public String grapplingHookDelayColor = defaultWhite;
 
     // Custom Color : Value
     public String fpsValueColor = "85,255,85";
@@ -112,9 +114,13 @@ public class ExtendedConfig
     // Hypixel
     public boolean rightClickToAddParty = false;
     public boolean addPartyVisitIsland = false;
+    public boolean jungleAxeOverlay = true;
+    public boolean grapplingHookOverlay = true;
     public String hypixelNickName = "";
     public int selectedHypixelMinigame = 0;
     public int hypixelMinigameScrollPos = 0;
+    public int jungleAxeDelay = 2000;
+    public int grapplingHookDelay = 2000;
 
     private ExtendedConfig() {}
 
@@ -189,6 +195,8 @@ public class ExtendedConfig
             this.gameTimeColor = ExtendedConfig.getString(nbt, "GameTimeColor", this.gameTimeColor);
             this.gameWeatherColor = ExtendedConfig.getString(nbt, "GameWeatherColor", this.gameWeatherColor);
             this.moonPhaseColor = ExtendedConfig.getString(nbt, "MoonPhaseColor", this.moonPhaseColor);
+            this.jungleAxeDelayColor = ExtendedConfig.getString(nbt, "JungleAxeDelayColor", this.jungleAxeDelayColor);
+            this.grapplingHookDelayColor = ExtendedConfig.getString(nbt, "GrapplingHookDelayColor", this.grapplingHookDelayColor);
 
             // Custom Color : Value
             this.fpsValueColor = ExtendedConfig.getString(nbt, "FPSValueColor", this.fpsValueColor);
@@ -218,6 +226,10 @@ public class ExtendedConfig
             this.hypixelNickName = ExtendedConfig.getString(nbt, "HypixelNickName", this.hypixelNickName);
             this.selectedHypixelMinigame = ExtendedConfig.getInteger(nbt, "SelectedHypixelMinigame", this.selectedHypixelMinigame);
             this.hypixelMinigameScrollPos = ExtendedConfig.getInteger(nbt, "HypixelMinigameScrollPos", this.hypixelMinigameScrollPos);
+            this.jungleAxeDelay = ExtendedConfig.getInteger(nbt, "JungleAxeDelay", this.jungleAxeDelay);
+            this.grapplingHookDelay = ExtendedConfig.getInteger(nbt, "GrapplingHookDelay", this.grapplingHookDelay);
+            this.jungleAxeOverlay = ExtendedConfig.getBoolean(nbt, "JungleAxeOverlay", this.jungleAxeOverlay);
+            this.grapplingHookOverlay = ExtendedConfig.getBoolean(nbt, "GrapplingHookOverlay", this.grapplingHookOverlay);
 
             LoggerIN.info("Loading extended config {}", ExtendedConfig.file.getPath());
         }
@@ -289,6 +301,8 @@ public class ExtendedConfig
             nbt.setString("GameTimeColor", this.gameTimeColor);
             nbt.setString("GameWeatherColor", this.gameWeatherColor);
             nbt.setString("MoonPhaseColor", this.moonPhaseColor);
+            nbt.setString("JungleAxeDelayColor", this.jungleAxeDelayColor);
+            nbt.setString("GrapplingHookDelayColor", this.grapplingHookDelayColor);
 
             // Custom Color : Value
             nbt.setString("FPSValueColor", this.fpsValueColor);
@@ -315,9 +329,13 @@ public class ExtendedConfig
             // Hypixel
             nbt.setBoolean("RightClickToAddParty", this.rightClickToAddParty);
             nbt.setBoolean("AddPartyVisitIsland", this.addPartyVisitIsland);
+            nbt.setBoolean("JungleAxeOverlay", this.jungleAxeOverlay);
+            nbt.setBoolean("GrapplingHookOverlay", this.grapplingHookOverlay);
             nbt.setString("HypixelNickName", this.hypixelNickName);
             nbt.setInteger("SelectedHypixelMinigame", this.selectedHypixelMinigame);
             nbt.setInteger("HypixelMinigameScrollPos", this.hypixelMinigameScrollPos);
+            nbt.setInteger("JungleAxeDelay", this.jungleAxeDelay);
+            nbt.setInteger("GrapplingHookDelay", this.grapplingHookDelay);
 
             CompressedStreamTools.safeWrite(nbt, !profileName.equalsIgnoreCase("default") ? new File(userDir, profileName + ".dat") : ExtendedConfig.file);
         }
@@ -554,6 +572,14 @@ public class ExtendedConfig
         {
             this.addPartyVisitIsland = !this.addPartyVisitIsland;
         }
+        else if (options == ExtendedConfig.Options.JUNGLE_AXE_OVERLAY)
+        {
+            this.jungleAxeOverlay = !this.jungleAxeOverlay;
+        }
+        else if (options == ExtendedConfig.Options.GRAPPLING_HOOK_OVERLAY)
+        {
+            this.grapplingHookOverlay = !this.grapplingHookOverlay;
+        }
     }
 
     public void setOptionFloatValue(ExtendedConfig.Options options, float value)
@@ -577,6 +603,15 @@ public class ExtendedConfig
         else if (options == ExtendedConfig.Options.POTION_LENGTH_Y_OFFSET_OVERLAP)
         {
             this.potionLengthYOffsetOverlap = (int) value;
+        }
+
+        else if (options == ExtendedConfig.Options.JUNGLE_AXE_DELAY)
+        {
+            this.jungleAxeDelay = (int) value;
+        }
+        else if (options == ExtendedConfig.Options.GRAPPLING_HOOK_DELAY)
+        {
+            this.grapplingHookDelay = (int) value;
         }
     }
 
@@ -633,6 +668,14 @@ public class ExtendedConfig
         else if (options == ExtendedConfig.Options.MOON_PHASE_COLOR)
         {
             this.moonPhaseColor = value;
+        }
+        else if (options == ExtendedConfig.Options.JUNGLE_AXE_DELAY_COLOR)
+        {
+            this.jungleAxeDelayColor = value;
+        }
+        else if (options == ExtendedConfig.Options.GRAPPLING_HOOK_DELAY_COLOR)
+        {
+            this.grapplingHookDelayColor = value;
         }
 
         else if (options == ExtendedConfig.Options.FPS_VALUE_COLOR)
@@ -723,6 +766,15 @@ public class ExtendedConfig
         {
             return this.potionLengthYOffsetOverlap;
         }
+
+        else if (settingOption == ExtendedConfig.Options.JUNGLE_AXE_DELAY)
+        {
+            return this.jungleAxeDelay;
+        }
+        else if (settingOption == ExtendedConfig.Options.GRAPPLING_HOOK_DELAY)
+        {
+            return this.grapplingHookDelay;
+        }
         return 0.0F;
     }
 
@@ -771,6 +823,10 @@ public class ExtendedConfig
             return this.rightClickToAddParty;
         case ADD_PARTY_VISIT_ISLAND:
             return this.addPartyVisitIsland;
+        case JUNGLE_AXE_OVERLAY:
+            return this.jungleAxeOverlay;
+        case GRAPPLING_HOOK_OVERLAY:
+            return this.grapplingHookOverlay;
         default:
             return false;
         }
@@ -806,6 +862,10 @@ public class ExtendedConfig
             return this.gameWeatherColor;
         case MOON_PHASE_COLOR:
             return this.moonPhaseColor;
+        case JUNGLE_AXE_DELAY_COLOR:
+            return this.jungleAxeDelayColor;
+        case GRAPPLING_HOOK_DELAY_COLOR:
+            return this.grapplingHookDelayColor;
 
         case FPS_VALUE_COLOR:
             return this.fpsValueColor;
@@ -904,6 +964,8 @@ public class ExtendedConfig
         GAME_TIME_COLOR(false, false, true),
         GAME_WEATHER_COLOR(false, false, true),
         MOON_PHASE_COLOR(false, false, true),
+        JUNGLE_AXE_DELAY_COLOR(false, false, true),
+        GRAPPLING_HOOK_DELAY_COLOR(false, false, true),
 
         FPS_VALUE_COLOR(false, false, true),
         FPS_26_AND_40_COLOR(false, false, true),
@@ -924,6 +986,10 @@ public class ExtendedConfig
 
         RIGHT_CLICK_ADD_PARTY(false, true),
         ADD_PARTY_VISIT_ISLAND(false, true),
+        JUNGLE_AXE_OVERLAY(false, true),
+        GRAPPLING_HOOK_OVERLAY(false, true),
+        JUNGLE_AXE_DELAY(true, false, 1500.0F, 2000.0F, 50.0F),
+        GRAPPLING_HOOK_DELAY(true, false, 1500.0F, 2000.0F, 50.0F),
         ;
 
         private final boolean isFloat;

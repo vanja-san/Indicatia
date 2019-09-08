@@ -22,6 +22,10 @@ public class GuiHypixelSettings extends GuiScreen
     {
         OPTIONS.add(ExtendedConfig.Options.RIGHT_CLICK_ADD_PARTY);
         OPTIONS.add(ExtendedConfig.Options.ADD_PARTY_VISIT_ISLAND);
+        OPTIONS.add(ExtendedConfig.Options.JUNGLE_AXE_OVERLAY);
+        OPTIONS.add(ExtendedConfig.Options.GRAPPLING_HOOK_OVERLAY);
+        OPTIONS.add(ExtendedConfig.Options.JUNGLE_AXE_DELAY);
+        OPTIONS.add(ExtendedConfig.Options.GRAPPLING_HOOK_DELAY);
     }
 
     public GuiHypixelSettings(GuiScreen parent)

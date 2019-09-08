@@ -30,6 +30,7 @@ import stevekung.mods.indicatia.gui.config.GuiRenderPreview;
 import stevekung.mods.indicatia.handler.ClientBlockBreakEvent;
 import stevekung.mods.indicatia.handler.GrapplingHookEvent;
 import stevekung.mods.indicatia.renderer.HUDInfo;
+import stevekung.mods.indicatia.utils.ColorUtils;
 import stevekung.mods.indicatia.utils.InfoUtils;
 import stevekung.mods.indicatia.utils.JsonUtils;
 import stevekung.mods.indicatia.utils.RenderUtils;
@@ -51,7 +52,7 @@ public class HUDRenderEventHandler
         long now = System.currentTimeMillis();
         boolean isHook = EnumChatFormatting.getTextWithoutFormattingCodes(event.getItemStack().getDisplayName()).equals("Grappling Hook");
 
-        if (isHook && now - this.lastGrapplingHookUse > 2000)
+        if (now - this.lastGrapplingHookUse > ExtendedConfig.instance.grapplingHookDelay && isHook)
         {
             this.lastGrapplingHookUse = now;
         }
@@ -63,7 +64,7 @@ public class HUDRenderEventHandler
         long now = System.currentTimeMillis();
         Block block = event.getWorld().getBlockState(event.getPos()).getBlock();
 
-        if (block instanceof BlockLog && now - this.lastBlockBreak > 2000)
+        if (now - this.lastBlockBreak > ExtendedConfig.instance.jungleAxeDelay && block instanceof BlockLog)
         {
             this.lastBlockBreak = now;
         }
@@ -72,8 +73,8 @@ public class HUDRenderEventHandler
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onPreInfoRender(RenderGameOverlayEvent.Pre event)
     {
-        double jungleAxeDelay = this.getItemDelay(this.lastBlockBreak);
-        double grapplingHookDelay = this.getItemDelay(this.lastGrapplingHookUse);
+        double jungleAxeDelay = this.getItemDelay(ExtendedConfig.instance.jungleAxeDelay, this.lastBlockBreak);
+        double grapplingHookDelay = this.getItemDelay(ExtendedConfig.instance.grapplingHookDelay, this.lastGrapplingHookUse);
 
         if (event.type == RenderGameOverlayEvent.ElementType.HOTBAR || event.type == RenderGameOverlayEvent.ElementType.CROSSHAIRS)
         {
@@ -89,13 +90,13 @@ public class HUDRenderEventHandler
                 return;
             }
 
-            if (jungleAxeDelay >= 0.01D)
+            if (ExtendedConfig.instance.jungleAxeOverlay && jungleAxeDelay >= 0.01D)
             {
-                this.renderCrosshairText(event, jungleAxeDelay);
+                this.renderCrosshairText(event, ColorUtils.stringToRGB(ExtendedConfig.instance.jungleAxeDelayColor).toColoredFont(), jungleAxeDelay);
             }
-            if (grapplingHookDelay >= 0.01D)
+            if (ExtendedConfig.instance.grapplingHookOverlay && grapplingHookDelay >= 0.01D)
             {
-                this.renderCrosshairText(event, grapplingHookDelay);
+                this.renderCrosshairText(event, ColorUtils.stringToRGB(ExtendedConfig.instance.grapplingHookDelayColor).toColoredFont(), grapplingHookDelay);
             }
 
             if (ConfigManagerIN.enableRenderInfo)
@@ -288,11 +289,11 @@ public class HUDRenderEventHandler
         }
     }
 
-    private double getItemDelay(long delay)
+    private double getItemDelay(int base, long delay)
     {
         long now = System.currentTimeMillis();
         DecimalFormat numberFormat = new DecimalFormat("0.0");
-        double seconds = 2.0D - (now - delay) / 1000.0D;
+        double seconds = base / 1000.0D - (now - delay) / 1000.0D;
 
         if (seconds >= 0.01D)
         {
@@ -301,10 +302,10 @@ public class HUDRenderEventHandler
         return 0.0D;
     }
 
-    private void renderCrosshairText(RenderGameOverlayEvent event, double value)
+    private void renderCrosshairText(RenderGameOverlayEvent event, String color, double value)
     {
         float width = event.resolution.getScaledWidth() / 2 - 7 + 1.0625F;
         float height = event.resolution.getScaledHeight() / 2 + 6;
-        this.mc.fontRendererObj.drawString(String.valueOf(value), width, height, 16777215, true);
+        this.mc.fontRendererObj.drawString(color + String.valueOf(value), width, height, 16777215, true);
     }
 }
