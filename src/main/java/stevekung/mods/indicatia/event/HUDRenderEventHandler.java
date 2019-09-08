@@ -1,8 +1,11 @@
 package stevekung.mods.indicatia.event;
 
+import java.text.DecimalFormat;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockLog;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.Gui;
@@ -13,6 +16,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.boss.BossStatus;
 import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.util.ChatStyle;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StringUtils;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderLivingEvent;
@@ -23,6 +27,8 @@ import stevekung.mods.indicatia.config.EnumEquipment;
 import stevekung.mods.indicatia.config.ExtendedConfig;
 import stevekung.mods.indicatia.config.HealthStatusMode;
 import stevekung.mods.indicatia.gui.config.GuiRenderPreview;
+import stevekung.mods.indicatia.handler.ClientBlockBreakEvent;
+import stevekung.mods.indicatia.handler.GrapplingHookEvent;
 import stevekung.mods.indicatia.renderer.HUDInfo;
 import stevekung.mods.indicatia.utils.InfoUtils;
 import stevekung.mods.indicatia.utils.JsonUtils;
@@ -30,16 +36,45 @@ import stevekung.mods.indicatia.utils.RenderUtils;
 
 public class HUDRenderEventHandler
 {
-    private Minecraft mc;
+    private final Minecraft mc;
+    private long lastBlockBreak = -1;
+    private long lastGrapplingHookUse = -1;
 
     public HUDRenderEventHandler()
     {
         this.mc = Minecraft.getMinecraft();
     }
 
+    @SubscribeEvent
+    public void onGrapplingHookUse(GrapplingHookEvent event)
+    {
+        long now = System.currentTimeMillis();
+        boolean isHook = EnumChatFormatting.getTextWithoutFormattingCodes(event.getItemStack().getDisplayName()).equals("Grappling Hook");
+
+        if (isHook && now - this.lastGrapplingHookUse > 2000 + IndicatiaEventHandler.currentServerPing)
+        {
+            this.lastGrapplingHookUse = now;
+        }
+    }
+
+    @SubscribeEvent
+    public void onClientBlockBreak(ClientBlockBreakEvent event)
+    {
+        long now = System.currentTimeMillis();
+        Block block = event.getWorld().getBlockState(event.getPos()).getBlock();
+
+        if (block instanceof BlockLog && now - this.lastBlockBreak > 2000 + IndicatiaEventHandler.currentServerPing)
+        {
+            this.lastBlockBreak = now;
+        }
+    }
+
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onPreInfoRender(RenderGameOverlayEvent.Pre event)
     {
+        double jungleAxeDelay = this.getItemDelay(this.lastBlockBreak);
+        double grapplingHookDelay = this.getItemDelay(this.lastGrapplingHookUse);
+
         if (event.type == RenderGameOverlayEvent.ElementType.HOTBAR || event.type == RenderGameOverlayEvent.ElementType.CROSSHAIRS)
         {
             if (this.mc.currentScreen instanceof GuiRenderPreview)
@@ -49,7 +84,21 @@ public class HUDRenderEventHandler
         }
         if (event.type == RenderGameOverlayEvent.ElementType.TEXT)
         {
-            if (ConfigManagerIN.enableRenderInfo && !this.mc.gameSettings.hideGUI && !this.mc.gameSettings.showDebugInfo && this.mc.thePlayer != null && this.mc.theWorld != null && !(this.mc.currentScreen instanceof GuiRenderPreview))
+            if (this.mc.gameSettings.hideGUI || this.mc.gameSettings.showDebugInfo || this.mc.thePlayer == null && this.mc.theWorld == null || this.mc.currentScreen instanceof GuiRenderPreview)
+            {
+                return;
+            }
+
+            if (jungleAxeDelay >= 0.01D)
+            {
+                this.renderCrosshairText(event, jungleAxeDelay);
+            }
+            if (grapplingHookDelay >= 0.01D)
+            {
+                this.renderCrosshairText(event, grapplingHookDelay);
+            }
+
+            if (ConfigManagerIN.enableRenderInfo)
             {
                 List<String> leftInfo = new LinkedList<>();
                 List<String> rightInfo = new LinkedList<>();
@@ -237,5 +286,26 @@ public class HUDRenderEventHandler
                 RenderUtils.renderEntityHealth(entity, heart + String.format("%.1f", health), event.x, event.y, event.z);
             }
         }
+    }
+
+    private double getItemDelay(long delay)
+    {
+        delay += IndicatiaEventHandler.currentServerPing;
+        long now = System.currentTimeMillis();
+        DecimalFormat numberFormat = new DecimalFormat("0.0");
+        double seconds = 2.0D - (now - delay) / 1000.0D;
+
+        if (seconds >= 0.01D)
+        {
+            return Double.valueOf(numberFormat.format(seconds));
+        }
+        return 0.0D;
+    }
+
+    private void renderCrosshairText(RenderGameOverlayEvent event, double value)
+    {
+        float width = event.resolution.getScaledWidth() / 2 - 7 + 1.0625F;
+        float height = event.resolution.getScaledHeight() / 2 + 6;
+        this.mc.fontRendererObj.drawString(String.valueOf(value), width, height, 16777215, true);
     }
 }

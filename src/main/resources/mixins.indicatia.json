@@ -31,6 +31,8 @@
         "RenderMixin",
         "RenderLightningBoltMixin",
         "MinecraftMixin",
-        "NetworkManagerMixin"
+        "NetworkManagerMixin",
+        "PlayerControllerMPMixin",
+        "ItemFishingRodMixin"
     ]
 }
