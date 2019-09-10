@@ -397,7 +397,7 @@ public class IndicatiaEventHandler
             int tick = IndicatiaEventHandler.afkTicks;
             int messageMin = 1200 * ConfigManagerIN.afkMessageTime;
             String s = "s";
-            float angle = (float)(tick % 2 == 0 ? Math.random() : -Math.random());
+            float angle = tick % 2 == 0 ? 0.0001F : -0.0001F;
 
             if (tick == 0)
             {
