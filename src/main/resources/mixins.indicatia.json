@@ -5,7 +5,6 @@
     "verbose": true,
     "mixins": [
         "EntityPlayerSPMixin",
-        "GuiIngameForgeMixin",
         "ItemRendererMixin",
         "GuiMultiplayerMixin",
         "GuiNewChatMixin",
