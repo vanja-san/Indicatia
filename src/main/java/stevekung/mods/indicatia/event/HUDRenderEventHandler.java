@@ -18,6 +18,7 @@ import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.util.ChatStyle;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StringUtils;
+import net.minecraftforge.client.GuiIngameForge;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -73,6 +74,7 @@ public class HUDRenderEventHandler
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onPreInfoRender(RenderGameOverlayEvent.Pre event)
     {
+        GuiIngameForge.renderObjective = !this.mc.gameSettings.showDebugInfo;
         double jungleAxeDelay = this.getItemDelay(ExtendedConfig.instance.jungleAxeDelay, this.lastBlockBreak);
         double grapplingHookDelay = this.getItemDelay(ExtendedConfig.instance.grapplingHookDelay, this.lastGrapplingHookUse);
 
