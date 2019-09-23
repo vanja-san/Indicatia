@@ -62,6 +62,11 @@ public class HUDRenderEventHandler
     @SubscribeEvent
     public void onClientBlockBreak(ClientBlockBreakEvent event)
     {
+        if (this.mc.thePlayer.getCurrentEquippedItem() != null && !EnumChatFormatting.getTextWithoutFormattingCodes(this.mc.thePlayer.getCurrentEquippedItem().getDisplayName()).equals("Jungle Axe"))
+        {
+            return;
+        }
+
         long now = System.currentTimeMillis();
         Block block = event.getWorld().getBlockState(event.getPos()).getBlock();
 
