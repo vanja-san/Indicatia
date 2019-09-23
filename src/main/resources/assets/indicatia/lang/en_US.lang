@@ -24,8 +24,6 @@ key.sb_crafted_minions.desc=Sky Block Crafted Minions
 key.sb_crafting_table.desc=Sky Block Crafting Table
 
 # COMMAND
-commands.afk.usage=/afk <start:reason|stop|change_reason|mode...>
-commands.afk.mode.usage=/afk mode <idle|move|360|360_move>
 commands.inprofile.usage=/inprofile <add|load|save|remove|list>
 commands.inprofile.add.usage=/inprofile add <name>
 commands.inprofile.load.usage=/inprofile load <name>
@@ -147,13 +145,6 @@ jungle_axe_overlay.extended_config=Jungle Axe Overlay
 grappling_hook_overlay.extended_config=Grappling Hook Overlay
 
 # MESSAGE
-message.stop_afk=I'm back from %s! AFK Time is : %s minutes
-message.afk_not_in_use=You didn't start using /afk command!
-message.afk_in_use=Already start AFK!
-message.afk_reason=Reason
-message.afk_for_now=AFK for now
-message.change_reason=Change AFK Reason from %s to %s
-message.set_afk_mode=Set AFK mode to %s
 message.toggle_sprint_enabled=Enabled Toggle Sprint
 message.toggle_sprint_disabled=Disabled Toggle Sprint
 message.toggle_sneak_enabled=Enabled Toggle Sneak

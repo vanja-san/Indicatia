@@ -9,7 +9,6 @@ import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.client.config.ConfigGuiType;
 import net.minecraftforge.fml.client.config.DummyConfigElement;
-import net.minecraftforge.fml.client.config.GuiConfigEntries.NumberSliderEntry;
 import net.minecraftforge.fml.client.config.IConfigElement;
 import stevekung.mods.indicatia.utils.LangUtils;
 
@@ -20,13 +19,11 @@ public class ConfigManagerIN
     public static final String KEY_BINDING_SETTINGS = "indicatia_key_binding_settings";
 
     // Main Settings
-    public static int afkMessageTime;
     public static String confirmDisconnectMode;
     public static boolean enableRenderInfo;
     public static boolean enableBlockhitAnimation;
     public static boolean enableAdditionalBlockhitAnimation;
     public static boolean enableOldArmorRender;
-    public static boolean enableAFKMessage;
     public static boolean enableFastChatRender;
     public static boolean enableCustomPlayerList;
     public static boolean enableCustomServerSelectionGui;
@@ -75,11 +72,6 @@ public class ConfigManagerIN
 
         prop = ConfigManagerIN.getProperty(ConfigManagerIN.MAIN_SETTINGS, "Enable Render Info", true);
         ConfigManagerIN.enableRenderInfo = prop.getBoolean();
-        propOrder.add(prop.getName());
-
-        prop = ConfigManagerIN.getProperty(ConfigManagerIN.MAIN_SETTINGS, "AFK Message Time (minute)", 5);
-        prop.setMinValue(1).setMaxValue(60).setConfigEntryClass(NumberSliderEntry.class);
-        ConfigManagerIN.afkMessageTime = prop.getInt();
         propOrder.add(prop.getName());
 
         prop = ConfigManagerIN.getProperty(ConfigManagerIN.MAIN_SETTINGS, "Confirm Disconnect Mode", "gui");
@@ -134,10 +126,6 @@ public class ConfigManagerIN
         ConfigManagerIN.enableRenderScoreboard = prop.getBoolean();
         propOrder.add(prop.getName());
 
-        prop = ConfigManagerIN.getProperty(ConfigManagerIN.MAIN_SETTINGS, "Enable AFK Message", true);
-        ConfigManagerIN.enableAFKMessage = prop.getBoolean();
-        propOrder.add(prop.getName());
-
         prop = ConfigManagerIN.getProperty(ConfigManagerIN.MAIN_SETTINGS, "Enable Smooth Sneaking View", false);
         ConfigManagerIN.enableSmoothSneakingView = prop.getBoolean();
         prop.comment = LangUtils.translate("gui.config.indicatia.smooth_eye_height");
@@ -180,11 +168,6 @@ public class ConfigManagerIN
     }
 
     public static Property getProperty(String category, String name, String defaultValue)
-    {
-        return ConfigManagerIN.config.get(category, name, defaultValue);
-    }
-
-    private static Property getProperty(String category, String name, int defaultValue)
     {
         return ConfigManagerIN.config.get(category, name, defaultValue);
     }

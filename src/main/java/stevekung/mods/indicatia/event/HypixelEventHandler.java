@@ -15,8 +15,6 @@ import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.inventory.GuiEditSign;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemSword;
 import net.minecraft.scoreboard.Score;
 import net.minecraft.scoreboard.ScoreObjective;
 import net.minecraft.scoreboard.ScorePlayerTeam;
@@ -131,10 +129,6 @@ public class HypixelEventHandler
                         this.mc.thePlayer.sendChatMessage("/p " + player.getName());
                         event.setCanceled(true);
                     }
-                }
-                if (HypixelEventHandler.isSkyBlock && this.mc.thePlayer.getHeldItem() != null && (this.mc.thePlayer.getHeldItem().getItem() == Items.bow || this.mc.thePlayer.getHeldItem().getItem() instanceof ItemSword))
-                {
-                    event.setCanceled(true);
                 }
             }
         }

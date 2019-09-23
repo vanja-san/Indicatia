@@ -9,7 +9,6 @@ import org.lwjgl.input.Keyboard;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiIngameMenu;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiMultiplayer;
@@ -29,15 +28,16 @@ import net.minecraft.network.status.client.C01PacketPing;
 import net.minecraft.network.status.server.S00PacketServerInfo;
 import net.minecraft.network.status.server.S01PacketPong;
 import net.minecraft.potion.Potion;
-import net.minecraft.util.*;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.MovementInput;
+import net.minecraft.util.MovingObjectPosition;
 import net.minecraftforge.client.GuiIngameForge;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import stevekung.mods.indicatia.config.ConfigManagerIN;
 import stevekung.mods.indicatia.config.ExtendedConfig;
 import stevekung.mods.indicatia.gui.GuiButtonItem;
@@ -48,7 +48,6 @@ import stevekung.mods.indicatia.gui.config.GuiExtendedConfig;
 import stevekung.mods.indicatia.gui.config.GuiRenderPreview;
 import stevekung.mods.indicatia.handler.KeyBindingHandler;
 import stevekung.mods.indicatia.utils.*;
-import stevekung.mods.indicatia.utils.JsonUtils;
 
 public class IndicatiaEventHandler
 {
@@ -58,12 +57,6 @@ public class IndicatiaEventHandler
     private static int pendingPingTicks = 100;
     private int disconnectClickCount;
     private int disconnectClickCooldown;
-
-    public static boolean isAFK;
-    public static String afkMode = "idle";
-    public static String afkReason;
-    public static int afkMoveTicks;
-    public static int afkTicks;
 
     private static long sneakTimeOld = 0L;
     private static boolean sneakingOld = false;
@@ -80,8 +73,6 @@ public class IndicatiaEventHandler
         {
             if (event.phase == TickEvent.Phase.START)
             {
-                IndicatiaEventHandler.runAFK(this.mc.thePlayer);
-
                 if (this.disconnectClickCooldown > 0)
                 {
                     this.disconnectClickCooldown--;
@@ -165,47 +156,6 @@ public class IndicatiaEventHandler
         {
             player.setSprinting(true);
         }
-
-        // afk stuff
-        if (IndicatiaEventHandler.afkMode.equals("move") || IndicatiaEventHandler.afkMode.equals("360_move"))
-        {
-            int afkMoveTick = IndicatiaEventHandler.afkMoveTicks;
-
-            if (afkMoveTick > 0 && afkMoveTick < 2)
-            {
-                movement.moveForward += Math.random();
-            }
-            else if (afkMoveTick > 2 && afkMoveTick < 4)
-            {
-                movement.moveStrafe += Math.random();
-            }
-            else if (afkMoveTick > 4 && afkMoveTick < 6)
-            {
-                movement.moveForward -= Math.random();
-            }
-            else if (afkMoveTick > 6 && afkMoveTick < 8)
-            {
-                movement.moveStrafe -= Math.random();
-            }
-        }
-    }
-
-    @SubscribeEvent
-    public void onDisconnectedFromServerEvent(FMLNetworkEvent.ClientDisconnectionFromServerEvent event)
-    {
-        IndicatiaEventHandler.stopCommandTicks();
-    }
-
-    @SubscribeEvent
-    public void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event)
-    {
-        IndicatiaEventHandler.stopCommandTicks();
-    }
-
-    @SubscribeEvent
-    public void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event)
-    {
-        IndicatiaEventHandler.stopCommandTicks();
     }
 
     @SubscribeEvent
@@ -387,70 +337,6 @@ public class IndicatiaEventHandler
             }
             catch (Exception e) {}
         });
-    }
-
-    private static void runAFK(EntityPlayerSP player)
-    {
-        if (IndicatiaEventHandler.isAFK)
-        {
-            IndicatiaEventHandler.afkTicks++;
-            int tick = IndicatiaEventHandler.afkTicks;
-            int messageMin = 1200 * ConfigManagerIN.afkMessageTime;
-            String s = "s";
-            float angle = tick % 2 == 0 ? 0.0001F : -0.0001F;
-
-            if (tick == 0)
-            {
-                s = "";
-            }
-            if (ConfigManagerIN.enableAFKMessage)
-            {
-                if (tick % messageMin == 0)
-                {
-                    String reason = IndicatiaEventHandler.afkReason;
-                    reason = reason.isEmpty() ? "" : ", Reason : " + reason;
-                    player.sendChatMessage("AFK : " + StringUtils.ticksToElapsedTime(tick) + " minute" + s + reason);
-                }
-            }
-
-            if (IndicatiaEventHandler.afkMode.equals("idle"))
-            {
-                player.setAngles(angle, angle);
-            }
-            else if (IndicatiaEventHandler.afkMode.equals("360"))
-            {
-                player.setAngles((float)(Math.random() + 1.0F), angle);
-            }
-            else if (IndicatiaEventHandler.afkMode.equals("360_move"))
-            {
-                player.setAngles((float)(Math.random() + 1.0F), angle);
-                IndicatiaEventHandler.afkMoveTicks++;
-                IndicatiaEventHandler.afkMoveTicks %= 8;
-            }
-            else
-            {
-                player.setAngles(angle, angle);
-                IndicatiaEventHandler.afkMoveTicks++;
-                IndicatiaEventHandler.afkMoveTicks %= 8;
-            }
-        }
-        else
-        {
-            IndicatiaEventHandler.afkTicks = 0;
-        }
-    }
-
-    private static void stopCommandTicks()
-    {
-        if (IndicatiaEventHandler.isAFK)
-        {
-            IndicatiaEventHandler.isAFK = false;
-            IndicatiaEventHandler.afkReason = "";
-            IndicatiaEventHandler.afkTicks = 0;
-            IndicatiaEventHandler.afkMoveTicks = 0;
-            IndicatiaEventHandler.afkMode = "idle";
-            LoggerIN.info("Stopping AFK Command");
-        }
     }
 
     private static float getSmoothEyeHeight(EntityPlayer player)
