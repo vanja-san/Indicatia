@@ -60,5 +60,21 @@
                 "pitch": 0.9
             }
         ]
+    },
+    "ui.toast.in": {
+        "sounds": [
+            {
+                "name": "indicatia:ui/toast_in",
+                "volume": 0.4
+            }
+        ]
+    },
+    "ui.toast.out": {
+        "sounds": [
+            {
+                "name": "indicatia:ui/toast_out",
+                "volume": 0.4
+            }
+        ]
     }
 }

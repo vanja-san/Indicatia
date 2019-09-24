@@ -8,6 +8,9 @@ import org.lwjgl.opengl.Display;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.MusicTicker;
@@ -29,6 +32,7 @@ import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import stevekung.mods.indicatia.event.HUDRenderEventHandler;
 
 @Mixin(Minecraft.class)
 public abstract class MinecraftMixin
@@ -376,7 +380,7 @@ public abstract class MinecraftMixin
             {
                 if (!Minecraft.isRunningOnMac)
                 {
-                    updateKeyBindState();
+                    this.updateKeyBindState();
                 }
                 this.that.inGameHasFocus = true;
                 this.that.mouseHelper.grabMouseCursor();
@@ -396,7 +400,13 @@ public abstract class MinecraftMixin
         }
     }
 
-    private static void updateKeyBindState()
+    @Inject(method = "runGameLoop()V", cancellable = true, at = @At(value = "INVOKE", target = "net/minecraft/client/renderer/EntityRenderer.updateCameraAndRender(FJ)V", shift = At.Shift.AFTER))
+    private void runGameLoop(CallbackInfo info)
+    {
+        HUDRenderEventHandler.INSTANCE.getToastGui().drawToast(new ScaledResolution(this.that));
+    }
+
+    private void updateKeyBindState()
     {
         for (KeyBinding keybinding : KeyBinding.keybindArray)
         {

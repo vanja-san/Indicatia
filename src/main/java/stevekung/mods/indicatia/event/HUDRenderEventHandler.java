@@ -28,6 +28,7 @@ import stevekung.mods.indicatia.config.EnumEquipment;
 import stevekung.mods.indicatia.config.ExtendedConfig;
 import stevekung.mods.indicatia.config.HealthStatusMode;
 import stevekung.mods.indicatia.gui.config.GuiRenderPreview;
+import stevekung.mods.indicatia.gui.toasts.GuiToast;
 import stevekung.mods.indicatia.handler.ClientBlockBreakEvent;
 import stevekung.mods.indicatia.handler.GrapplingHookEvent;
 import stevekung.mods.indicatia.renderer.HUDInfo;
@@ -38,6 +39,8 @@ import stevekung.mods.indicatia.utils.RenderUtils;
 
 public class HUDRenderEventHandler
 {
+    public static final HUDRenderEventHandler INSTANCE = new HUDRenderEventHandler();
+    private final GuiToast toastGui;
     private final Minecraft mc;
     private long lastBlockBreak = -1;
     private long lastGrapplingHookUse = -1;
@@ -45,6 +48,7 @@ public class HUDRenderEventHandler
     public HUDRenderEventHandler()
     {
         this.mc = Minecraft.getMinecraft();
+        this.toastGui = new GuiToast(this.mc);
     }
 
     @SubscribeEvent
@@ -294,6 +298,11 @@ public class HUDRenderEventHandler
                 RenderUtils.renderEntityHealth(entity, heart + String.format("%.1f", health), event.x, event.y, event.z);
             }
         }
+    }
+
+    public GuiToast getToastGui()
+    {
+        return this.toastGui;
     }
 
     private double getItemDelay(int base, long delay)
