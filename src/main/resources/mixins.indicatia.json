@@ -32,6 +32,9 @@
         "MinecraftMixin",
         "NetworkManagerMixin",
         "PlayerControllerMPMixin",
-        "ItemFishingRodMixin"
+        "ItemFishingRodMixin",
+        "TileEntitySignMixin",
+        "TileEntitySignRendererMixin",
+        "GuiEditSignMixin"
     ]
 }
