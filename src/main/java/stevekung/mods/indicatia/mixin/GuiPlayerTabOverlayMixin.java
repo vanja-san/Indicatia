@@ -1,5 +1,6 @@
 package stevekung.mods.indicatia.mixin;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -30,6 +31,7 @@ import stevekung.mods.indicatia.config.ExtendedConfig;
 import stevekung.mods.indicatia.config.PingMode;
 import stevekung.mods.indicatia.event.IndicatiaEventHandler;
 import stevekung.mods.indicatia.utils.InfoUtils;
+import stevekung.mods.indicatia.utils.JsonUtils;
 
 @Mixin(GuiPlayerTabOverlay.class)
 public abstract class GuiPlayerTabOverlayMixin extends Gui
@@ -76,6 +78,7 @@ public abstract class GuiPlayerTabOverlayMixin extends Gui
             listWidth = Math.max(listWidth, stringWidth);
         }
 
+        int realPlayerCount = list.size();
         list = list.subList(0, Math.min(list.size(), 80));
         int playerListSize = list.size();
         int playerCount = playerListSize;
@@ -135,6 +138,8 @@ public abstract class GuiPlayerTabOverlayMixin extends Gui
 
         if (list1 != null)
         {
+            list1 = new ArrayList<>(list1);
+            list1.add(JsonUtils.create("Lobby Players Count: ").setChatStyle(JsonUtils.gold()).appendSibling(JsonUtils.create(String.valueOf(realPlayerCount)).setChatStyle(JsonUtils.green())).getFormattedText());
             Gui.drawRect(width / 2 - l1 / 2 - 1, yOffset - 1, width / 2 + l1 / 2 + 1, yOffset + list1.size() * this.mc.fontRendererObj.FONT_HEIGHT, Integer.MIN_VALUE);
 
             for (String s2 : list1)
