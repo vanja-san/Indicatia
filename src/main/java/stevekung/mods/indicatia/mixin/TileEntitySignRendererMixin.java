@@ -196,7 +196,7 @@ public abstract class TileEntitySignRendererMixin extends TileEntitySpecialRende
         for (int i = 0; i < list1.size(); ++i)
         {
             IChatComponent component2 = list1.get(i);
-            String text = component2.getUnformattedText();
+            String text = component2.getUnformattedTextForChat();
             boolean flag = false;
 
             if (text.contains("\n"))
