@@ -38,6 +38,8 @@ public class HypixelEventHandler
 {
     private static final Pattern nickPattern = Pattern.compile("^You are now nicked as (?<nick>\\w+)!");
     private static final Pattern LETTERS_NUMBERS = Pattern.compile("[^a-z A-Z:0-9/]");
+    private static final Pattern JOINED_PARTY_PATTERN = Pattern.compile("(?<name>\\w+) joined the party!");
+    private static final Pattern VISIT_ISLAND_PATTERN = Pattern.compile("(\\[SkyBlock\\]|\\[SkyBlock\\] \\[VIP\\]|\\[VIP\\u002B\\]|\\[MVP\\]|\\[MVP\\u002B\\]|\\[MVP\\u002B\\u002B\\]|\\[YOUTUBER\\]) (?<name>\\w+) is visiting Your Island!");
     public static boolean isSkyBlock = false;
     public static SkyBlockLocation SKY_BLOCK_LOCATION = SkyBlockLocation.YOUR_ISLAND;
     private static final List<String> PARTY_LIST = new ArrayList<>();
@@ -147,6 +149,8 @@ public class HypixelEventHandler
         if (InfoUtils.INSTANCE.isHypixel())
         {
             Matcher nickMatcher = HypixelEventHandler.nickPattern.matcher(unformattedText);
+            Matcher visitIslandMatcher = HypixelEventHandler.VISIT_ISLAND_PATTERN.matcher(unformattedText);
+            Matcher joinedPartyMatcher = HypixelEventHandler.JOINED_PARTY_PATTERN.matcher(unformattedText);
 
             if (event.type == 0)
             {
@@ -163,20 +167,19 @@ public class HypixelEventHandler
                     ExtendedConfig.instance.hypixelNickName = "";
                     ExtendedConfig.instance.save();
                 }
-                else if (unformattedText.contains(" joined the party!"))
-                {
-                    String name = unformattedText.replace(" joined the party!", "");
-                    HypixelEventHandler.PARTY_LIST.add(name);
-                }
 
+                if (joinedPartyMatcher.matches())
+                {
+                    HypixelEventHandler.PARTY_LIST.add(joinedPartyMatcher.group("name"));
+                }
                 if (nickMatcher.matches())
                 {
                     ExtendedConfig.instance.hypixelNickName = nickMatcher.group("nick");
                     ExtendedConfig.instance.save();
                 }
-                if (unformattedText.contains("is visiting Your Island!") && ExtendedConfig.instance.addPartyVisitIsland)
+                if (visitIslandMatcher.matches() && ExtendedConfig.instance.addPartyVisitIsland)
                 {
-                    String name = unformattedText.replace("[SkyBlock] ", "").replace("[VIP] ", "").replace("[VIP+] ", "").replace("[MVP] ", "").replace("[MVP+] ", "").replace(" is visiting Your Island!", "");
+                    String name = visitIslandMatcher.group("name");
 
                     if (!HypixelEventHandler.PARTY_LIST.stream().anyMatch(pname -> pname.equals(name)))
                     {

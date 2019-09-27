@@ -3,6 +3,7 @@ package stevekung.mods.indicatia.event;
 import java.text.DecimalFormat;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLog;
@@ -40,6 +41,7 @@ import stevekung.mods.indicatia.utils.RenderUtils;
 public class HUDRenderEventHandler
 {
     public static final HUDRenderEventHandler INSTANCE = new HUDRenderEventHandler();
+    public static final Pattern RARE_DROP_PATTERN = Pattern.compile("^\\u00A76RARE DROP! (?<item>[\\w ]+)");//TODO Testing in real situation
     private final GuiToast toastGui;
     private final Minecraft mc;
     private long lastBlockBreak = -1;
