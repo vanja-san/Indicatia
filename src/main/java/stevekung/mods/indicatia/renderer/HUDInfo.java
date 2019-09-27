@@ -675,7 +675,7 @@ public class HUDInfo
         }
     }
 
-    static void renderItem(ItemStack itemStack, int x, int y)
+    public static void renderItem(ItemStack itemStack, int x, int y)
     {
         RenderHelper.enableGUIStandardItemLighting();
         GlStateManager.enableRescaleNormal();

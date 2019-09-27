@@ -12,6 +12,7 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.renderer.GlStateManager;
 import stevekung.mods.indicatia.config.ExtendedConfig;
 import stevekung.mods.indicatia.gui.GuiDropdownMinigames.IDropboxCallback;
 import stevekung.mods.indicatia.utils.*;
@@ -36,6 +37,7 @@ public class GuiIndicatiaChat implements IGuiChat, IDropboxCallback
             {
                 GuiButtonCustomize customButton = (GuiButtonCustomize) button;
                 customButton.drawRegion(mouseX, mouseY);
+                GlStateManager.enableDepth();
             }
         });
     }

@@ -2,11 +2,11 @@ package stevekung.mods.indicatia.gui.toasts;
 
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.indicatia.renderer.HUDInfo;
 import stevekung.mods.indicatia.utils.ColorUtils;
 import stevekung.mods.indicatia.utils.JsonUtils;
 import stevekung.mods.indicatia.utils.LangUtils;
@@ -42,10 +42,9 @@ public class ItemDropsToast implements IToast
             toastGui.mc.getTextureManager().bindTexture(TEXTURE);
             GlStateManager.color(1.0F, 1.0F, 1.0F);
             Gui.drawModalRectWithCustomSizedTexture(0, 0, 0, 0, 160, 32, 160, 32);
-            toastGui.mc.fontRendererObj.drawString(JsonUtils.create(LangUtils.translate("RARE DROP!")).setChatStyle(JsonUtils.style().setBold(true)).getFormattedText(), 30, 7, ColorUtils.rgbToDecimal(139, 0, 139));
+            toastGui.mc.fontRendererObj.drawString(JsonUtils.create(LangUtils.translate("RARE DROP!")).setChatStyle(JsonUtils.style().setBold(true)).getFormattedText(), 30, 7, ColorUtils.rgbToDecimal(255, 215, 0));
             toastGui.mc.fontRendererObj.drawString(this.itemStack.getDisplayName(), 30, 18, ColorUtils.rgbToDecimal(255, 255, 255));
-            RenderHelper.enableGUIStandardItemLighting();
-            toastGui.mc.getRenderItem().renderItemAndEffectIntoGUI(this.itemStack, 8, 8);
+            HUDInfo.renderItem(this.itemStack, 8, 8);
             return delta - this.firstDrawTime >= 5000L ? IToast.Visibility.HIDE : IToast.Visibility.SHOW;
         }
     }
