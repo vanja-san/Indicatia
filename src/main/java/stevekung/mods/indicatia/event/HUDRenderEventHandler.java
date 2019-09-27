@@ -66,7 +66,7 @@ public class HUDRenderEventHandler
     @SubscribeEvent
     public void onClientBlockBreak(ClientBlockBreakEvent event)
     {
-        if (this.mc.thePlayer.getCurrentEquippedItem() != null && !EnumChatFormatting.getTextWithoutFormattingCodes(this.mc.thePlayer.getCurrentEquippedItem().getDisplayName()).equals("Jungle Axe"))
+        if (this.mc.thePlayer.getCurrentEquippedItem() == null || this.mc.thePlayer.getCurrentEquippedItem() != null && !EnumChatFormatting.getTextWithoutFormattingCodes(this.mc.thePlayer.getCurrentEquippedItem().getDisplayName()).equals("Jungle Axe"))
         {
             return;
         }
