@@ -47,7 +47,6 @@ public class IndicatiaMod
     protected static final String FORGE_VERSION = "after:Forge@[11.15.1.2318,);";
     protected static final String DEPENDENCIES = "required-after:stevekung's_lib@[1.1.3,); " + IndicatiaMod.FORGE_VERSION;
     private static final String URL = "https://minecraft.curseforge.com/projects/indicatia";
-    protected static final String JSON_URL = "https://raw.githubusercontent.com/SteveKunG/VersionCheckLibrary/master/indicatia_version.json";
 
     public static final File profile = new File(ExtendedConfig.userDir, "profile.txt");
     private static final Splitter COLON_SPLITTER = Splitter.on(':');

@@ -4,6 +4,8 @@ public enum SkyBlockLocation
 {
     NONE("NONE"),
     YOUR_ISLAND("Your Island"),
+
+    // Public Island
     VILLAGE("Village"),
     FARM("Farm"),
     COAL_MINE("Coal Mine"),
@@ -15,7 +17,19 @@ public enum SkyBlockLocation
     WILDERNESS("Wilderness"),
     FISHERMAN_HUT("Fisherman's Hut"),
     COLOSSEUM("Colosseum"),
+
+    // Public Island building
+    FLOWER_HOUSE("Flower House"),
+    LIBRARY("Library"),
+    BANK("Bank"),
+    AUCTION_HOUSE("Auction House"),
+
     BLAZING_FORTRESS("Blazing Fortress"),
+
+    SPIDER_DEN("Spider's Den"),
+
+    THE_END("The End"),
+    DRAGON_NEST("Dragon's Nest"),
     ;
 
     private final String location;
@@ -32,6 +46,11 @@ public enum SkyBlockLocation
 
     public boolean isPublicIsland()
     {
-        return this == VILLAGE || this == FARM || this == COAL_MINE || this == FOREST || this == RUINS || this == MOUNTAIN || this == HIGH_LEVEL || this == WILDERNESS || this == FISHERMAN_HUT || this == COLOSSEUM || this == GRAVEYARD;
+        return this == VILLAGE || this == FARM || this == COAL_MINE || this == FOREST || this == RUINS || this == MOUNTAIN || this == HIGH_LEVEL || this == WILDERNESS || this == FISHERMAN_HUT || this == COLOSSEUM || this == GRAVEYARD || this.isInsideBuildingOnPublicIsland();
+    }
+
+    public boolean isInsideBuildingOnPublicIsland()
+    {
+        return this == FLOWER_HOUSE || this == LIBRARY || this == BANK || this == AUCTION_HOUSE;
     }
 }
