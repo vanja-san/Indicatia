@@ -13,7 +13,6 @@ import com.google.common.collect.Lists;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
-import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.inventory.GuiEditSign;
 import net.minecraft.scoreboard.Score;
 import net.minecraft.scoreboard.ScoreObjective;
@@ -53,11 +52,6 @@ public class HypixelEventHandler
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent event)
     {
-        if (this.mc.currentScreen != null && this.mc.currentScreen instanceof GuiMainMenu)
-        {
-            HypixelEventHandler.PARTY_LIST.clear();
-        }
-
         if (this.mc.thePlayer != null)
         {
             if (event.phase == TickEvent.Phase.START)
