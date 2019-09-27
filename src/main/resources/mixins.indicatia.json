@@ -36,6 +36,6 @@
         "TileEntitySignMixin",
         "TileEntitySignRendererMixin",
         "GuiEditSignMixin",
-        "GuiChestMixin"
+        "GuiContainerMixin"
     ]
 }

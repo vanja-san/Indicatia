@@ -9,30 +9,25 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import net.minecraft.client.gui.inventory.GuiChest;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
 
-@Mixin(value = GuiChest.class, priority = 2000)
-public abstract class GuiChestMixin extends GuiContainer
+@Mixin(GuiContainer.class)
+public abstract class GuiContainerMixin extends GuiScreen
 {
+    private final GuiContainer that = (GuiContainer) (Object) this;
     private static final List<String> IGNORE_ITEMS = new ArrayList<>(Arrays.asList(" ", "Recipe Required"));
     private static final List<String> IGNORE_TOOLTIPS = new ArrayList<>(Arrays.asList(" "));
-
-    public GuiChestMixin(Container container)
-    {
-        super(container);
-    }
 
     @Inject(method = "handleMouseClick(Lnet/minecraft/inventory/Slot;III)V", cancellable = true, at = @At("HEAD"))
     private void handleMouseClick(Slot slot, int slotId, int clickedButton, int clickType, CallbackInfo info)
     {
         if (slotId != -999)
         {
-            ItemStack itemStack = this.inventorySlots.getSlot(slotId).getStack();
+            ItemStack itemStack = this.that.inventorySlots.getSlot(slotId).getStack();
 
             if (itemStack != null)
             {
