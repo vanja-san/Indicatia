@@ -57,6 +57,7 @@ public class IndicatiaEventHandler
     private static int pendingPingTicks = 100;
     private int disconnectClickCount;
     private int disconnectClickCooldown;
+    private long lastButtonClick = -1;
 
     private static long sneakTimeOld = 0L;
     private static boolean sneakingOld = false;
@@ -271,6 +272,8 @@ public class IndicatiaEventHandler
     @SubscribeEvent
     public void onPostActionPerformedGui(GuiScreenEvent.ActionPerformedEvent.Post event)
     {
+        long now = System.currentTimeMillis();
+
         if (event.gui instanceof GuiMainMenu)
         {
             if (event.button.id == 200)
@@ -278,7 +281,7 @@ public class IndicatiaEventHandler
                 this.mc.displayGuiScreen(new GuiMojangStatusChecker(event.gui));
             }
         }
-        if (event.gui instanceof GuiInventory && HypixelEventHandler.isSkyBlock)
+        if (event.gui instanceof GuiInventory && HypixelEventHandler.isSkyBlock && now - this.lastButtonClick > 1000L)
         {
             if (event.button.id == 999)
             {
@@ -288,6 +291,7 @@ public class IndicatiaEventHandler
             {
                 this.mc.thePlayer.sendChatMessage("/viewcraftingtable");
             }
+            this.lastButtonClick = now;
         }
     }
 
