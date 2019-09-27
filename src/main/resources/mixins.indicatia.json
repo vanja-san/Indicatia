@@ -35,6 +35,7 @@
         "ItemFishingRodMixin",
         "TileEntitySignMixin",
         "TileEntitySignRendererMixin",
-        "GuiEditSignMixin"
+        "GuiEditSignMixin",
+        "GuiChestMixin"
     ]
 }
