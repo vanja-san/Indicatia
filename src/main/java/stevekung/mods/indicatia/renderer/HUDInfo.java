@@ -5,6 +5,8 @@ import java.util.*;
 
 import com.google.common.math.DoubleMath;
 
+import codes.biscuit.skyblockaddons.SkyblockAddons;
+import codes.biscuit.skyblockaddons.utils.SkyblockDate;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
@@ -24,6 +26,7 @@ import net.minecraftforge.common.ForgeVersion;
 import stevekung.mods.indicatia.config.EnumEquipment;
 import stevekung.mods.indicatia.config.EnumPotionStatus;
 import stevekung.mods.indicatia.config.ExtendedConfig;
+import stevekung.mods.indicatia.event.HypixelEventHandler;
 import stevekung.mods.indicatia.utils.ColorUtils;
 import stevekung.mods.indicatia.utils.InfoUtils;
 import stevekung.mods.indicatia.utils.LangUtils;
@@ -199,6 +202,12 @@ public class HUDInfo
 
     public static String getCurrentGameTime(Minecraft mc)
     {
+        if (HypixelEventHandler.isSkyBlock)
+        {
+            SkyblockDate date = SkyblockAddons.getInstance().getUtils().getCurrentDate();
+            String currentTime = ColorUtils.stringToRGB(ExtendedConfig.instance.realTimeDDMMYYValueColor).toColoredFont() + date.getHour() + ":" + date.getMinute();
+            return ColorUtils.stringToRGB(ExtendedConfig.instance.realTimeColor).toColoredFont() + "Skyblock Time: " + currentTime;
+        }
         return InfoUtils.INSTANCE.getCurrentGameTime(mc.theWorld.getWorldTime() % 24000);
     }
 
