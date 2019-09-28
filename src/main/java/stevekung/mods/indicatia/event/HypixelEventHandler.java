@@ -42,7 +42,6 @@ public class HypixelEventHandler
     public static SkyBlockLocation SKY_BLOCK_LOCATION = SkyBlockLocation.YOUR_ISLAND;
     private static final List<String> PARTY_LIST = new ArrayList<>();
     public static String SKYBLOCK_AMPM = "";
-    public static boolean foundRareDrop;
     public static String rareDropName = "";
     private Minecraft mc;
 
@@ -192,18 +191,17 @@ public class HypixelEventHandler
                         this.mc.thePlayer.sendChatMessage("/p " + name);
                     }
                 }
-                if (rareDropPattern.matches() && !HypixelEventHandler.foundRareDrop)
+                if (rareDropPattern.matches())
                 {
                     String name = rareDropPattern.group("item");
                     HypixelEventHandler.rareDropName = EnumChatFormatting.getTextWithoutFormattingCodes(name);
-                    HypixelEventHandler.foundRareDrop = true;
 
                     new Timer().schedule(new TimerTask()
                     {
                         @Override
                         public void run()
                         {
-                            HypixelEventHandler.foundRareDrop = false;
+                            HypixelEventHandler.rareDropName = "";
                         }
                     }, 5000L);
                 }

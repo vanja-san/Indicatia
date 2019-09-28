@@ -72,6 +72,7 @@ jar {
             "TweakOrder": "0",
             "TweakClass": "stevekung.mods.indicatia.tweaker.FMLLoadingPlugin"
     )
+    exclude "codes/biscuit/**"
     baseName = "IndicatiaSkyBlock-" + mcVersion
 }
 
