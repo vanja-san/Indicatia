@@ -1,8 +1,6 @@
 package stevekung.mods.indicatia.event;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -36,6 +34,7 @@ import stevekung.mods.indicatia.utils.SkyBlockLocation;
 public class HypixelEventHandler
 {
     private static final Pattern nickPattern = Pattern.compile("^You are now nicked as (?<nick>\\w+)!");
+    public static final Pattern RARE_DROP_PATTERN = Pattern.compile("RARE DROP! (?<item>[\\w ]+)");
     private static final Pattern LETTERS_NUMBERS = Pattern.compile("[^a-z A-Z:0-9/']");
     private static final Pattern JOINED_PARTY_PATTERN = Pattern.compile("(?<name>\\w+) joined the party!");
     private static final Pattern VISIT_ISLAND_PATTERN = Pattern.compile("(\\[SkyBlock\\]|\\[SkyBlock\\] \\[VIP\\]|\\[VIP\\u002B\\]|\\[MVP\\]|\\[MVP\\u002B\\]|\\[MVP\\u002B\\u002B\\]|\\[YOUTUBER\\]) (?<name>\\w+) is visiting Your Island!");
@@ -43,6 +42,8 @@ public class HypixelEventHandler
     public static SkyBlockLocation SKY_BLOCK_LOCATION = SkyBlockLocation.YOUR_ISLAND;
     private static final List<String> PARTY_LIST = new ArrayList<>();
     public static String SKYBLOCK_AMPM = "";
+    public static boolean foundRareDrop;
+    public static String rareDropName = "";
     private Minecraft mc;
 
     public HypixelEventHandler()
@@ -155,6 +156,7 @@ public class HypixelEventHandler
             Matcher nickMatcher = HypixelEventHandler.nickPattern.matcher(unformattedText);
             Matcher visitIslandMatcher = HypixelEventHandler.VISIT_ISLAND_PATTERN.matcher(unformattedText);
             Matcher joinedPartyMatcher = HypixelEventHandler.JOINED_PARTY_PATTERN.matcher(unformattedText);
+            Matcher rareDropPattern = HypixelEventHandler.RARE_DROP_PATTERN.matcher(unformattedText);
 
             if (event.type == 0)
             {
@@ -189,6 +191,21 @@ public class HypixelEventHandler
                     {
                         this.mc.thePlayer.sendChatMessage("/p " + name);
                     }
+                }
+                if (rareDropPattern.matches() && !HypixelEventHandler.foundRareDrop)
+                {
+                    String name = rareDropPattern.group("item");
+                    HypixelEventHandler.rareDropName = EnumChatFormatting.getTextWithoutFormattingCodes(name);
+                    HypixelEventHandler.foundRareDrop = true;
+
+                    new Timer().schedule(new TimerTask()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            HypixelEventHandler.foundRareDrop = false;
+                        }
+                    }, 5000L);
                 }
             }
         }
