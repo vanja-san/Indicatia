@@ -19,13 +19,13 @@ import net.minecraft.util.EnumChatFormatting;
 public abstract class GuiContainerMixin extends GuiScreen
 {
     private final GuiContainer that = (GuiContainer) (Object) this;
-    private static final List<String> IGNORE_ITEMS = new ArrayList<>(Arrays.asList(" ", "Recipe Required"));
+    private static final List<String> IGNORE_ITEMS = new ArrayList<>(Arrays.asList(" ", "Recipe Required", "Item to Upgrade", "Rune to Sacrifice"));
     private static final List<String> IGNORE_TOOLTIPS = new ArrayList<>(Arrays.asList(" "));
 
     @Inject(method = "handleMouseClick(Lnet/minecraft/inventory/Slot;III)V", cancellable = true, at = @At("HEAD"))
     private void handleMouseClick(Slot slot, int slotId, int clickedButton, int clickType, CallbackInfo info)
     {
-        if (slotId != -999)
+        if (slotId != -999 && slotId != -1)
         {
             ItemStack itemStack = this.that.inventorySlots.getSlot(slotId).getStack();
 
