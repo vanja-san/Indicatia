@@ -36,7 +36,6 @@
         "TileEntitySignMixin",
         "TileEntitySignRendererMixin",
         "GuiEditSignMixin",
-        "GuiContainerMixin",
-        "InventoryUtilsMixin"
+        "GuiContainerMixin"
     ]
 }

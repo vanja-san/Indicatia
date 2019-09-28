@@ -12,6 +12,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.client.gui.inventory.GuiEditSign;
+import net.minecraft.item.ItemStack;
 import net.minecraft.scoreboard.Score;
 import net.minecraft.scoreboard.ScoreObjective;
 import net.minecraft.scoreboard.ScorePlayerTeam;
@@ -21,10 +22,12 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.sound.PlaySoundEvent;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import stevekung.mods.indicatia.config.ExtendedConfig;
+import stevekung.mods.indicatia.gui.toasts.ItemDropsToast;
 import stevekung.mods.indicatia.handler.KeyBindingHandler;
 import stevekung.mods.indicatia.utils.CachedEnum;
 import stevekung.mods.indicatia.utils.InfoUtils;
@@ -43,6 +46,7 @@ public class HypixelEventHandler
     private static final List<String> PARTY_LIST = new ArrayList<>();
     public static String SKYBLOCK_AMPM = "";
     public static String rareDropName = "";
+    private List<ItemStack> previousInventory;
     private Minecraft mc;
 
     public HypixelEventHandler()
@@ -59,6 +63,10 @@ public class HypixelEventHandler
             {
                 HypixelEventHandler.getHypixelNickedPlayer(this.mc);
 
+                if (this.mc.thePlayer.ticksExisted % 4 == 0)
+                {
+                    this.getInventoryDifference(this.mc.thePlayer.inventory.mainInventory);
+                }
                 if (this.mc.theWorld != null)
                 {
                     boolean found = false;
@@ -246,6 +254,15 @@ public class HypixelEventHandler
         }
     }
 
+    @SubscribeEvent
+    public void onWorldJoin(EntityJoinWorldEvent event)
+    {
+        if (event.entity == this.mc.thePlayer)
+        {
+            this.previousInventory = null;
+        }
+    }
+
     private static void getHypixelNickedPlayer(Minecraft mc)
     {
         if (InfoUtils.INSTANCE.isHypixel() && mc.currentScreen instanceof GuiEditSign)
@@ -272,5 +289,41 @@ public class HypixelEventHandler
     private String keepLettersAndNumbersOnly(String text)
     {
         return LETTERS_NUMBERS.matcher(text).replaceAll("");
+    }
+
+    /**
+     * Credit to codes.biscuit.skyblockaddons.utils.InventoryUtils
+     */
+    private void getInventoryDifference(ItemStack[] currentInventory)
+    {
+        List<ItemStack> newInventory = this.copyInventory(currentInventory);
+
+        if (this.previousInventory != null)
+        {
+            for (int i = 0; i < newInventory.size(); i++)
+            {
+                ItemStack newItem = newInventory.get(i);
+
+                if (newItem != null)
+                {
+                    if (HypixelEventHandler.rareDropName.equals(EnumChatFormatting.getTextWithoutFormattingCodes(newItem.getDisplayName())))
+                    {
+                        ItemDropsToast.addOrUpdate(HUDRenderEventHandler.INSTANCE.getToastGui(), newItem);
+                    }
+                }
+            }
+        }
+        this.previousInventory = newInventory;
+    }
+
+    private List<ItemStack> copyInventory(ItemStack[] inventory)
+    {
+        List<ItemStack> copy = new ArrayList<>(inventory.length);
+
+        for (ItemStack item : inventory)
+        {
+            copy.add(item != null ? ItemStack.copyItemStack(item) : null);
+        }
+        return copy;
     }
 }
