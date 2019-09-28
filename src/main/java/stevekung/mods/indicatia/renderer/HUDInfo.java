@@ -5,8 +5,6 @@ import java.util.*;
 
 import com.google.common.math.DoubleMath;
 
-import codes.biscuit.skyblockaddons.SkyblockAddons;
-import codes.biscuit.skyblockaddons.utils.SkyblockDate;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
@@ -205,8 +203,23 @@ public class HUDInfo
     {
         if (HypixelEventHandler.isSkyBlock && IndicatiaMod.isSkyblockAddonsLoaded)
         {
-            SkyblockDate date = SkyblockAddons.getInstance().getUtils().getCurrentDate();
-            String currentTime = ColorUtils.stringToRGB(ExtendedConfig.instance.realTimeDDMMYYValueColor).toColoredFont() + date.getHour() + ":" + date.getMinute();
+            StringBuilder builder = new StringBuilder();
+
+            try
+            {
+                Class<?> skyblockAddons = Class.forName("codes.biscuit.skyblockaddons.SkyblockAddons");
+                Object getInstance = skyblockAddons.getDeclaredMethod("getInstance").invoke(skyblockAddons);
+                Object getUtils = getInstance.getClass().getDeclaredMethod("getUtils").invoke(getInstance);
+                Object getCurrentDate = getUtils.getClass().getDeclaredMethod("getCurrentDate").invoke(getUtils);
+                Class<?> date = getCurrentDate.getClass(); // SkyblockDate
+                builder.append(date.getDeclaredMethod("getHour").invoke(getCurrentDate));
+                builder.append(":");
+                int minute = (int)date.getDeclaredMethod("getMinute").invoke(getCurrentDate);
+                builder.append(minute == 0 ? "0" + minute : minute);
+                builder.append(HypixelEventHandler.SKYBLOCK_AMPM);
+            }
+            catch (Exception e) {}
+            String currentTime = ColorUtils.stringToRGB(ExtendedConfig.instance.realTimeDDMMYYValueColor).toColoredFont() + builder.toString();
             return ColorUtils.stringToRGB(ExtendedConfig.instance.realTimeColor).toColoredFont() + "Skyblock Time: " + currentTime;
         }
         return InfoUtils.INSTANCE.getCurrentGameTime(mc.theWorld.getWorldTime() % 24000);

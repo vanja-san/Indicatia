@@ -42,6 +42,7 @@ public class HypixelEventHandler
     public static boolean isSkyBlock = false;
     public static SkyBlockLocation SKY_BLOCK_LOCATION = SkyBlockLocation.YOUR_ISLAND;
     private static final List<String> PARTY_LIST = new ArrayList<>();
+    public static String SKYBLOCK_AMPM = "";
     private Minecraft mc;
 
     public HypixelEventHandler()
@@ -78,11 +79,20 @@ public class HypixelEventHandler
                     for (Score score1 : collection)
                     {
                         ScorePlayerTeam scorePlayerTeam = scoreboard.getPlayersTeam(score1.getPlayerName());
-                        String locationScore = this.keepLettersAndNumbersOnly(EnumChatFormatting.getTextWithoutFormattingCodes(ScorePlayerTeam.formatPlayerName(scorePlayerTeam, score1.getPlayerName())));
+                        String scoreText = this.keepLettersAndNumbersOnly(EnumChatFormatting.getTextWithoutFormattingCodes(ScorePlayerTeam.formatPlayerName(scorePlayerTeam, score1.getPlayerName())));
+
+                        if (scoreText.endsWith("am"))
+                        {
+                            HypixelEventHandler.SKYBLOCK_AMPM = " AM";
+                        }
+                        else if (scoreText.endsWith("pm"))
+                        {
+                            HypixelEventHandler.SKYBLOCK_AMPM = " PM";
+                        }
 
                         for (SkyBlockLocation location : CachedEnum.locationValues)
                         {
-                            if (locationScore.endsWith(location.getLocation()))
+                            if (scoreText.endsWith(location.getLocation()))
                             {
                                 HypixelEventHandler.SKY_BLOCK_LOCATION = location;
                                 found = true;
