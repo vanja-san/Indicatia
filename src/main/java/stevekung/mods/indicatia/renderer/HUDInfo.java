@@ -26,6 +26,7 @@ import net.minecraftforge.common.ForgeVersion;
 import stevekung.mods.indicatia.config.EnumEquipment;
 import stevekung.mods.indicatia.config.EnumPotionStatus;
 import stevekung.mods.indicatia.config.ExtendedConfig;
+import stevekung.mods.indicatia.core.IndicatiaMod;
 import stevekung.mods.indicatia.event.HypixelEventHandler;
 import stevekung.mods.indicatia.utils.ColorUtils;
 import stevekung.mods.indicatia.utils.InfoUtils;
@@ -202,7 +203,7 @@ public class HUDInfo
 
     public static String getCurrentGameTime(Minecraft mc)
     {
-        if (HypixelEventHandler.isSkyBlock)
+        if (HypixelEventHandler.isSkyBlock && IndicatiaMod.isSkyblockAddonsLoaded)
         {
             SkyblockDate date = SkyblockAddons.getInstance().getUtils().getCurrentDate();
             String currentTime = ColorUtils.stringToRGB(ExtendedConfig.instance.realTimeDDMMYYValueColor).toColoredFont() + date.getHour() + ":" + date.getMinute();

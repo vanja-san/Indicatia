@@ -14,6 +14,7 @@ import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.ModMetadata;
@@ -45,11 +46,12 @@ public class IndicatiaMod
     protected static final String GUI_FACTORY = "stevekung.mods.indicatia.config.ConfigGuiFactory";
     public static final String VERSION = IndicatiaMod.MAJOR_VERSION + "." + IndicatiaMod.MINOR_VERSION + "." + IndicatiaMod.BUILD_VERSION;
     protected static final String FORGE_VERSION = "after:Forge@[11.15.1.2318,);";
-    protected static final String DEPENDENCIES = "required-after:stevekung's_lib@[1.1.3,); required-after:skyblockaddons@[1.3.3,); " + IndicatiaMod.FORGE_VERSION;
+    protected static final String DEPENDENCIES = "required-after:stevekung's_lib@[1.1.3,); " + IndicatiaMod.FORGE_VERSION;
     private static final String URL = "https://minecraft.curseforge.com/projects/indicatia";
 
     public static final File profile = new File(ExtendedConfig.userDir, "profile.txt");
     private static final Splitter COLON_SPLITTER = Splitter.on(':');
+    public static boolean isSkyblockAddonsLoaded = Loader.isModLoaded("skyblockaddons");
 
     static
     {

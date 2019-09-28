@@ -16,12 +16,14 @@ import net.minecraft.client.renderer.entity.RendererLivingEntity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.boss.BossStatus;
 import net.minecraft.entity.item.EntityArmorStand;
+import net.minecraft.entity.monster.EntityEnderman;
 import net.minecraft.util.ChatStyle;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StringUtils;
 import net.minecraftforge.client.GuiIngameForge;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderLivingEvent;
+import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import stevekung.mods.indicatia.config.ConfigManagerIN;
@@ -33,10 +35,7 @@ import stevekung.mods.indicatia.gui.toasts.GuiToast;
 import stevekung.mods.indicatia.handler.ClientBlockBreakEvent;
 import stevekung.mods.indicatia.handler.GrapplingHookEvent;
 import stevekung.mods.indicatia.renderer.HUDInfo;
-import stevekung.mods.indicatia.utils.ColorUtils;
-import stevekung.mods.indicatia.utils.InfoUtils;
-import stevekung.mods.indicatia.utils.JsonUtils;
-import stevekung.mods.indicatia.utils.RenderUtils;
+import stevekung.mods.indicatia.utils.*;
 
 public class HUDRenderEventHandler
 {
@@ -46,6 +45,7 @@ public class HUDRenderEventHandler
     private final Minecraft mc;
     private long lastBlockBreak = -1;
     private long lastGrapplingHookUse = -1;
+    private long lastRespawned = -1;
 
     public HUDRenderEventHandler()
     {
@@ -88,6 +88,7 @@ public class HUDRenderEventHandler
         GuiIngameForge.renderObjective = !this.mc.gameSettings.showDebugInfo;
         double jungleAxeDelay = this.getItemDelay(ExtendedConfig.instance.jungleAxeDelay, this.lastBlockBreak);
         double grapplingHookDelay = this.getItemDelay(ExtendedConfig.instance.grapplingHookDelay, this.lastGrapplingHookUse);
+        double zealotRespawnDelay = this.getItemDelay(15000, this.lastRespawned);//TODO Config
 
         if (event.type == RenderGameOverlayEvent.ElementType.HOTBAR || event.type == RenderGameOverlayEvent.ElementType.CROSSHAIRS)
         {
@@ -98,18 +99,34 @@ public class HUDRenderEventHandler
         }
         if (event.type == RenderGameOverlayEvent.ElementType.TEXT)
         {
-            if (this.mc.gameSettings.hideGUI || this.mc.gameSettings.showDebugInfo || this.mc.thePlayer == null && this.mc.theWorld == null || this.mc.currentScreen instanceof GuiRenderPreview)
+            if (this.mc.gameSettings.showDebugInfo || this.mc.thePlayer == null && this.mc.theWorld == null || this.mc.currentScreen instanceof GuiRenderPreview)
             {
                 return;
             }
 
+            List<CrosshairOverlay> crosshairInfo = new LinkedList<>();
+            int center = 0;
+
             if (ExtendedConfig.instance.jungleAxeOverlay && jungleAxeDelay >= 0.01D)
             {
-                this.renderCrosshairText(event, ColorUtils.stringToRGB(ExtendedConfig.instance.jungleAxeDelayColor).toColoredFont(), jungleAxeDelay);
+                crosshairInfo.add(new CrosshairOverlay(ExtendedConfig.instance.jungleAxeDelayColor, jungleAxeDelay));
             }
             if (ExtendedConfig.instance.grapplingHookOverlay && grapplingHookDelay >= 0.01D)
             {
-                this.renderCrosshairText(event, ColorUtils.stringToRGB(ExtendedConfig.instance.grapplingHookDelayColor).toColoredFont(), grapplingHookDelay);
+                crosshairInfo.add(new CrosshairOverlay(ExtendedConfig.instance.grapplingHookDelayColor, grapplingHookDelay));
+            }
+            if (zealotRespawnDelay >= 0.01D)
+            {
+                crosshairInfo.add(new CrosshairOverlay(ExtendedConfig.instance.grapplingHookDelayColor, zealotRespawnDelay));
+            }
+
+            for (CrosshairOverlay overlay : crosshairInfo)
+            {
+                float fontHeight = this.mc.fontRendererObj.FONT_HEIGHT + 1;
+                float width = event.resolution.getScaledWidth() / 2 + 1.0625F;
+                float height = event.resolution.getScaledHeight() / 2 + 6 + fontHeight * center;
+                this.mc.fontRendererObj.drawString(overlay.getColor() + overlay.getDelay(), width - this.mc.fontRendererObj.getStringWidth(overlay.getDelay()) / 2, height, 16777215, true);
+                center++;
             }
 
             if (ConfigManagerIN.enableRenderInfo)
@@ -302,6 +319,20 @@ public class HUDRenderEventHandler
         }
     }
 
+    @SubscribeEvent
+    public void onEntityEnteringChunk(EntityEvent.EnteringChunk event)
+    {
+        long now = System.currentTimeMillis();
+
+        if (now - this.lastRespawned > 15000L)
+        {
+            if (HypixelEventHandler.SKY_BLOCK_LOCATION == SkyBlockLocation.DRAGON_NEST && event.entity instanceof EntityEnderman && event.entity.posY <= 12 && event.entity.getDistanceSqToEntity(this.mc.thePlayer) <= 128)
+            {
+                this.lastRespawned = now;
+            }
+        }
+    }
+
     public GuiToast getToastGui()
     {
         return this.toastGui;
@@ -320,10 +351,25 @@ public class HUDRenderEventHandler
         return 0.0D;
     }
 
-    private void renderCrosshairText(RenderGameOverlayEvent event, String color, double value)
+    static class CrosshairOverlay
     {
-        float width = event.resolution.getScaledWidth() / 2 - 7 + 1.0625F;
-        float height = event.resolution.getScaledHeight() / 2 + 6;
-        this.mc.fontRendererObj.drawString(color + String.valueOf(value), width, height, 16777215, true);
+        private final String color;
+        private final double delay;
+
+        CrosshairOverlay(String color, double delay)
+        {
+            this.color = color;
+            this.delay = delay;
+        }
+
+        public String getColor()
+        {
+            return ColorUtils.stringToRGB(this.color).toColoredFont();
+        }
+
+        public String getDelay()
+        {
+            return String.valueOf(this.delay);
+        }
     }
 }
