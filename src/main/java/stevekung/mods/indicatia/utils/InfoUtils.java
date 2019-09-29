@@ -1,6 +1,7 @@
 package stevekung.mods.indicatia.utils;
 
 import java.util.List;
+import java.util.TimerTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,6 +21,7 @@ import stevekung.mods.indicatia.event.IndicatiaEventHandler;
 public class InfoUtils
 {
     public static final InfoUtils INSTANCE = new InfoUtils();
+    private final java.util.Timer timer = new java.util.Timer();
     public Entity extendedPointedEntity;
     private Entity pointedEntity;
 
@@ -216,5 +218,19 @@ public class InfoUtils
                 }
             }
         }
+    }
+
+    public TimerTask schedule(Runnable runnable, long delay)
+    {
+        TimerTask task = new TimerTask()
+        {
+            @Override
+            public void run()
+            {
+                runnable.run();
+            }
+        };
+        this.timer.schedule(task, delay);
+        return task;
     }
 }

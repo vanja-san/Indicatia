@@ -1,8 +1,12 @@
 package stevekung.mods.indicatia.event;
 
 import java.text.DecimalFormat;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+
+import com.google.common.collect.ImmutableList;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLog;
@@ -12,17 +16,18 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RendererLivingEntity;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.boss.BossStatus;
 import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.monster.EntityEnderman;
-import net.minecraft.util.ChatStyle;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.StringUtils;
+import net.minecraft.util.*;
 import net.minecraftforge.client.GuiIngameForge;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.event.entity.EntityEvent;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import stevekung.mods.indicatia.config.ConfigManagerIN;
@@ -35,6 +40,7 @@ import stevekung.mods.indicatia.handler.ClientBlockBreakEvent;
 import stevekung.mods.indicatia.handler.GrapplingHookEvent;
 import stevekung.mods.indicatia.renderer.HUDInfo;
 import stevekung.mods.indicatia.utils.*;
+import stevekung.mods.indicatia.utils.JsonUtils;
 
 public class HUDRenderEventHandler
 {
@@ -43,7 +49,9 @@ public class HUDRenderEventHandler
     private final Minecraft mc;
     private long lastBlockBreak = -1;
     private long lastGrapplingHookUse = -1;
-    private long lastRespawned = -1;
+    private long lastZealotRespawn = -1;
+    private Set<CoordsPair> recentlyLoadedChunks = new HashSet<>();
+    private static final ImmutableList<AxisAlignedBB> ZEALOT_SPAWN_AREA = ImmutableList.of(new AxisAlignedBB(-609, 9, -303, -631, 5, -320), new AxisAlignedBB(-622, 5, -321, -640, 5, -334), new AxisAlignedBB(-631, 7, -293, -648, 7, -312), new AxisAlignedBB(-658, 8, -308, -672, 7, -320), new AxisAlignedBB(-709, 9, -325, -694, 10, -315), new AxisAlignedBB(-702, 10, -303, -738, 5, -261), new AxisAlignedBB(-705, 5, -257, -678, 5, -296), new AxisAlignedBB(-657, 5, -210, -624, 8, -242), new AxisAlignedBB(-625, 7, -256, -662, 5, -286));
 
     public HUDRenderEventHandler()
     {
@@ -86,7 +94,7 @@ public class HUDRenderEventHandler
         GuiIngameForge.renderObjective = !this.mc.gameSettings.showDebugInfo;
         double jungleAxeDelay = this.getItemDelay(ExtendedConfig.instance.jungleAxeDelay, this.lastBlockBreak);
         double grapplingHookDelay = this.getItemDelay(ExtendedConfig.instance.grapplingHookDelay, this.lastGrapplingHookUse);
-        double zealotRespawnDelay = this.getItemDelay(15000, this.lastRespawned);//TODO Config
+        double zealotRespawnDelay = this.getItemDelay(ExtendedConfig.instance.zealotRespawnDelay, this.lastZealotRespawn);
 
         if (event.type == RenderGameOverlayEvent.ElementType.HOTBAR || event.type == RenderGameOverlayEvent.ElementType.CROSSHAIRS)
         {
@@ -113,9 +121,9 @@ public class HUDRenderEventHandler
             {
                 crosshairInfo.add(new CrosshairOverlay(ExtendedConfig.instance.grapplingHookDelayColor, grapplingHookDelay));
             }
-            if (zealotRespawnDelay >= 0.01D)
+            if (ExtendedConfig.instance.zealotRespawnOverlay && zealotRespawnDelay >= 0.01D)
             {
-                crosshairInfo.add(new CrosshairOverlay(ExtendedConfig.instance.grapplingHookDelayColor, zealotRespawnDelay));
+                crosshairInfo.add(new CrosshairOverlay(ExtendedConfig.instance.zealotRespawnDelayColor, zealotRespawnDelay));
             }
 
             for (CrosshairOverlay overlay : crosshairInfo)
@@ -318,15 +326,46 @@ public class HUDRenderEventHandler
     }
 
     @SubscribeEvent
+    public void onEntityJoinWorld(EntityJoinWorldEvent event)
+    {
+        if (HypixelEventHandler.isSkyBlock && event.entity == this.mc.thePlayer)
+        {
+            this.recentlyLoadedChunks.clear();
+        }
+    }
+
+    @SubscribeEvent
+    public void onChunkLoad(ChunkEvent.Load event)
+    {
+        if (HypixelEventHandler.isSkyBlock)
+        {
+            CoordsPair coords = new CoordsPair(event.getChunk().xPosition, event.getChunk().zPosition);
+            this.recentlyLoadedChunks.add(coords);
+            InfoUtils.INSTANCE.schedule(() -> this.recentlyLoadedChunks.remove(coords), 20);
+        }
+    }
+
+    @SubscribeEvent
     public void onEntityEnteringChunk(EntityEvent.EnteringChunk event)
     {
-        long now = System.currentTimeMillis();
+        Entity entity = event.entity;
 
-        if (now - this.lastRespawned > 15000L)
+        if (HypixelEventHandler.SKY_BLOCK_LOCATION == SkyBlockLocation.DRAGON_NEST)
         {
-            if (HypixelEventHandler.SKY_BLOCK_LOCATION == SkyBlockLocation.DRAGON_NEST && event.entity instanceof EntityEnderman && event.entity.posY <= 12 && event.entity.getDistanceSqToEntity(this.mc.thePlayer) <= 128)
+            if (ZEALOT_SPAWN_AREA.stream().anyMatch(aabb -> aabb.isVecInside(new Vec3(entity.posX, entity.posY, entity.posZ))))
             {
-                this.lastRespawned = now;
+                if (entity instanceof EntityEnderman)
+                {
+                    if (!this.recentlyLoadedChunks.contains(new CoordsPair(event.newChunkX, event.newChunkZ)) && entity.ticksExisted == 0)
+                    {
+                        long now = System.currentTimeMillis();
+
+                        if (now - this.lastZealotRespawn > 15000L)
+                        {
+                            this.lastZealotRespawn = now;
+                        }
+                    }
+                }
             }
         }
     }

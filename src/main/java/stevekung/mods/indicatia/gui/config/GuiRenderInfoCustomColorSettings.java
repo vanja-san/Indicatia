@@ -39,6 +39,7 @@ public class GuiRenderInfoCustomColorSettings extends GuiScreen
         OPTIONS.add(ExtendedConfig.Options.MOON_PHASE_COLOR);
         OPTIONS.add(ExtendedConfig.Options.JUNGLE_AXE_DELAY_COLOR);
         OPTIONS.add(ExtendedConfig.Options.GRAPPLING_HOOK_DELAY_COLOR);
+        OPTIONS.add(ExtendedConfig.Options.ZEALOT_RESPAWN_DELAY_COLOR);
 
         OPTIONS.add(ExtendedConfig.Options.FPS_VALUE_COLOR);
         OPTIONS.add(ExtendedConfig.Options.FPS_26_AND_40_COLOR);
