@@ -203,6 +203,7 @@ public class HypixelEventHandler
                 {
                     String name = rareDropPattern.group("item");
                     HypixelEventHandler.rareDropName = EnumChatFormatting.getTextWithoutFormattingCodes(name);
+                    event.message = null;
 
                     new Timer().schedule(new TimerTask()
                     {
@@ -211,7 +212,7 @@ public class HypixelEventHandler
                         {
                             HypixelEventHandler.rareDropName = "";
                         }
-                    }, 5000L);
+                    }, 10000L);
                 }
             }
         }
