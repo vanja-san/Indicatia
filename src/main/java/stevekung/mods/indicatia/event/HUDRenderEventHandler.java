@@ -368,6 +368,10 @@ public class HUDRenderEventHandler
                 }
             }
         }
+        else
+        {
+            this.lastZealotRespawn = -1;
+        }
     }
 
     public GuiToast getToastGui()
