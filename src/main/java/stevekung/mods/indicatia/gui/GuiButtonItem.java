@@ -23,6 +23,7 @@ public class GuiButtonItem extends GuiButton
     private final int originalX;
     private final int potionX;
     private final Item item;
+    private final Minecraft mc;
 
     public GuiButtonItem(int buttonID, int xPos, int yPos, int potionX, Item item)
     {
@@ -30,14 +31,11 @@ public class GuiButtonItem extends GuiButton
         this.originalX = xPos;
         this.potionX = potionX;
         this.item = item;
-    }
+        this.mc = Minecraft.getMinecraft();
 
-    @Override
-    public void drawButton(Minecraft mc, int mouseX, int mouseY)
-    {
         boolean hasVisibleEffect = false;
 
-        for (PotionEffect potioneffect : mc.thePlayer.getActivePotionEffects())
+        for (PotionEffect potioneffect : this.mc.thePlayer.getActivePotionEffects())
         {
             Potion potion = Potion.potionTypes[potioneffect.getPotionID()];
 
@@ -48,7 +46,7 @@ public class GuiButtonItem extends GuiButton
             }
         }
 
-        if (!mc.thePlayer.getActivePotionEffects().isEmpty() && hasVisibleEffect)
+        if (!this.mc.thePlayer.getActivePotionEffects().isEmpty() && hasVisibleEffect)
         {
             this.xPosition = this.potionX;
         }
@@ -56,7 +54,11 @@ public class GuiButtonItem extends GuiButton
         {
             this.xPosition = this.originalX;
         }
+    }
 
+    @Override
+    public void drawButton(Minecraft mc, int mouseX, int mouseY)
+    {
         if (this.visible)
         {
             ItemStack itemStack = new ItemStack(this.item);
