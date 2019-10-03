@@ -19,6 +19,7 @@ import net.minecraft.client.renderer.entity.RendererLivingEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.boss.BossStatus;
+import net.minecraft.entity.boss.EntityDragon;
 import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.monster.EntityEnderman;
 import net.minecraft.util.*;
@@ -30,6 +31,7 @@ import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import stevekung.mods.indicatia.config.ConfigManagerIN;
 import stevekung.mods.indicatia.config.EnumEquipment;
 import stevekung.mods.indicatia.config.ExtendedConfig;
@@ -57,6 +59,21 @@ public class HUDRenderEventHandler
     {
         this.mc = Minecraft.getMinecraft();
         this.toastGui = new GuiToast(this.mc);
+    }
+
+    @SubscribeEvent
+    public void onClientTick(ClientTickEvent event)
+    {
+        if (this.mc.thePlayer != null && this.mc.thePlayer.ticksExisted % 100 == 0)
+        {
+            for (Entity entity : this.mc.theWorld.loadedEntityList)
+            {
+                if (entity instanceof EntityDragon)
+                {
+                    this.lastZealotRespawn = -1;
+                }
+            }
+        }
     }
 
     @SubscribeEvent
