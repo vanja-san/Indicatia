@@ -1,6 +1,8 @@
 package stevekung.mods.indicatia.event;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -45,7 +47,7 @@ public class HypixelEventHandler
     public static SkyBlockLocation SKY_BLOCK_LOCATION = SkyBlockLocation.YOUR_ISLAND;
     private static final List<String> PARTY_LIST = new ArrayList<>();
     public static String SKYBLOCK_AMPM = "";
-    public static String rareDropName = "";
+    public static final List<RareDrop> RARE_DROP_LIST = new ArrayList<>();
     private List<ItemStack> previousInventory;
     private Minecraft mc;
 
@@ -202,17 +204,8 @@ public class HypixelEventHandler
                 if (rareDropPattern.matches())
                 {
                     String name = rareDropPattern.group("item");
-                    HypixelEventHandler.rareDropName = EnumChatFormatting.getTextWithoutFormattingCodes(name);
+                    HypixelEventHandler.RARE_DROP_LIST.add(new RareDrop(EnumChatFormatting.getTextWithoutFormattingCodes(name), System.currentTimeMillis()));
                     event.message = null;
-
-                    new Timer().schedule(new TimerTask()
-                    {
-                        @Override
-                        public void run()
-                        {
-                            HypixelEventHandler.rareDropName = "";
-                        }
-                    }, 10000L);
                 }
             }
         }
@@ -307,14 +300,18 @@ public class HypixelEventHandler
 
                 if (newItem != null)
                 {
-                    if (HypixelEventHandler.rareDropName.equals(EnumChatFormatting.getTextWithoutFormattingCodes(newItem.getDisplayName())))
+                    for (RareDrop rareDrop : HypixelEventHandler.RARE_DROP_LIST)
                     {
-                        ItemDropsToast.addOrUpdate(HUDRenderEventHandler.INSTANCE.getToastGui(), newItem);
+                        if (rareDrop.getName().equals(EnumChatFormatting.getTextWithoutFormattingCodes(newItem.getDisplayName())))
+                        {
+                            ItemDropsToast.addOrUpdate(HUDRenderEventHandler.INSTANCE.getToastGui(), newItem);
+                        }
                     }
                 }
             }
         }
         this.previousInventory = newInventory;
+        HypixelEventHandler.RARE_DROP_LIST.removeIf(rareDrop -> rareDrop.getLastDrop() < System.currentTimeMillis() - 10000L);
     }
 
     private List<ItemStack> copyInventory(ItemStack[] inventory)
@@ -326,5 +323,27 @@ public class HypixelEventHandler
             copy.add(item != null ? ItemStack.copyItemStack(item) : null);
         }
         return copy;
+    }
+
+    static class RareDrop
+    {
+        private final String name;
+        private final long lastDrop;
+
+        private RareDrop(String name, long lastDrop)
+        {
+            this.name = name;
+            this.lastDrop = lastDrop;
+        }
+
+        public String getName()
+        {
+            return this.name;
+        }
+
+        public long getLastDrop()
+        {
+            return this.lastDrop;
+        }
     }
 }
