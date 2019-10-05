@@ -1,5 +1,8 @@
 package stevekung.mods.indicatia.gui.toasts;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
@@ -15,13 +18,13 @@ import stevekung.mods.indicatia.utils.LangUtils;
 public class ItemDropsToast implements IToast
 {
     private static final ResourceLocation TEXTURE = new ResourceLocation("indicatia:textures/gui/toasts.png");
-    private final ItemStack itemStack;
+    private final List<ItemStack> rareDropOutput = new ArrayList<>();
     private long firstDrawTime;
     private boolean hasNewStacks;
 
     public ItemDropsToast(ItemStack itemStack)
     {
-        this.itemStack = itemStack;
+        this.rareDropOutput.add(itemStack);
     }
 
     @Override
@@ -33,41 +36,20 @@ public class ItemDropsToast implements IToast
             this.hasNewStacks = false;
         }
 
-        if (this.itemStack == null)
+        if (this.rareDropOutput.isEmpty())
         {
             return IToast.Visibility.HIDE;
         }
         else
         {
+            ItemStack itemStack = this.rareDropOutput.get((int)(delta * this.rareDropOutput.size() / 5000L % this.rareDropOutput.size()));
             toastGui.mc.getTextureManager().bindTexture(TEXTURE);
             GlStateManager.color(1.0F, 1.0F, 1.0F);
             Gui.drawModalRectWithCustomSizedTexture(0, 0, 0, 0, 160, 32, 160, 32);
             toastGui.mc.fontRendererObj.drawString(JsonUtils.create(LangUtils.translate("RARE DROP!")).setChatStyle(JsonUtils.gold().setBold(true)).getFormattedText(), 30, 7, 16777215);
-            toastGui.mc.fontRendererObj.drawString(this.itemStack.getDisplayName(), 30, 18, ColorUtils.rgbToDecimal(255, 255, 255));
-            HUDInfo.renderItem(this.itemStack, 8, 8);
+            toastGui.mc.fontRendererObj.drawString(itemStack.getDisplayName(), 30, 18, ColorUtils.rgbToDecimal(255, 255, 255));
+            HUDInfo.renderItem(itemStack, 8, 8);
             return delta - this.firstDrawTime >= 5000L ? IToast.Visibility.HIDE : IToast.Visibility.SHOW;
-        }
-    }
-
-    public void addItemStack(ItemStack itemStack)
-    {
-        if (this.itemStack != null)
-        {
-            this.hasNewStacks = true;
-        }
-    }
-
-    public static void addOrUpdate(GuiToast guiToast, ItemStack itemStack)
-    {
-        ItemDropsToast toast = guiToast.getToast(ItemDropsToast.class, NO_TOKEN);
-
-        if (toast == null)
-        {
-            guiToast.add(new ItemDropsToast(itemStack));
-        }
-        else
-        {
-            toast.addItemStack(itemStack);
         }
     }
 }

@@ -304,14 +304,14 @@ public class HypixelEventHandler
                     {
                         if (rareDrop.getName().equals(EnumChatFormatting.getTextWithoutFormattingCodes(newItem.getDisplayName())))
                         {
-                            ItemDropsToast.addOrUpdate(HUDRenderEventHandler.INSTANCE.getToastGui(), newItem);
+                            HUDRenderEventHandler.INSTANCE.getToastGui().add(new ItemDropsToast(newItem));
                         }
                     }
                 }
             }
         }
         this.previousInventory = newInventory;
-        HypixelEventHandler.RARE_DROP_LIST.removeIf(rareDrop -> rareDrop.getLastDrop() < System.currentTimeMillis() - 10000L);
+        HypixelEventHandler.RARE_DROP_LIST.removeIf(rareDrop -> rareDrop.getLastDrop() < System.currentTimeMillis() - 1000L);
     }
 
     private List<ItemStack> copyInventory(ItemStack[] inventory)

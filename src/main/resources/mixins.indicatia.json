@@ -38,6 +38,7 @@
         "GuiEditSignMixin",
         "GuiContainerMixin",
         "RenderXPOrbMixin",
-        "GuiInventoryMixin"
+        "GuiInventoryMixin",
+        "GuiIngameMixin"
     ]
 }

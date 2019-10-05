@@ -123,8 +123,10 @@ public class GuiToast extends Gui
             }
 
             GlStateManager.pushMatrix();
+            GlStateManager.enableBlend();
             GlStateManager.translate(x - 160.0F * this.getVisibility(i), z * 32, 500 + z);
             IToast.Visibility itoast$visibility = this.toast.draw(GuiToast.this, i - this.visibleTime);
+            GlStateManager.disableBlend();
             GlStateManager.popMatrix();
 
             if (itoast$visibility != this.visibility)
