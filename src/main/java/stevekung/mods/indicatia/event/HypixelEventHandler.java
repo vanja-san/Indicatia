@@ -31,15 +31,15 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import stevekung.mods.indicatia.config.ExtendedConfig;
 import stevekung.mods.indicatia.gui.toasts.ItemDropsToast;
 import stevekung.mods.indicatia.handler.KeyBindingHandler;
-import stevekung.mods.indicatia.utils.CachedEnum;
-import stevekung.mods.indicatia.utils.InfoUtils;
-import stevekung.mods.indicatia.utils.JsonUtils;
-import stevekung.mods.indicatia.utils.SkyBlockLocation;
+import stevekung.mods.indicatia.utils.*;
 
 public class HypixelEventHandler
 {
     private static final Pattern nickPattern = Pattern.compile("^You are now nicked as (?<nick>\\w+)!");
     public static final Pattern RARE_DROP_PATTERN = Pattern.compile("RARE DROP! (?<item>[\\w ]+)");
+    public static final Pattern GOOD_CATCH_PATTERN = Pattern.compile("GOOD CATCH! You found a (?<item>[\\w -]+).");
+    public static final Pattern GREAT_CATCH_PATTERN = Pattern.compile("GREAT CATCH! You found a (?<item>[\\w ]+).");
+    public static final Pattern DRAGON_DROP_PATTERN = Pattern.compile("((" + GameProfileUtils.getUsername() + ")|(\\[VIP\\]|\\[VIP\\u002B\\]|\\[MVP\\]|\\[MVP\\u002B\\]|\\[MVP\\u002B\\u002B\\]|\\[YOUTUBER\\]) " + GameProfileUtils.getUsername() + ") has obtained (?<item>[\\w ]+)!");
     private static final Pattern LETTERS_NUMBERS = Pattern.compile("[^a-z A-Z:0-9/']");
     private static final Pattern JOINED_PARTY_PATTERN = Pattern.compile("(?<name>\\w+) joined the party!");
     private static final Pattern VISIT_ISLAND_PATTERN = Pattern.compile("(\\[SkyBlock\\]|\\[SkyBlock\\] \\[VIP\\]|\\[VIP\\u002B\\]|\\[MVP\\]|\\[MVP\\u002B\\]|\\[MVP\\u002B\\u002B\\]|\\[YOUTUBER\\]) (?<name>\\w+) is visiting Your Island!");
@@ -47,7 +47,7 @@ public class HypixelEventHandler
     public static SkyBlockLocation SKY_BLOCK_LOCATION = SkyBlockLocation.YOUR_ISLAND;
     private static final List<String> PARTY_LIST = new ArrayList<>();
     public static String SKYBLOCK_AMPM = "";
-    public static final List<RareDrop> RARE_DROP_LIST = new ArrayList<>();
+    public static final List<ItemDrop> ITEM_DROP_LIST = new ArrayList<>();
     private List<ItemStack> previousInventory;
     private Minecraft mc;
 
@@ -166,6 +166,9 @@ public class HypixelEventHandler
             Matcher visitIslandMatcher = HypixelEventHandler.VISIT_ISLAND_PATTERN.matcher(unformattedText);
             Matcher joinedPartyMatcher = HypixelEventHandler.JOINED_PARTY_PATTERN.matcher(unformattedText);
             Matcher rareDropPattern = HypixelEventHandler.RARE_DROP_PATTERN.matcher(unformattedText);
+            Matcher goodCatchPattern = HypixelEventHandler.GOOD_CATCH_PATTERN.matcher(unformattedText);
+            Matcher greatCatchPattern = HypixelEventHandler.GREAT_CATCH_PATTERN.matcher(unformattedText);
+            Matcher dragonDropPattern = HypixelEventHandler.DRAGON_DROP_PATTERN.matcher(unformattedText);
 
             if (event.type == 0)
             {
@@ -204,7 +207,28 @@ public class HypixelEventHandler
                 if (rareDropPattern.matches())
                 {
                     String name = rareDropPattern.group("item");
-                    HypixelEventHandler.RARE_DROP_LIST.add(new RareDrop(EnumChatFormatting.getTextWithoutFormattingCodes(name), System.currentTimeMillis()));
+                    HypixelEventHandler.ITEM_DROP_LIST.add(new ItemDrop(EnumChatFormatting.getTextWithoutFormattingCodes(name), ItemDropsToast.Type.RARE_DROP, System.currentTimeMillis()));
+                    event.message = null;
+                }
+                if (goodCatchPattern.matches())
+                {
+                    HypixelEventHandler.addFishLoot(goodCatchPattern, ItemDropsToast.Type.GOOD_CATCH);
+                    event.message = null;
+                }
+                if (greatCatchPattern.matches())
+                {
+                    HypixelEventHandler.addFishLoot(greatCatchPattern, ItemDropsToast.Type.GREAT_CATCH);
+                    event.message = null;
+                }
+                if (dragonDropPattern.matches())
+                {
+                    String name = dragonDropPattern.group("item");
+                    HypixelEventHandler.ITEM_DROP_LIST.add(new ItemDrop(EnumChatFormatting.getTextWithoutFormattingCodes(name), ItemDropsToast.Type.DRAGON_DROP, System.currentTimeMillis()));
+                    event.message = null;
+                }
+                if (unformattedText.contains("You destroyed an Ender Crystal!"))
+                {
+                    HypixelEventHandler.ITEM_DROP_LIST.add(new ItemDrop("Crystal Fragment", ItemDropsToast.Type.DRAGON_CRYSTAL_FRAGMENT, System.currentTimeMillis()));
                     event.message = null;
                 }
             }
@@ -285,6 +309,12 @@ public class HypixelEventHandler
         return LETTERS_NUMBERS.matcher(text).replaceAll("");
     }
 
+    private static void addFishLoot(Matcher matcher, ItemDropsToast.Type type)
+    {
+        String name = matcher.group("item");
+        HypixelEventHandler.ITEM_DROP_LIST.add(new ItemDrop(EnumChatFormatting.getTextWithoutFormattingCodes(name), type, System.currentTimeMillis()));
+    }
+
     /**
      * Credit to codes.biscuit.skyblockaddons.utils.InventoryUtils
      */
@@ -300,18 +330,18 @@ public class HypixelEventHandler
 
                 if (newItem != null)
                 {
-                    for (RareDrop rareDrop : HypixelEventHandler.RARE_DROP_LIST)
+                    for (ItemDrop rareDrop : HypixelEventHandler.ITEM_DROP_LIST)
                     {
                         if (rareDrop.getName().equals(EnumChatFormatting.getTextWithoutFormattingCodes(newItem.getDisplayName())))
                         {
-                            HUDRenderEventHandler.INSTANCE.getToastGui().add(new ItemDropsToast(newItem));
+                            ItemDropsToast.addOrUpdate(HUDRenderEventHandler.INSTANCE.getToastGui(), newItem, rareDrop.getType());
                         }
                     }
                 }
             }
         }
         this.previousInventory = newInventory;
-        HypixelEventHandler.RARE_DROP_LIST.removeIf(rareDrop -> rareDrop.getLastDrop() < System.currentTimeMillis() - 1000L);
+        HypixelEventHandler.ITEM_DROP_LIST.removeIf(rareDrop -> rareDrop.getLastDrop() < System.currentTimeMillis() - 1000L);
     }
 
     private List<ItemStack> copyInventory(ItemStack[] inventory)
@@ -325,15 +355,17 @@ public class HypixelEventHandler
         return copy;
     }
 
-    static class RareDrop
+    static class ItemDrop
     {
         private final String name;
         private final long lastDrop;
+        private final ItemDropsToast.Type type;
 
-        private RareDrop(String name, long lastDrop)
+        private ItemDrop(String name, ItemDropsToast.Type type, long lastDrop)
         {
             this.name = name;
             this.lastDrop = lastDrop;
+            this.type = type;
         }
 
         public String getName()
@@ -344,6 +376,11 @@ public class HypixelEventHandler
         public long getLastDrop()
         {
             return this.lastDrop;
+        }
+
+        public ItemDropsToast.Type getType()
+        {
+            return this.type;
         }
     }
 }
