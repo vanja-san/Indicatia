@@ -49,7 +49,7 @@ public class ItemDropsToast implements IToast
             toastGui.mc.fontRendererObj.drawString(JsonUtils.create(LangUtils.translate("RARE DROP!")).setChatStyle(JsonUtils.gold().setBold(true)).getFormattedText(), 30, 7, 16777215);
             toastGui.mc.fontRendererObj.drawString(itemStack.getDisplayName(), 30, 18, ColorUtils.rgbToDecimal(255, 255, 255));
             HUDInfo.renderItem(itemStack, 8, 8);
-            return delta - this.firstDrawTime >= 5000L ? IToast.Visibility.HIDE : IToast.Visibility.SHOW;
+            return delta - this.firstDrawTime >= 10000L ? IToast.Visibility.HIDE : IToast.Visibility.SHOW;
         }
     }
 }
