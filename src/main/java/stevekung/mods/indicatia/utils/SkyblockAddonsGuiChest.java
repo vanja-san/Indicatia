@@ -3,18 +3,25 @@ package stevekung.mods.indicatia.utils;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.lwjgl.input.Keyboard;
 
 import codes.biscuit.skyblockaddons.SkyblockAddons;
 import codes.biscuit.skyblockaddons.utils.ConfigColor;
 import codes.biscuit.skyblockaddons.utils.EnumUtils;
+import codes.biscuit.skyblockaddons.utils.Feature;
 import codes.biscuit.skyblockaddons.utils.Message;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Slot;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumChatFormatting;
 
 public class SkyblockAddonsGuiChest
 {
@@ -145,6 +152,82 @@ public class SkyblockAddonsGuiChest
             enchantments = new LinkedList<>(Arrays.asList(textFieldExclusions.getText().split(",")));
             SkyblockAddons.getInstance().getUtils().setEnchantmentExclusion(enchantments);
         }
+    }
+
+    public boolean handleMouseClick(Slot slot, Minecraft mc, Container inventorySlots, IInventory lowerChestInventory)
+    {
+        SkyblockAddons main = SkyblockAddons.getInstance();
+
+        if (main.getUtils().getEnchantmentMatch().size() > 0)
+        {
+            if (slot != null && !slot.inventory.equals(mc.thePlayer.inventory) && slot.getHasStack())
+            {
+                Container slots = inventorySlots;
+
+                if (slot.getSlotIndex() == 13 && this.inventoryType == EnumUtils.InventoryType.ENCHANTMENT_TABLE)
+                {
+                    ItemStack[] enchantBottles = {slots.getSlot(29).getStack(), slots.getSlot(31).getStack(), slots.getSlot(33).getStack()};
+
+                    for (ItemStack bottle : enchantBottles)
+                    {
+                        if (bottle != null && bottle.hasDisplayName())
+                        {
+                            if (bottle.getDisplayName().startsWith(EnumChatFormatting.GREEN + "Enchant Item"))
+                            {
+                                List<String> toolip = bottle.getTooltip(mc.thePlayer, false);
+
+                                if (toolip.size() > 2)
+                                {
+                                    String enchantLine = toolip.get(2).split(Pattern.quote("* "))[1];
+
+                                    if (main.getUtils().enchantReforgeMatches(enchantLine))
+                                    {
+                                        main.getUtils().playSound("random.orb", 0.1);
+                                        return false;
+                                    }
+                                }
+                            }
+                            else if (bottle.getDisplayName().startsWith(EnumChatFormatting.RED + "Enchant Item"))
+                            {
+                                // Stop player from removing item before the enchants have even loaded.
+                                return false;
+                            }
+                        }
+                    }
+                }
+                else if (slot.getSlotIndex() == 22 && this.inventoryType == EnumUtils.InventoryType.REFORGE_ANVIL)
+                {
+                    Slot itemSlot = slots.getSlot(13);
+
+                    if (itemSlot != null && itemSlot.getHasStack())
+                    {
+                        ItemStack item = itemSlot.getStack();
+
+                        if (item.hasDisplayName())
+                        {
+                            String reforge = main.getUtils().getReforgeFromItem(item);
+
+                            if (reforge != null)
+                            {
+                                if (main.getUtils().enchantReforgeMatches(reforge))
+                                {
+                                    main.getUtils().playSound("random.orb", 0.1);
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (main.getConfigValues().isEnabled(Feature.STOP_DROPPING_SELLING_RARE_ITEMS) && lowerChestInventory.hasCustomName() && EnumUtils.Merchant.isMerchant(lowerChestInventory.getDisplayName().getUnformattedText()) && slot != null && slot.inventory instanceof InventoryPlayer)
+        {
+            if (main.getInventoryUtils().shouldCancelDrop(slot))
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     public Object getInventoryType()

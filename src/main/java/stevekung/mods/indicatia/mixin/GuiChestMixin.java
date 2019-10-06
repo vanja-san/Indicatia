@@ -362,6 +362,15 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
         }
     }
 
+    @Override
+    protected void handleMouseClick(Slot slot, int slotId, int clickedButton, int clickType)
+    {
+        if (this.chest.handleMouseClick(slot, this.mc, this.inventorySlots, this.lowerChestInventory))
+        {
+            super.handleMouseClick(slot, slotId, clickedButton, clickType);
+        }
+    }
+
     private void getSentHistory(int msgPos)
     {
         int i = this.sentHistoryCursor + msgPos;
