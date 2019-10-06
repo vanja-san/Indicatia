@@ -73,6 +73,7 @@ public class HypixelEventHandler
                 if (this.mc.thePlayer.ticksExisted % 4 == 0)
                 {
                     this.getInventoryDifference(this.mc.thePlayer.inventory.mainInventory);
+                    HypixelEventHandler.ITEM_DROP_LIST.removeIf(rareDrop -> rareDrop.getLastDrop() < System.currentTimeMillis() - 100L);
                 }
                 if (this.mc.theWorld != null)
                 {
@@ -242,13 +243,13 @@ public class HypixelEventHandler
                 else if (goodCatchCoinsPattern.matches())
                 {
                     String coin = goodCatchCoinsPattern.group("coin");
-                    ItemDropsToast.addOrUpdate(HUDRenderEventHandler.INSTANCE.getToastGui(), HypixelEventHandler.getCoinItemStack(coin), ItemDropsToast.Type.GOOD_CATCH_COINS);
+                    HUDRenderEventHandler.INSTANCE.getToastGui().add(new ItemDropsToast(HypixelEventHandler.getCoinItemStack(coin), ItemDropsToast.Type.GOOD_CATCH_COINS));
                     event.message = null;
                 }
                 else if (greatCatchCoinsPattern.matches())
                 {
                     String coin = goodCatchCoinsPattern.group("coin");
-                    ItemDropsToast.addOrUpdate(HUDRenderEventHandler.INSTANCE.getToastGui(), HypixelEventHandler.getCoinItemStack(coin), ItemDropsToast.Type.GREAT_CATCH_COINS);
+                    HUDRenderEventHandler.INSTANCE.getToastGui().add(new ItemDropsToast(HypixelEventHandler.getCoinItemStack(coin), ItemDropsToast.Type.GREAT_CATCH_COINS));
                     event.message = null;
                 }
             }
@@ -350,18 +351,17 @@ public class HypixelEventHandler
 
                 if (newItem != null)
                 {
-                    for (ItemDrop rareDrop : HypixelEventHandler.ITEM_DROP_LIST)
+                    for (ItemDrop drop : HypixelEventHandler.ITEM_DROP_LIST)
                     {
-                        if (rareDrop.getName().equals(EnumChatFormatting.getTextWithoutFormattingCodes(newItem.getDisplayName())))
+                        if (drop.getName().equals(EnumChatFormatting.getTextWithoutFormattingCodes(newItem.getDisplayName())))
                         {
-                            ItemDropsToast.addOrUpdate(HUDRenderEventHandler.INSTANCE.getToastGui(), newItem, rareDrop.getType());
+                            HUDRenderEventHandler.INSTANCE.getToastGui().add(new ItemDropsToast(newItem, drop.getType()));
                         }
                     }
                 }
             }
         }
         this.previousInventory = newInventory;
-        HypixelEventHandler.ITEM_DROP_LIST.removeIf(rareDrop -> rareDrop.getLastDrop() < System.currentTimeMillis() - 1000L);
     }
 
     private static ItemStack getCoinItemStack(String coin)
