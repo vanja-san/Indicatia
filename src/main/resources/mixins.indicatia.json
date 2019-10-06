@@ -39,6 +39,8 @@
         "GuiContainerMixin",
         "RenderXPOrbMixin",
         "GuiInventoryMixin",
-        "GuiIngameMixin"
+        "GuiIngameMixin",
+        "NetHandlerPlayClientMixin",
+        "GuiChestMixin"
     ]
 }

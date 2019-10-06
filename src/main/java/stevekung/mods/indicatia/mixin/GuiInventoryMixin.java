@@ -20,6 +20,8 @@ public abstract class GuiInventoryMixin extends InventoryEffectRenderer
     @Overwrite
     public void updateScreen()
     {
+        super.updateScreen();
+
         if (this.mc.playerController.isInCreativeMode())
         {
             this.mc.displayGuiScreen(new GuiContainerCreative(this.mc.thePlayer));
