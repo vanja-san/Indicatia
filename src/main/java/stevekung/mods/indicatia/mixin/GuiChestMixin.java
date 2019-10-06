@@ -27,7 +27,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.C14PacketTabComplete;
 import net.minecraft.util.*;
 import net.minecraftforge.client.ClientCommandHandler;
+import stevekung.mods.indicatia.core.IndicatiaMod;
 import stevekung.mods.indicatia.utils.ITradeGUI;
+import stevekung.mods.indicatia.utils.SkyblockAddonsGuiChest;
 
 @Mixin(GuiChest.class)
 public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
@@ -39,6 +41,10 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
     private int autocompleteIndex;
     private List<String> foundPlayerNames = new ArrayList<>();
     private String historyBuffer = "";
+
+    private final SkyblockAddonsGuiChest chest = new SkyblockAddonsGuiChest();
+    private GuiTextField textFieldMatch = null;
+    private GuiTextField textFieldExclusions = null;
 
     @Shadow
     private IInventory lowerChestInventory;
@@ -63,6 +69,11 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
             this.inputField.setFocused(false);
             this.inputField.setCanLoseFocus(true);
         }
+        if (IndicatiaMod.isSkyblockAddonsLoaded)
+        {
+            this.textFieldMatch = this.chest.initGui(this.lowerChestInventory, this.fontRendererObj, this.guiTop, this.guiLeft)[0];
+            this.textFieldExclusions = this.chest.initGui(this.lowerChestInventory, this.fontRendererObj, this.guiTop, this.guiLeft)[1];
+        }
     }
 
     @Override
@@ -81,6 +92,20 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
         {
             Gui.drawRect(2, this.height - 14, this.width - 2, this.height - 2, Integer.MIN_VALUE);
             this.inputField.drawTextBox();
+        }
+
+        if (this.textFieldMatch != null && IndicatiaMod.isSkyblockAddonsLoaded)
+        {
+            this.chest.drawScreen(this.mc, this.guiLeft, this.guiTop, this.textFieldMatch, this.textFieldExclusions);
+        }
+
+        for (int ii = 0; ii < this.buttonList.size(); ++ii)
+        {
+            this.buttonList.get(ii).drawButton(this.mc, mouseX, mouseY);
+        }
+        for (int jj = 0; jj < this.labelList.size(); ++jj)
+        {
+            this.labelList.get(jj).drawLabel(this.mc, mouseX, mouseY);
         }
 
         RenderHelper.enableGUIStandardItemLighting();
@@ -179,6 +204,11 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
         {
             this.inputField.mouseClicked(mouseX, mouseY, mouseButton);
         }
+        if (IndicatiaMod.isSkyblockAddonsLoaded && this.textFieldMatch != null)
+        {
+            this.textFieldMatch.mouseClicked(mouseX, mouseY, mouseButton);
+            this.textFieldExclusions.mouseClicked(mouseX, mouseY, mouseButton);
+        }
         super.mouseClicked(mouseX, mouseY, mouseButton);
     }
 
@@ -186,6 +216,10 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
     public void onGuiClosed()
     {
         if (this.isTradeGUI())
+        {
+            Keyboard.enableRepeatEvents(false);
+        }
+        if (IndicatiaMod.isSkyblockAddonsLoaded && this.textFieldMatch != null && this.textFieldExclusions != null)
         {
             Keyboard.enableRepeatEvents(false);
         }
@@ -198,6 +232,11 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
         if (this.isTradeGUI())
         {
             this.inputField.updateCursorCounter();
+        }
+        if (IndicatiaMod.isSkyblockAddonsLoaded && this.textFieldMatch != null && this.textFieldExclusions != null)
+        {
+            this.textFieldMatch.updateCursorCounter();
+            this.textFieldExclusions.updateCursorCounter();
         }
         super.updateScreen();
     }
@@ -252,7 +291,18 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
         }
         else
         {
-            super.keyTyped(typedChar, keyCode);
+            if (this.chest.getInventoryType() != null && IndicatiaMod.isSkyblockAddonsLoaded)
+            {
+                if (keyCode != this.mc.gameSettings.keyBindInventory.getKeyCode() || !this.textFieldMatch.isFocused() && !this.textFieldExclusions.isFocused())
+                {
+                    super.keyTyped(typedChar, keyCode);
+                }
+                this.chest.keyTyped(typedChar, keyCode, this.textFieldMatch, this.textFieldExclusions);
+            }
+            else
+            {
+                super.keyTyped(typedChar, keyCode);
+            }
         }
     }
 
@@ -395,7 +445,7 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
             }
             this.mc.ingameGUI.getChatGUI().printChatMessageWithOptionalDeletion(new ChatComponentText(stringbuilder.toString()), 1);
         }
-        this.inputField.writeText(net.minecraft.util.EnumChatFormatting.getTextWithoutFormattingCodes(this.foundPlayerNames.get(this.autocompleteIndex++)));
+        this.inputField.writeText(EnumChatFormatting.getTextWithoutFormattingCodes(this.foundPlayerNames.get(this.autocompleteIndex++)));
     }
 
     private boolean isTradeGUI()
