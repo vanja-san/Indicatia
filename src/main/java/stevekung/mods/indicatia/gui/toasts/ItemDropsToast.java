@@ -103,7 +103,9 @@ public class ItemDropsToast implements IToast
         DRAGON_CRYSTAL_FRAGMENT("RARE DROP!", "170,0,170"),
         DRAGON_DROP("DRAGON DROP!", "127,255,212"),
         GOOD_CATCH("GOOD CATCH!", "255,170,0"),
-        GREAT_CATCH("GREAT CATCH!", "170,0,170");
+        GREAT_CATCH("GREAT CATCH!", "170,0,170"),
+        GOOD_CATCH_COINS("GOOD CATCH!", "255,170,0"),
+        GREAT_CATCH_COINS("GREAT CATCH!", "170,0,170");
 
         private final String name;
         private final String color;

@@ -14,7 +14,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.client.gui.inventory.GuiEditSign;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.scoreboard.Score;
 import net.minecraft.scoreboard.ScoreObjective;
 import net.minecraft.scoreboard.ScorePlayerTeam;
@@ -39,6 +42,8 @@ public class HypixelEventHandler
     public static final Pattern RARE_DROP_PATTERN = Pattern.compile("RARE DROP! (?<item>[\\w\\u0027 -]+)");
     public static final Pattern GOOD_CATCH_PATTERN = Pattern.compile("GOOD CATCH! You found a (?<item>[\\w\\u0027 -]+).");
     public static final Pattern GREAT_CATCH_PATTERN = Pattern.compile("GREAT CATCH! You found a (?<item>[\\w\\u0027 -]+).");
+    public static final Pattern GOOD_CATCH_COINS_PATTERN = Pattern.compile("GOOD CATCH! You found (?<coin>[0-9,]+) Coins.");
+    public static final Pattern GREAT_CATCH_COINS_PATTERN = Pattern.compile("GREAT CATCH! You found (?<coin>[0-9,]+) Coins.");
     public static final Pattern DRAGON_DROP_PATTERN = Pattern.compile("((" + GameProfileUtils.getUsername() + ")|(\\[VIP\\]|\\[VIP\\u002B\\]|\\[MVP\\]|\\[MVP\\u002B\\]|\\[MVP\\u002B\\u002B\\]|\\[YOUTUBER\\]) " + GameProfileUtils.getUsername() + ") has obtained (?<item>[\\w\\u0027 -]+)!");
     private static final Pattern LETTERS_NUMBERS = Pattern.compile("[^a-z A-Z:0-9/']");
     private static final Pattern JOINED_PARTY_PATTERN = Pattern.compile("(?<name>\\w+) joined the party!");
@@ -169,6 +174,8 @@ public class HypixelEventHandler
             Matcher goodCatchPattern = HypixelEventHandler.GOOD_CATCH_PATTERN.matcher(unformattedText);
             Matcher greatCatchPattern = HypixelEventHandler.GREAT_CATCH_PATTERN.matcher(unformattedText);
             Matcher dragonDropPattern = HypixelEventHandler.DRAGON_DROP_PATTERN.matcher(unformattedText);
+            Matcher goodCatchCoinsPattern = HypixelEventHandler.GOOD_CATCH_COINS_PATTERN.matcher(unformattedText);
+            Matcher greatCatchCoinsPattern = HypixelEventHandler.GREAT_CATCH_COINS_PATTERN.matcher(unformattedText);
 
             if (event.type == 0)
             {
@@ -185,16 +192,12 @@ public class HypixelEventHandler
                     ExtendedConfig.instance.hypixelNickName = "";
                     ExtendedConfig.instance.save();
                 }
+                else if (unformattedText.contains("You destroyed an Ender Crystal!"))
+                {
+                    HypixelEventHandler.ITEM_DROP_LIST.add(new ItemDrop("Crystal Fragment", ItemDropsToast.Type.DRAGON_CRYSTAL_FRAGMENT, System.currentTimeMillis()));
+                    event.message = null;
+                }
 
-                if (joinedPartyMatcher.matches())
-                {
-                    HypixelEventHandler.PARTY_LIST.add(joinedPartyMatcher.group("name"));
-                }
-                if (nickMatcher.matches())
-                {
-                    ExtendedConfig.instance.hypixelNickName = nickMatcher.group("nick");
-                    ExtendedConfig.instance.save();
-                }
                 if (visitIslandMatcher.matches() && ExtendedConfig.instance.addPartyVisitIsland)
                 {
                     String name = visitIslandMatcher.group("name");
@@ -204,31 +207,48 @@ public class HypixelEventHandler
                         this.mc.thePlayer.sendChatMessage("/p " + name);
                     }
                 }
-                if (rareDropPattern.matches())
+
+                if (joinedPartyMatcher.matches())
+                {
+                    HypixelEventHandler.PARTY_LIST.add(joinedPartyMatcher.group("name"));
+                }
+                else if (nickMatcher.matches())
+                {
+                    ExtendedConfig.instance.hypixelNickName = nickMatcher.group("nick");
+                    ExtendedConfig.instance.save();
+                }
+                else if (rareDropPattern.matches())
                 {
                     String name = rareDropPattern.group("item");
                     HypixelEventHandler.ITEM_DROP_LIST.add(new ItemDrop(EnumChatFormatting.getTextWithoutFormattingCodes(name), ItemDropsToast.Type.RARE_DROP, System.currentTimeMillis()));
                     event.message = null;
                 }
-                if (goodCatchPattern.matches())
+                else if (goodCatchPattern.matches())
                 {
                     HypixelEventHandler.addFishLoot(goodCatchPattern, ItemDropsToast.Type.GOOD_CATCH);
                     event.message = null;
                 }
-                if (greatCatchPattern.matches())
+                else if (greatCatchPattern.matches())
                 {
                     HypixelEventHandler.addFishLoot(greatCatchPattern, ItemDropsToast.Type.GREAT_CATCH);
                     event.message = null;
                 }
-                if (dragonDropPattern.matches())
+                else if (dragonDropPattern.matches())
                 {
                     String name = dragonDropPattern.group("item");
                     HypixelEventHandler.ITEM_DROP_LIST.add(new ItemDrop(EnumChatFormatting.getTextWithoutFormattingCodes(name), ItemDropsToast.Type.DRAGON_DROP, System.currentTimeMillis()));
                     event.message = null;
                 }
-                if (unformattedText.contains("You destroyed an Ender Crystal!"))
+                else if (goodCatchCoinsPattern.matches())
                 {
-                    HypixelEventHandler.ITEM_DROP_LIST.add(new ItemDrop("Crystal Fragment", ItemDropsToast.Type.DRAGON_CRYSTAL_FRAGMENT, System.currentTimeMillis()));
+                    String coin = goodCatchCoinsPattern.group("coin");
+                    ItemDropsToast.addOrUpdate(HUDRenderEventHandler.INSTANCE.getToastGui(), HypixelEventHandler.getCoinItemStack(coin), ItemDropsToast.Type.GOOD_CATCH_COINS);
+                    event.message = null;
+                }
+                else if (greatCatchCoinsPattern.matches())
+                {
+                    String coin = goodCatchCoinsPattern.group("coin");
+                    ItemDropsToast.addOrUpdate(HUDRenderEventHandler.INSTANCE.getToastGui(), HypixelEventHandler.getCoinItemStack(coin), ItemDropsToast.Type.GREAT_CATCH_COINS);
                     event.message = null;
                 }
             }
@@ -342,6 +362,25 @@ public class HypixelEventHandler
         }
         this.previousInventory = newInventory;
         HypixelEventHandler.ITEM_DROP_LIST.removeIf(rareDrop -> rareDrop.getLastDrop() < System.currentTimeMillis() - 1000L);
+    }
+
+    private static ItemStack getCoinItemStack(String coin)
+    {
+        ItemStack itemStack = new ItemStack(Items.skull, 1, 3);
+        NBTTagCompound compound = new NBTTagCompound();
+        NBTTagCompound properties = new NBTTagCompound();
+        properties.setString("Id", "2070f6cb-f5db-367a-acd0-64d39a7e5d1b");
+        NBTTagCompound texture = new NBTTagCompound();
+        NBTTagList list = new NBTTagList();
+        NBTTagCompound value = new NBTTagCompound();
+        value.setString("Value", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNTM4MDcxNzIxY2M1YjRjZDQwNmNlNDMxYTEzZjg2MDgzYTg5NzNlMTA2NGQyZjg4OTc4Njk5MzBlZTZlNTIzNyJ9fX0=");
+        list.appendTag(value);
+        texture.setTag("textures", list);
+        properties.setTag("Properties", texture);
+        compound.setTag("SkullOwner", properties);
+        itemStack.setTagCompound(compound);
+        itemStack.setStackDisplayName(ColorUtils.stringToRGB("255,223,0").toColoredFont() + coin + " Coins");
+        return itemStack;
     }
 
     private List<ItemStack> copyInventory(ItemStack[] inventory)
