@@ -2,6 +2,7 @@ package stevekung.mods.indicatia.event;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -73,7 +74,6 @@ public class HypixelEventHandler
                 if (this.mc.thePlayer.ticksExisted % 4 == 0)
                 {
                     this.getInventoryDifference(this.mc.thePlayer.inventory.mainInventory);
-                    HypixelEventHandler.ITEM_DROP_LIST.removeIf(rareDrop -> rareDrop.getLastDrop() < System.currentTimeMillis() - 100L);
                 }
                 if (this.mc.theWorld != null)
                 {
@@ -195,7 +195,7 @@ public class HypixelEventHandler
                 }
                 else if (unformattedText.contains("You destroyed an Ender Crystal!"))
                 {
-                    HypixelEventHandler.ITEM_DROP_LIST.add(new ItemDrop("Crystal Fragment", ItemDropsToast.Type.DRAGON_CRYSTAL_FRAGMENT, System.currentTimeMillis()));
+                    HypixelEventHandler.ITEM_DROP_LIST.add(new ItemDrop("Crystal Fragment", ItemDropsToast.Type.DRAGON_CRYSTAL_FRAGMENT));
                     event.message = null;
                 }
 
@@ -221,7 +221,7 @@ public class HypixelEventHandler
                 else if (rareDropPattern.matches())
                 {
                     String name = rareDropPattern.group("item");
-                    HypixelEventHandler.ITEM_DROP_LIST.add(new ItemDrop(EnumChatFormatting.getTextWithoutFormattingCodes(name), ItemDropsToast.Type.RARE_DROP, System.currentTimeMillis()));
+                    HypixelEventHandler.ITEM_DROP_LIST.add(new ItemDrop(EnumChatFormatting.getTextWithoutFormattingCodes(name), ItemDropsToast.Type.RARE_DROP));
                     event.message = null;
                 }
                 else if (goodCatchPattern.matches())
@@ -237,7 +237,7 @@ public class HypixelEventHandler
                 else if (dragonDropPattern.matches())
                 {
                     String name = dragonDropPattern.group("item");
-                    HypixelEventHandler.ITEM_DROP_LIST.add(new ItemDrop(EnumChatFormatting.getTextWithoutFormattingCodes(name), ItemDropsToast.Type.DRAGON_DROP, System.currentTimeMillis()));
+                    HypixelEventHandler.ITEM_DROP_LIST.add(new ItemDrop(EnumChatFormatting.getTextWithoutFormattingCodes(name), ItemDropsToast.Type.DRAGON_DROP));
                     event.message = null;
                 }
                 else if (goodCatchCoinsPattern.matches())
@@ -248,7 +248,7 @@ public class HypixelEventHandler
                 }
                 else if (greatCatchCoinsPattern.matches())
                 {
-                    String coin = goodCatchCoinsPattern.group("coin");
+                    String coin = greatCatchCoinsPattern.group("coin");
                     HUDRenderEventHandler.INSTANCE.getToastGui().add(new ItemDropsToast(HypixelEventHandler.getCoinItemStack(coin), ItemDropsToast.Type.GREAT_CATCH_COINS));
                     event.message = null;
                 }
@@ -333,7 +333,7 @@ public class HypixelEventHandler
     private static void addFishLoot(Matcher matcher, ItemDropsToast.Type type)
     {
         String name = matcher.group("item");
-        HypixelEventHandler.ITEM_DROP_LIST.add(new ItemDrop(EnumChatFormatting.getTextWithoutFormattingCodes(name), type, System.currentTimeMillis()));
+        HypixelEventHandler.ITEM_DROP_LIST.add(new ItemDrop(EnumChatFormatting.getTextWithoutFormattingCodes(name), type));
     }
 
     /**
@@ -351,11 +351,18 @@ public class HypixelEventHandler
 
                 if (newItem != null)
                 {
-                    for (ItemDrop drop : HypixelEventHandler.ITEM_DROP_LIST)
+                    String newItemName = EnumChatFormatting.getTextWithoutFormattingCodes(newItem.getDisplayName());
+
+                    for (Iterator<ItemDrop> iterator = HypixelEventHandler.ITEM_DROP_LIST.iterator(); iterator.hasNext();)
                     {
-                        if (drop.getName().equals(EnumChatFormatting.getTextWithoutFormattingCodes(newItem.getDisplayName())))
+                        ItemDrop drop = iterator.next();
+
+                        if (drop.getName().equals(newItemName))
                         {
-                            HUDRenderEventHandler.INSTANCE.getToastGui().add(new ItemDropsToast(newItem, drop.getType()));
+                            if (HUDRenderEventHandler.INSTANCE.getToastGui().add(new ItemDropsToast(newItem, drop.getType())))
+                            {
+                                iterator.remove();
+                            }
                         }
                     }
                 }
@@ -397,24 +404,17 @@ public class HypixelEventHandler
     static class ItemDrop
     {
         private final String name;
-        private final long lastDrop;
         private final ItemDropsToast.Type type;
 
-        private ItemDrop(String name, ItemDropsToast.Type type, long lastDrop)
+        private ItemDrop(String name, ItemDropsToast.Type type)
         {
             this.name = name;
-            this.lastDrop = lastDrop;
             this.type = type;
         }
 
         public String getName()
         {
             return this.name;
-        }
-
-        public long getLastDrop()
-        {
-            return this.lastDrop;
         }
 
         public ItemDropsToast.Type getType()

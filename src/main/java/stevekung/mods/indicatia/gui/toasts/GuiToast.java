@@ -75,9 +75,9 @@ public class GuiToast extends Gui
         this.toastsQueue.clear();
     }
 
-    public void add(IToast toast)
+    public boolean add(IToast toast)
     {
-        this.toastsQueue.add(toast);
+        return this.toastsQueue.add(toast);
     }
 
     @SideOnly(Side.CLIENT)
