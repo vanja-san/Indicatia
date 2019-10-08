@@ -35,7 +35,7 @@ import stevekung.mods.indicatia.gui.GuiIndicatiaChat;
 import stevekung.mods.indicatia.handler.KeyBindingHandler;
 import stevekung.mods.indicatia.utils.*;
 
-@Mod(modid = IndicatiaMod.MOD_ID, name = IndicatiaMod.NAME, version = IndicatiaMod.VERSION, dependencies = IndicatiaMod.FORGE_VERSION, clientSideOnly = true, guiFactory = IndicatiaMod.GUI_FACTORY)
+@Mod(modid = IndicatiaMod.MOD_ID, name = IndicatiaMod.NAME, version = IndicatiaMod.VERSION, dependencies = IndicatiaMod.DEPENDENCIES, clientSideOnly = true, guiFactory = IndicatiaMod.GUI_FACTORY)
 public class IndicatiaMod
 {
     protected static final String NAME = "Indicatia";
@@ -46,7 +46,7 @@ public class IndicatiaMod
     protected static final String GUI_FACTORY = "stevekung.mods.indicatia.config.ConfigGuiFactory";
     public static final String VERSION = IndicatiaMod.MAJOR_VERSION + "." + IndicatiaMod.MINOR_VERSION + "." + IndicatiaMod.BUILD_VERSION;
     protected static final String FORGE_VERSION = "after:Forge@[11.15.1.2318,);";
-    protected static final String DEPENDENCIES = "required-after:stevekung's_lib@[1.1.3,); " + IndicatiaMod.FORGE_VERSION;
+    protected static final String DEPENDENCIES = "after:skyblockaddons@[1.3.4,); " + IndicatiaMod.FORGE_VERSION;
     private static final String URL = "https://minecraft.curseforge.com/projects/indicatia";
 
     public static final File profile = new File(ExtendedConfig.userDir, "profile.txt");
