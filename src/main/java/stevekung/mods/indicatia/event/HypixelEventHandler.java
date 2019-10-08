@@ -39,13 +39,14 @@ import stevekung.mods.indicatia.utils.*;
 
 public class HypixelEventHandler
 {
-    private static final Pattern nickPattern = Pattern.compile("^You are now nicked as (?<nick>\\w+)!");
-    public static final Pattern RARE_DROP_PATTERN = Pattern.compile("RARE DROP! (?<item>[\\w\\u0027 -]+)");
-    public static final Pattern GOOD_CATCH_PATTERN = Pattern.compile("GOOD CATCH! You found a (?<item>[\\w\\u0027 -]+).");
-    public static final Pattern GREAT_CATCH_PATTERN = Pattern.compile("GREAT CATCH! You found a (?<item>[\\w\\u0027 -]+).");
+    private static final String DROP_PATTERN = "(?<item>[\\w\\u0027\\u25C6 -]+)";
+    private static final Pattern NICK_PATTERN = Pattern.compile("^You are now nicked as (?<nick>\\w+)!");
+    public static final Pattern RARE_DROP_PATTERN = Pattern.compile("RARE DROP! " + DROP_PATTERN);
+    public static final Pattern GOOD_CATCH_PATTERN = Pattern.compile("GOOD CATCH! You found a " + DROP_PATTERN + ".");
+    public static final Pattern GREAT_CATCH_PATTERN = Pattern.compile("GREAT CATCH! You found a " + DROP_PATTERN + ".");
     public static final Pattern GOOD_CATCH_COINS_PATTERN = Pattern.compile("GOOD CATCH! You found (?<coin>[0-9,]+) Coins.");
     public static final Pattern GREAT_CATCH_COINS_PATTERN = Pattern.compile("GREAT CATCH! You found (?<coin>[0-9,]+) Coins.");
-    public static final Pattern DRAGON_DROP_PATTERN = Pattern.compile("((" + GameProfileUtils.getUsername() + ")|(\\[VIP\\]|\\[VIP\\u002B\\]|\\[MVP\\]|\\[MVP\\u002B\\]|\\[MVP\\u002B\\u002B\\]|\\[YOUTUBER\\]) " + GameProfileUtils.getUsername() + ") has obtained (?<item>[\\w\\u0027 -]+)!");
+    public static final Pattern DRAGON_DROP_PATTERN = Pattern.compile("((" + GameProfileUtils.getUsername() + ")|(\\[VIP\\]|\\[VIP\\u002B\\]|\\[MVP\\]|\\[MVP\\u002B\\]|\\[MVP\\u002B\\u002B\\]|\\[YOUTUBER\\]) " + GameProfileUtils.getUsername() + ") has obtained " + DROP_PATTERN + "!");
     private static final Pattern LETTERS_NUMBERS = Pattern.compile("[^a-z A-Z:0-9/']");
     private static final Pattern JOINED_PARTY_PATTERN = Pattern.compile("(?<name>\\w+) joined the party!");
     private static final Pattern VISIT_ISLAND_PATTERN = Pattern.compile("(\\[SkyBlock\\]|\\[SkyBlock\\] \\[VIP\\]|\\[VIP\\u002B\\]|\\[MVP\\]|\\[MVP\\u002B\\]|\\[MVP\\u002B\\u002B\\]|\\[YOUTUBER\\]) (?<name>\\w+) is visiting Your Island!");
@@ -168,7 +169,7 @@ public class HypixelEventHandler
 
         if (InfoUtils.INSTANCE.isHypixel())
         {
-            Matcher nickMatcher = HypixelEventHandler.nickPattern.matcher(unformattedText);
+            Matcher nickMatcher = HypixelEventHandler.NICK_PATTERN.matcher(unformattedText);
             Matcher visitIslandMatcher = HypixelEventHandler.VISIT_ISLAND_PATTERN.matcher(unformattedText);
             Matcher joinedPartyMatcher = HypixelEventHandler.JOINED_PARTY_PATTERN.matcher(unformattedText);
             Matcher rareDropPattern = HypixelEventHandler.RARE_DROP_PATTERN.matcher(unformattedText);
