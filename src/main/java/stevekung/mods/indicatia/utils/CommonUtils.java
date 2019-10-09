@@ -2,6 +2,8 @@ package stevekung.mods.indicatia.utils;
 
 import java.awt.Desktop;
 import java.net.URI;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.MovementInput;
@@ -11,6 +13,8 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 
 public class CommonUtils
 {
+    public static final ExecutorService POOL = Executors.newCachedThreadPool();
+
     public static void registerEventHandler(Object event)
     {
         MinecraftForge.EVENT_BUS.register(event);

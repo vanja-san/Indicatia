@@ -2,8 +2,6 @@ package stevekung.mods.indicatia.mixin;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,6 +16,7 @@ import com.mojang.authlib.minecraft.MinecraftSessionService;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.SkinManager;
+import stevekung.mods.indicatia.utils.CommonUtils;
 
 @Mixin(SkinManager.class)
 public abstract class SkinManagerMixin
@@ -26,13 +25,12 @@ public abstract class SkinManagerMixin
     @Final
     private MinecraftSessionService sessionService;
 
-    private static final ExecutorService POOL = Executors.newCachedThreadPool();
     private final SkinManager that = (SkinManager) (Object) this;
 
     @Overwrite
     public void loadProfileTextures(final GameProfile profile, final SkinManager.SkinAvailableCallback skinAvailableCallback, final boolean requireSecure)
     {
-        POOL.execute(() ->
+        CommonUtils.POOL.execute(() ->
         {
             final Map<Type, MinecraftProfileTexture> map = new HashMap<>();
 

@@ -43,6 +43,7 @@
         "NetHandlerPlayClientMixin",
         "GuiChestMixin",
         "SkinManagerMixin",
-        "ThreadDownloadImageDataMixin"
+        "ThreadDownloadImageDataMixin",
+        "GuiConnectingMixin"
     ]
 }

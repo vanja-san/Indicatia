@@ -4,8 +4,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import javax.imageio.ImageIO;
 
@@ -20,6 +18,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IImageBuffer;
 import net.minecraft.client.renderer.ThreadDownloadImageData;
 import net.minecraft.client.renderer.texture.TextureUtil;
+import stevekung.mods.indicatia.utils.CommonUtils;
 
 @Mixin(ThreadDownloadImageData.class)
 public abstract class ThreadDownloadImageDataMixin
@@ -41,12 +40,11 @@ public abstract class ThreadDownloadImageDataMixin
     private static Logger logger;
 
     private final ThreadDownloadImageData that = (ThreadDownloadImageData) (Object) this;
-    private static final ExecutorService POOL = Executors.newCachedThreadPool();
 
     @Overwrite
     protected void loadTextureFromServer()
     {
-        POOL.execute(() ->
+        CommonUtils.POOL.execute(() ->
         {
             HttpURLConnection httpurlconnection = null;
             logger.debug("Downloading http texture from {} to {}", new Object[] {this.imageUrl, this.cacheFile});
@@ -82,7 +80,6 @@ public abstract class ThreadDownloadImageDataMixin
             }
             catch (Exception exception)
             {
-                logger.error("Couldn\'t download http texture", exception);
                 return;
             }
             finally

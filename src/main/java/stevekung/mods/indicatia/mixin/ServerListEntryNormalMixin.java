@@ -2,7 +2,6 @@ package stevekung.mods.indicatia.mixin;
 
 import java.net.UnknownHostException;
 import java.util.List;
-import java.util.concurrent.ThreadPoolExecutor;
 
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -22,6 +21,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import stevekung.mods.indicatia.config.ConfigManagerIN;
 import stevekung.mods.indicatia.utils.ClientUtils;
+import stevekung.mods.indicatia.utils.CommonUtils;
 
 @Mixin(ServerListEntryNormal.class)
 public abstract class ServerListEntryNormalMixin implements GuiListExtended.IGuiListEntry
@@ -39,10 +39,6 @@ public abstract class ServerListEntryNormalMixin implements GuiListExtended.IGui
     @Shadow
     @Final
     private GuiMultiplayer field_148303_c;
-
-    @Shadow
-    @Final
-    private static ThreadPoolExecutor field_148302_b;
 
     @Shadow
     @Final
@@ -83,7 +79,7 @@ public abstract class ServerListEntryNormalMixin implements GuiListExtended.IGui
                 this.field_148301_e.serverMOTD = "";
                 this.field_148301_e.populationInfo = "";
 
-                field_148302_b.submit(() ->
+                CommonUtils.POOL.submit(() ->
                 {
                     try
                     {
@@ -251,7 +247,7 @@ public abstract class ServerListEntryNormalMixin implements GuiListExtended.IGui
                 this.field_148301_e.serverMOTD = "";
                 this.field_148301_e.populationInfo = "";
 
-                field_148302_b.submit(() ->
+                CommonUtils.POOL.submit(() ->
                 {
                     try
                     {
