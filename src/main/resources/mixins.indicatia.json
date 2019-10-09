@@ -41,6 +41,8 @@
         "GuiInventoryMixin",
         "GuiIngameMixin",
         "NetHandlerPlayClientMixin",
-        "GuiChestMixin"
+        "GuiChestMixin",
+        "SkinManagerMixin",
+        "ThreadDownloadImageDataMixin"
     ]
 }
