@@ -41,7 +41,6 @@ public abstract class ThreadDownloadImageDataMixin
     private static Logger logger;
 
     private final ThreadDownloadImageData that = (ThreadDownloadImageData) (Object) this;
-
     private static final ExecutorService POOL = Executors.newCachedThreadPool();
 
     @Overwrite
