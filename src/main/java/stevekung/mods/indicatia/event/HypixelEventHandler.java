@@ -1,15 +1,17 @@
 package stevekung.mods.indicatia.event;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.io.*;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -34,6 +36,7 @@ import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import stevekung.mods.indicatia.config.ExtendedConfig;
 import stevekung.mods.indicatia.gui.toasts.ItemDropsToast;
+import stevekung.mods.indicatia.gui.toasts.VisitIslandToast;
 import stevekung.mods.indicatia.handler.KeyBindingHandler;
 import stevekung.mods.indicatia.utils.*;
 
@@ -165,46 +168,48 @@ public class HypixelEventHandler
             return;
         }
 
-        String unformattedText = event.message.getUnformattedText();
+        String message = event.message.getUnformattedText();
 
         if (InfoUtils.INSTANCE.isHypixel())
         {
-            Matcher nickMatcher = HypixelEventHandler.NICK_PATTERN.matcher(unformattedText);
-            Matcher visitIslandMatcher = HypixelEventHandler.VISIT_ISLAND_PATTERN.matcher(unformattedText);
-            Matcher joinedPartyMatcher = HypixelEventHandler.JOINED_PARTY_PATTERN.matcher(unformattedText);
-            Matcher rareDropPattern = HypixelEventHandler.RARE_DROP_PATTERN.matcher(unformattedText);
-            Matcher goodCatchPattern = HypixelEventHandler.GOOD_CATCH_PATTERN.matcher(unformattedText);
-            Matcher greatCatchPattern = HypixelEventHandler.GREAT_CATCH_PATTERN.matcher(unformattedText);
-            Matcher dragonDropPattern = HypixelEventHandler.DRAGON_DROP_PATTERN.matcher(unformattedText);
-            Matcher goodCatchCoinsPattern = HypixelEventHandler.GOOD_CATCH_COINS_PATTERN.matcher(unformattedText);
-            Matcher greatCatchCoinsPattern = HypixelEventHandler.GREAT_CATCH_COINS_PATTERN.matcher(unformattedText);
+            Matcher nickMatcher = HypixelEventHandler.NICK_PATTERN.matcher(message);
+            Matcher visitIslandMatcher = HypixelEventHandler.VISIT_ISLAND_PATTERN.matcher(message);
+            Matcher joinedPartyMatcher = HypixelEventHandler.JOINED_PARTY_PATTERN.matcher(message);
+            Matcher rareDropPattern = HypixelEventHandler.RARE_DROP_PATTERN.matcher(message);
+            Matcher goodCatchPattern = HypixelEventHandler.GOOD_CATCH_PATTERN.matcher(message);
+            Matcher greatCatchPattern = HypixelEventHandler.GREAT_CATCH_PATTERN.matcher(message);
+            Matcher dragonDropPattern = HypixelEventHandler.DRAGON_DROP_PATTERN.matcher(message);
+            Matcher goodCatchCoinsPattern = HypixelEventHandler.GOOD_CATCH_COINS_PATTERN.matcher(message);
+            Matcher greatCatchCoinsPattern = HypixelEventHandler.GREAT_CATCH_COINS_PATTERN.matcher(message);
 
             if (event.type == 0)
             {
-                if (unformattedText.contains("Illegal characters in chat") || unformattedText.contains("A kick occurred in your connection"))
+                if (message.contains("Illegal characters in chat") || message.contains("A kick occurred in your connection"))
                 {
                     event.message = null;
                 }
-                else if (unformattedText.contains("You were spawned in Limbo."))
+                else if (message.contains("You were spawned in Limbo."))
                 {
                     event.message = JsonUtils.create("You were spawned in Limbo.").setChatStyle(JsonUtils.green());
                 }
-                else if (unformattedText.contains("Your nick has been reset!"))
+                else if (message.contains("Your nick has been reset!"))
                 {
                     ExtendedConfig.instance.hypixelNickName = "";
                     ExtendedConfig.instance.save();
                 }
-                else if (unformattedText.contains("You destroyed an Ender Crystal!"))
+                else if (message.contains("You destroyed an Ender Crystal!"))
                 {
                     HypixelEventHandler.ITEM_DROP_LIST.add(new ItemDrop("Crystal Fragment", ItemDropsToast.Type.DRAGON_CRYSTAL_FRAGMENT));
                     event.message = null;
                 }
 
-                if (visitIslandMatcher.matches() && ExtendedConfig.instance.addPartyVisitIsland)
+                if (visitIslandMatcher.matches())
                 {
                     String name = visitIslandMatcher.group("name");
+                    HypixelEventHandler.addVisitingToast(name);//TODO
+                    event.message = null;
 
-                    if (!HypixelEventHandler.PARTY_LIST.stream().anyMatch(pname -> pname.equals(name)))
+                    if (ExtendedConfig.instance.addPartyVisitIsland && !HypixelEventHandler.PARTY_LIST.stream().anyMatch(pname -> pname.equals(name)))
                     {
                         this.mc.thePlayer.sendChatMessage("/p " + name);
                     }
@@ -400,6 +405,36 @@ public class HypixelEventHandler
             copy.add(item != null ? ItemStack.copyItemStack(item) : null);
         }
         return copy;
+    }
+
+    private static void addVisitingToast(String name)
+    {
+        CommonUtils.POOL.execute(() ->
+        {
+            try (InputStream input = new URL("https://api.mojang.com/users/profiles/minecraft/" + name).openStream())
+            {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(input, Charset.forName("UTF-8")));
+                String jsonText = readAll(reader);
+                JsonObject json = new JsonParser().parse(jsonText).getAsJsonObject();
+                String rawName = json.get("name").getAsString();
+                String rawUUID = json.get("id").getAsString();
+                String uuid = rawUUID.replaceFirst("([0-9a-fA-F]{8})([0-9a-fA-F]{4})([0-9a-fA-F]{4})([0-9a-fA-F]{4})([0-9a-fA-F]+)", "$1-$2-$3-$4-$5");
+                HUDRenderEventHandler.INSTANCE.getToastGui().add(new VisitIslandToast(rawName, UUID.fromString(uuid)));
+            }
+            catch (Exception e) {}
+        });
+    }
+
+    private static String readAll(Reader rd) throws IOException
+    {
+        StringBuilder builder = new StringBuilder();
+        int cp;
+
+        while ((cp = rd.read()) != -1)
+        {
+            builder.append((char) cp);
+        }
+        return builder.toString();
     }
 
     static class ItemDrop
