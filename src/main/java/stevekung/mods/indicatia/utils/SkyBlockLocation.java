@@ -23,6 +23,7 @@ public enum SkyBlockLocation
     LIBRARY("Library"),
     BANK("Bank"),
     AUCTION_HOUSE("Auction House"),
+    TAVERN("Tavern"),
 
     BLAZING_FORTRESS("Blazing Fortress"),
 
@@ -51,6 +52,6 @@ public enum SkyBlockLocation
 
     public boolean isInsideBuildingOnPublicIsland()
     {
-        return this == FLOWER_HOUSE || this == LIBRARY || this == BANK || this == AUCTION_HOUSE;
+        return this == FLOWER_HOUSE || this == LIBRARY || this == BANK || this == AUCTION_HOUSE || this == TAVERN;
     }
 }
