@@ -13,7 +13,7 @@ import stevekung.mods.indicatia.utils.JsonUtils;
 @SideOnly(Side.CLIENT)
 public class ItemDropsToast implements IToast
 {
-    private static final ResourceLocation TEXTURE = new ResourceLocation("indicatia:textures/gui/toasts.png");
+    private static final ResourceLocation TEXTURE = new ResourceLocation("indicatia:textures/gui/drop_toasts.png");
     private final ItemDrop rareDropOutput;
     private long firstDrawTime;
     private boolean hasNewStacks;

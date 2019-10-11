@@ -206,7 +206,7 @@ public class HypixelEventHandler
                 if (visitIslandMatcher.matches())
                 {
                     String name = visitIslandMatcher.group("name");
-                    HypixelEventHandler.addVisitingToast(name);//TODO
+                    HypixelEventHandler.addVisitingToast(name);//TODO Config
                     event.message = null;
 
                     if (ExtendedConfig.instance.addPartyVisitIsland && !HypixelEventHandler.PARTY_LIST.stream().anyMatch(pname -> pname.equals(name)))
