@@ -49,10 +49,10 @@ public class HypixelEventHandler
     public static final Pattern GREAT_CATCH_PATTERN = Pattern.compile("GREAT CATCH! You found a " + DROP_PATTERN + ".");
     public static final Pattern GOOD_CATCH_COINS_PATTERN = Pattern.compile("GOOD CATCH! You found (?<coin>[0-9,]+) Coins.");
     public static final Pattern GREAT_CATCH_COINS_PATTERN = Pattern.compile("GREAT CATCH! You found (?<coin>[0-9,]+) Coins.");
-    public static final Pattern DRAGON_DROP_PATTERN = Pattern.compile("((" + GameProfileUtils.getUsername() + ")|(\\[VIP\\]|\\[VIP\\u002B\\]|\\[MVP\\]|\\[MVP\\u002B\\]|\\[MVP\\u002B\\u002B\\]|\\[YOUTUBER\\]) " + GameProfileUtils.getUsername() + ") has obtained " + DROP_PATTERN + "!");
+    public static final Pattern DRAGON_DROP_PATTERN = Pattern.compile("(?:(?:" + GameProfileUtils.getUsername() + ")|(?:\\[VIP?\\u002B{0,1}\\]|\\[MVP?\\u002B{0,2}\\]|\\[YOUTUBER\\]) " + GameProfileUtils.getUsername() + ") has obtained " + DROP_PATTERN + "!");
     private static final Pattern LETTERS_NUMBERS = Pattern.compile("[^a-z A-Z:0-9/']");
     private static final Pattern JOINED_PARTY_PATTERN = Pattern.compile("(?<name>\\w+) joined the party!");
-    private static final Pattern VISIT_ISLAND_PATTERN = Pattern.compile("(\\[SkyBlock\\]|\\[SkyBlock\\] \\[VIP\\]|\\[VIP\\u002B\\]|\\[MVP\\]|\\[MVP\\u002B\\]|\\[MVP\\u002B\\u002B\\]|\\[YOUTUBER\\]) (?<name>\\w+) is visiting Your Island!");
+    private static final Pattern VISIT_ISLAND_PATTERN = Pattern.compile("(?:\\[SkyBlock\\]|\\[SkyBlock\\] (?:\\[VIP?\\u002B{0,1}\\]|\\[MVP?\\u002B{0,2}\\]|\\[YOUTUBER\\])) (?<name>\\w+) is visiting Your Island!");
     public static boolean isSkyBlock = false;
     public static SkyBlockLocation SKY_BLOCK_LOCATION = SkyBlockLocation.YOUR_ISLAND;
     private static final List<String> PARTY_LIST = new ArrayList<>();
