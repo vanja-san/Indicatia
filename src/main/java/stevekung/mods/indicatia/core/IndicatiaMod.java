@@ -137,6 +137,8 @@ public class IndicatiaMod
         Blocks.carrots.setStepSound(IndicatiaMod.CROPS);
         Blocks.potatoes.setStepSound(IndicatiaMod.CROPS);
         Blocks.nether_wart.setStepSound(IndicatiaMod.NETHERWARTS);
+        Blocks.noteblock.setStepSound(Block.soundTypeWood);
+        Blocks.jukebox.setStepSound(Block.soundTypeWood);
     }
 
     @SubscribeEvent
