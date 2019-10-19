@@ -44,6 +44,8 @@
         "GuiChestMixin",
         "SkinManagerMixin",
         "ThreadDownloadImageDataMixin",
-        "GuiConnectingMixin"
+        "GuiConnectingMixin",
+        "GuiCustomizeSkinMixin",
+        "AbstractClientPlayerMixin"
     ]
 }

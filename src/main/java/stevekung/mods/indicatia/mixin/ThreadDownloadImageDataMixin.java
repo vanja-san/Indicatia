@@ -13,15 +13,19 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IImageBuffer;
 import net.minecraft.client.renderer.ThreadDownloadImageData;
 import net.minecraft.client.renderer.texture.TextureUtil;
+import stevekung.mods.indicatia.gui.optifine.ICapeImageData;
 import stevekung.mods.indicatia.utils.CommonUtils;
 
 @Mixin(ThreadDownloadImageData.class)
-public abstract class ThreadDownloadImageDataMixin
+public abstract class ThreadDownloadImageDataMixin implements ICapeImageData
 {
     @Shadow
     @Final
@@ -37,9 +41,22 @@ public abstract class ThreadDownloadImageDataMixin
 
     @Shadow
     @Final
+    private BufferedImage bufferedImage;
+
+    @Shadow
+    @Final
     private static Logger logger;
 
+    @Shadow
+    protected abstract void setBufferedImage(BufferedImage bufferedImage);
+
     private final ThreadDownloadImageData that = (ThreadDownloadImageData) (Object) this;
+    private Boolean imageFound = null;
+    @Inject(method = "setBufferedImage(Ljava/awt/image/BufferedImage;)V", cancellable = true, at = @At("RETURN"))
+    private void setBufferedImage(BufferedImage bufferedImage, CallbackInfo info)
+    {
+        this.imageFound = Boolean.valueOf(this.bufferedImage != null);
+    }
 
     @Overwrite
     protected void loadTextureFromServer()
@@ -90,5 +107,11 @@ public abstract class ThreadDownloadImageDataMixin
                 }
             }
         });
+    }
+
+    @Override
+    public Boolean getImageFound()
+    {
+        return this.imageFound;
     }
 }
