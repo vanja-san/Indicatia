@@ -53,6 +53,8 @@ public class HypixelEventHandler
     private static final Pattern LETTERS_NUMBERS = Pattern.compile("[^a-z A-Z:0-9/']");
     private static final Pattern JOINED_PARTY_PATTERN = Pattern.compile("(?<name>\\w+) joined the party!");
     private static final Pattern VISIT_ISLAND_PATTERN = Pattern.compile("(?:\\[SkyBlock\\]|\\[SkyBlock\\] (?:\\[VIP?\\u002B{0,1}\\]|\\[MVP?\\u002B{0,2}\\]|\\[YOUTUBER\\])) (?<name>\\w+) is visiting Your Island!");
+    public static final Pattern SLAYER_QUEST_RARE_DROP_PATTERN = Pattern.compile("RARE DROP! \\u0028(?<item>[\\w\\u0027\\u25C6 -]+)\\u0029");
+    public static final Pattern SLAYER_QUEST_VRARE_DROP_PATTERN = Pattern.compile("VERY RARE DROP! \\u0028(?<item>[\\w\\u0027\\u25C6 -]+)\\u0029");
     public static boolean isSkyBlock = false;
     public static SkyBlockLocation SKY_BLOCK_LOCATION = SkyBlockLocation.YOUR_ISLAND;
     private static final List<String> PARTY_LIST = new ArrayList<>();
@@ -181,6 +183,8 @@ public class HypixelEventHandler
             Matcher dragonDropPattern = HypixelEventHandler.DRAGON_DROP_PATTERN.matcher(message);
             Matcher goodCatchCoinsPattern = HypixelEventHandler.GOOD_CATCH_COINS_PATTERN.matcher(message);
             Matcher greatCatchCoinsPattern = HypixelEventHandler.GREAT_CATCH_COINS_PATTERN.matcher(message);
+            Matcher slayerRareDropPattern = HypixelEventHandler.SLAYER_QUEST_RARE_DROP_PATTERN.matcher(message);
+            Matcher slayerVeryRareDropPattern = HypixelEventHandler.SLAYER_QUEST_VRARE_DROP_PATTERN.matcher(message);
 
             if (event.type == 0)
             {
@@ -256,6 +260,18 @@ public class HypixelEventHandler
                 {
                     String coin = greatCatchCoinsPattern.group("coin");
                     HUDRenderEventHandler.INSTANCE.getToastGui().add(new ItemDropsToast(HypixelEventHandler.getCoinItemStack(coin), ItemDropsToast.Type.GREAT_CATCH_COINS));
+                    event.message = null;
+                }
+                else if (slayerRareDropPattern.matches())
+                {
+                    String name = slayerRareDropPattern.group("item");
+                    HypixelEventHandler.ITEM_DROP_LIST.add(new ItemDrop(EnumChatFormatting.getTextWithoutFormattingCodes(name), ItemDropsToast.Type.SLAYER_RARE_DROP));
+                    event.message = null;
+                }
+                else if (slayerVeryRareDropPattern.matches())
+                {
+                    String name = slayerVeryRareDropPattern.group("item");
+                    HypixelEventHandler.ITEM_DROP_LIST.add(new ItemDrop(EnumChatFormatting.getTextWithoutFormattingCodes(name), ItemDropsToast.Type.SLAYER_VERY_RARE_DROP));
                     event.message = null;
                 }
             }
