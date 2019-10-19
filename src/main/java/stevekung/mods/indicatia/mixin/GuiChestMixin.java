@@ -44,7 +44,6 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
     private String historyBuffer = "";
 
     private final SkyblockAddonsGuiChest chest = new SkyblockAddonsGuiChest();
-    private final SkyBlockAddonsBackpack backpack = new SkyBlockAddonsBackpack();
     private GuiTextField textFieldMatch = null;
     private GuiTextField textFieldExclusions = null;
 
@@ -200,7 +199,8 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
 
         if (IndicatiaMod.isSkyblockAddonsLoaded)
         {
-            this.backpack.drawBackpacks(mouseX, mouseY, partialTicks);
+            SkyBlockAddonsBackpack backpack = new SkyBlockAddonsBackpack();
+            backpack.drawBackpacks(mouseX, mouseY, partialTicks);
         }
     }
 

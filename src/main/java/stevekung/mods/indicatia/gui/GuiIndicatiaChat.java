@@ -43,9 +43,12 @@ public class GuiIndicatiaChat implements IGuiChat, IDropboxCallback
             }
         });
 
-        Minecraft mc = Minecraft.getMinecraft();
-        ScaledResolution res = new ScaledResolution(mc);
-        mc.fontRendererObj.drawStringWithShadow("CHAT MODE: " + this.mode.getDesc(), 2, res.getScaledHeight() - 30, ColorUtils.rgbToDecimal(255, 255, 255));
+        if (InfoUtils.INSTANCE.isHypixel())
+        {
+            Minecraft mc = Minecraft.getMinecraft();
+            ScaledResolution res = new ScaledResolution(mc);
+            mc.fontRendererObj.drawStringWithShadow("CHAT MODE: " + this.mode.getDesc(), 2, res.getScaledHeight() - 30, ColorUtils.rgbToDecimal(255, 255, 255));
+        }
     }
 
     @Override

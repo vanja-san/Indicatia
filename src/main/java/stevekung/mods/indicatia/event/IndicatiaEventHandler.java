@@ -227,9 +227,9 @@ public class IndicatiaEventHandler
         {
             int height = event.gui.height / 2 - 106;
             GuiButton craftingButton = new GuiButtonItem(1000, width + 10, height + 86, width + 70, Item.getItemFromBlock(Blocks.crafting_table));
-            craftingButton.enabled = HypixelEventHandler.SKY_BLOCK_LOCATION.isPublicIsland();
-            event.buttonList.add(new GuiButtonItem(999, width - 9, height + 86, width + 51, Item.getItemFromBlock(Blocks.ender_chest)));
+            craftingButton.visible = HypixelEventHandler.SKY_BLOCK_LOCATION.isPublicIsland();
             event.buttonList.add(craftingButton);
+            event.buttonList.add(new GuiButtonItem(999, width - 9, height + 86, width + 51, Item.getItemFromBlock(Blocks.ender_chest)));
         }
     }
 
