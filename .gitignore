@@ -6,6 +6,7 @@ bin
 build
 eclipse
 run
+src/main/java/codes/**
 
 # file
 !gradlew.bat
