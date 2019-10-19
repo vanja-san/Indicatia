@@ -9,6 +9,7 @@ import org.lwjgl.input.Keyboard;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiIngameMenu;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiMultiplayer;
@@ -225,12 +226,10 @@ public class IndicatiaEventHandler
         if (event.gui instanceof GuiInventory && HypixelEventHandler.isSkyBlock)
         {
             int height = event.gui.height / 2 - 106;
-
-            if (HypixelEventHandler.SKY_BLOCK_LOCATION.isPublicIsland())
-            {
-                event.buttonList.add(new GuiButtonItem(1000, width + 10, height + 86, width + 70, Item.getItemFromBlock(Blocks.crafting_table)));
-            }
+            GuiButton craftingButton = new GuiButtonItem(1000, width + 10, height + 86, width + 70, Item.getItemFromBlock(Blocks.crafting_table));
+            craftingButton.enabled = HypixelEventHandler.SKY_BLOCK_LOCATION.isPublicIsland();
             event.buttonList.add(new GuiButtonItem(999, width - 9, height + 86, width + 51, Item.getItemFromBlock(Blocks.ender_chest)));
+            event.buttonList.add(craftingButton);
         }
     }
 
@@ -281,7 +280,7 @@ public class IndicatiaEventHandler
                 this.mc.displayGuiScreen(new GuiMojangStatusChecker(event.gui));
             }
         }
-        if (event.gui instanceof GuiInventory && HypixelEventHandler.isSkyBlock && now - this.lastButtonClick > 1000L)
+        if (event.gui instanceof GuiInventory && HypixelEventHandler.isSkyBlock && now - this.lastButtonClick > 250L)
         {
             if (event.button.id == 999)
             {
