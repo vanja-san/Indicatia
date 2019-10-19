@@ -18,4 +18,5 @@ public interface IGuiChat
     public void onGuiClosed();
     public void handleMouseInput(int width, int height);
     public void getSentHistory(int msgPos);
+    public String sendChatMessage(String original);
 }

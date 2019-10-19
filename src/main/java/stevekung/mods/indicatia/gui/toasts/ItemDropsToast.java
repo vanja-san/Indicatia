@@ -80,7 +80,9 @@ public class ItemDropsToast implements IToast
         GOOD_CATCH("GOOD CATCH!", "255,170,0"),
         GREAT_CATCH("GREAT CATCH!", "170,0,170"),
         GOOD_CATCH_COINS("GOOD CATCH!", "255,170,0"),
-        GREAT_CATCH_COINS("GREAT CATCH!", "170,0,170");
+        GREAT_CATCH_COINS("GREAT CATCH!", "170,0,170"),
+        SLAYER_RARE_DROP("SLAYER RARE DROP!", "85,255,255"),
+        SLAYER_VERY_RARE_DROP("SLAYER VERY RARE DROP!", "85,85,255");
 
         private final String name;
         private final String color;

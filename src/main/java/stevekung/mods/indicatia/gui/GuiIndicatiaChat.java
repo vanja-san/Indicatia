@@ -12,6 +12,7 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import stevekung.mods.indicatia.config.ExtendedConfig;
 import stevekung.mods.indicatia.gui.GuiDropdownMinigames.IDropboxCallback;
@@ -21,6 +22,7 @@ public class GuiIndicatiaChat implements IGuiChat, IDropboxCallback
 {
     private GuiDropdownMinigames dropdown;
     private int prevSelect = -1;
+    private ChatMode mode = ChatMode.ALL;
 
     @Override
     public void initGui(List<GuiButton> buttonList, int width, int height)
@@ -40,6 +42,10 @@ public class GuiIndicatiaChat implements IGuiChat, IDropboxCallback
                 GlStateManager.enableDepth();
             }
         });
+
+        Minecraft mc = Minecraft.getMinecraft();
+        ScaledResolution res = new ScaledResolution(mc);
+        mc.fontRendererObj.drawStringWithShadow("CHAT MODE: " + this.mode.getDesc(), 2, res.getScaledHeight() - 30, ColorUtils.rgbToDecimal(255, 255, 255));
     }
 
     @Override
@@ -99,18 +105,24 @@ public class GuiIndicatiaChat implements IGuiChat, IDropboxCallback
         switch (button.id)
         {
         case 200:
-            player.sendChatMessage("/chat a");
-            player.addChatMessage(JsonUtils.create("Reset Hypixel Chat"));
+            this.mode = ChatMode.ALL;
             break;
         case 201:
-            player.sendChatMessage("/chat p");
-            player.addChatMessage(JsonUtils.create("Set chat mode to Hypixel Party Chat"));
+            this.mode = ChatMode.PARTY;
             break;
         case 202:
-            player.sendChatMessage("/chat g");
-            player.addChatMessage(JsonUtils.create("Set chat mode to Hypixel Guild Chat"));
+            this.mode = ChatMode.GUILD;
+            break;
+        case 203:
+            this.mode = ChatMode.SKYBLOCK_COOP;
             break;
         }
+    }
+
+    @Override
+    public String sendChatMessage(String original)
+    {
+        return this.mode.getCommand() + " " + original;
     }
 
     @Override
@@ -189,9 +201,10 @@ public class GuiIndicatiaChat implements IGuiChat, IDropboxCallback
             int length = mc.fontRendererObj.getStringWidth(max) + 32;
 
             // hypixel chat
-            buttonList.add(new GuiButton(200, width - 63, height - 35, 60, 20, "Reset Chat"));
-            buttonList.add(new GuiButton(201, width - 63, height - 56, 60, 20, "Party Chat"));
-            buttonList.add(new GuiButton(202, width - 63, height - 77, 60, 20, "Guild Chat"));
+            buttonList.add(new GuiButton(200, width - 23, height - 35, 20, 20, "A"));
+            buttonList.add(new GuiButton(201, width - 23, height - 56, 20, 20, "P"));
+            buttonList.add(new GuiButton(202, width - 23, height - 77, 20, 20, "G"));
+            buttonList.add(new GuiButton(203, width - 31, height - 98, 28, 20, "COOP"));
             buttonList.add(this.dropdown = new GuiDropdownMinigames(this, width - length, 2, list));
             this.dropdown.width = length;
             this.prevSelect = ExtendedConfig.instance.selectedHypixelMinigame;
@@ -247,10 +260,37 @@ public class GuiIndicatiaChat implements IGuiChat, IDropboxCallback
 
         for (GuiButton button : buttonList)
         {
-            if (!button.getClass().equals(GuiDropdownMinigames.class) && !(button.id >= 0 && button.id <= 202))
+            if (!button.getClass().equals(GuiDropdownMinigames.class) && !(button.id >= 0 && button.id <= 203))
             {
                 button.visible = false;
             }
+        }
+    }
+
+    public enum ChatMode
+    {
+        ALL("/achat", "All Chat"),
+        PARTY("/pchat", "Party Chat"),
+        GUILD("/gchat", "Guild Chat"),
+        SKYBLOCK_COOP("/cc", "Coop Chat");
+
+        private final String command;
+        private final String desc;
+
+        private ChatMode(String command, String desc)
+        {
+            this.command = command;
+            this.desc = desc;
+        }
+
+        public String getCommand()
+        {
+            return this.command;
+        }
+
+        public String getDesc()
+        {
+            return this.desc;
         }
     }
 }
