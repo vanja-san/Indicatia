@@ -1,4 +1,4 @@
-package stevekung.mods.indicatia.utils;
+package stevekung.mods.indicatia.integration;
 
 import java.util.Arrays;
 import java.util.LinkedList;

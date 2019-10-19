@@ -28,8 +28,9 @@ import net.minecraft.network.play.client.C14PacketTabComplete;
 import net.minecraft.util.*;
 import net.minecraftforge.client.ClientCommandHandler;
 import stevekung.mods.indicatia.core.IndicatiaMod;
+import stevekung.mods.indicatia.integration.SkyBlockAddonsBackpack;
+import stevekung.mods.indicatia.integration.SkyblockAddonsGuiChest;
 import stevekung.mods.indicatia.utils.ITradeGUI;
-import stevekung.mods.indicatia.utils.SkyblockAddonsGuiChest;
 
 @Mixin(GuiChest.class)
 public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
@@ -43,6 +44,7 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
     private String historyBuffer = "";
 
     private final SkyblockAddonsGuiChest chest = new SkyblockAddonsGuiChest();
+    private final SkyBlockAddonsBackpack backpack = new SkyBlockAddonsBackpack();
     private GuiTextField textFieldMatch = null;
     private GuiTextField textFieldExclusions = null;
 
@@ -195,6 +197,11 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
         GlStateManager.enableLighting();
         GlStateManager.enableDepth();
         RenderHelper.enableStandardItemLighting();
+
+        if (IndicatiaMod.isSkyblockAddonsLoaded)
+        {
+            this.backpack.drawBackpacks(mouseX, mouseY, partialTicks);
+        }
     }
 
     @Override
