@@ -403,7 +403,10 @@ public abstract class MinecraftMixin
     @Inject(method = "runGameLoop()V", cancellable = true, at = @At(value = "INVOKE", target = "net/minecraft/client/renderer/EntityRenderer.updateCameraAndRender(FJ)V", shift = At.Shift.AFTER))
     private void runGameLoop(CallbackInfo info)
     {
-        HUDRenderEventHandler.INSTANCE.getToastGui().drawToast(new ScaledResolution(this.that));
+        if (!this.that.ingameGUI.getChatGUI().getChatOpen())
+        {
+            HUDRenderEventHandler.INSTANCE.getToastGui().drawToast(new ScaledResolution(this.that));
+        }
     }
 
     private void updateKeyBindState()
