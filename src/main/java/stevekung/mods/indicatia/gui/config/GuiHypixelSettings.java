@@ -28,6 +28,8 @@ public class GuiHypixelSettings extends GuiScreen
         OPTIONS.add(ExtendedConfig.Options.JUNGLE_AXE_DELAY);
         OPTIONS.add(ExtendedConfig.Options.GRAPPLING_HOOK_DELAY);
         OPTIONS.add(ExtendedConfig.Options.ZEALOT_RESPAWN_DELAY);
+        OPTIONS.add(ExtendedConfig.Options.VISIT_ISLAND_MODE);
+        OPTIONS.add(ExtendedConfig.Options.RARE_DROP_MODE);
     }
 
     public GuiHypixelSettings(GuiScreen parent)

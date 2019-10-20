@@ -76,7 +76,6 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
             this.textFieldMatch = this.chest.initGui(this.lowerChestInventory, this.fontRendererObj, this.guiTop, this.guiLeft)[0];
             this.textFieldExclusions = this.chest.initGui(this.lowerChestInventory, this.fontRendererObj, this.guiTop, this.guiLeft)[1];
         }
-        System.out.println(this.lowerChestInventory.getDisplayName().getUnformattedText());
     }
 
     @Override

@@ -54,7 +54,7 @@ public class VisitIslandToast implements IToast
             toastGui.mc.fontRendererObj.drawString(ColorUtils.stringToRGB("255,255,85").toColoredFont() + JsonUtils.create(this.name).setChatStyle(JsonUtils.style().setBold(true)).getFormattedText(), 30, 7, 16777215);
             toastGui.mc.fontRendererObj.drawString("is visiting Your Island!", 30, 18, ColorUtils.rgbToDecimal(255, 255, 255));
             HUDInfo.renderItem(this.itemStack, 8, 8);
-            return delta - this.firstDrawTime >= 10000L ? IToast.Visibility.HIDE : IToast.Visibility.SHOW;
+            return delta - this.firstDrawTime >= 5000L ? IToast.Visibility.HIDE : IToast.Visibility.SHOW;
         }
     }
 

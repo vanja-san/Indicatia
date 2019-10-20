@@ -39,7 +39,7 @@ public class GuiConfigButtonRowList extends GuiListExtended
         else
         {
             int i = options.getOrdinal();
-            return options.isFloat() ? new GuiConfigSlider(i, x, y, 160, options) : options.getComment() != null ? new GuiConfigButton(i, x, y, 160, options, ExtendedConfig.instance.getKeyBinding(options)) : new GuiConfigButton(i, x, y, 160, options, ExtendedConfig.instance.getKeyBinding(options));
+            return options.isFloat() ? new GuiConfigSlider(i, x, y, 160, options) : new GuiConfigButton(i, x, y, 160, options, ExtendedConfig.instance.getKeyBinding(options));
         }
     }
 

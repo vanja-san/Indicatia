@@ -35,6 +35,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import stevekung.mods.indicatia.config.ExtendedConfig;
+import stevekung.mods.indicatia.config.RareDropMode;
+import stevekung.mods.indicatia.config.VisitIslandMode;
 import stevekung.mods.indicatia.gui.toasts.ItemDropsToast;
 import stevekung.mods.indicatia.gui.toasts.VisitIslandToast;
 import stevekung.mods.indicatia.handler.KeyBindingHandler;
@@ -201,19 +203,22 @@ public class HypixelEventHandler
                     ExtendedConfig.instance.hypixelNickName = "";
                     ExtendedConfig.instance.save();
                 }
-                else if (message.contains("You destroyed an Ender Crystal!"))
-                {
-                    HypixelEventHandler.ITEM_DROP_LIST.add(new ItemDrop("Crystal Fragment", ItemDropsToast.Type.DRAGON_CRYSTAL_FRAGMENT));
-                    event.message = null;
-                }
 
                 if (visitIslandMatcher.matches())
                 {
                     String name = visitIslandMatcher.group("name");
-                    HypixelEventHandler.addVisitingToast(name);//TODO Config
-                    event.message = null;
 
-                    if (ExtendedConfig.instance.addPartyVisitIsland && !HypixelEventHandler.PARTY_LIST.stream().anyMatch(pname -> pname.equals(name)))
+                    if (VisitIslandMode.getById(ExtendedConfig.instance.visitIslandMode).equalsIgnoreCase("disabled"))
+                    {
+                        event.message = null;
+                    }
+                    else if (VisitIslandMode.getById(ExtendedConfig.instance.visitIslandMode).equalsIgnoreCase("toast"))
+                    {
+                        HypixelEventHandler.addVisitingToast(name);
+                        event.message = null;
+                    }
+
+                    if (ExtendedConfig.instance.addPartyVisitIsland && !HypixelEventHandler.PARTY_LIST.stream().anyMatch(pname -> name.equals(pname)))
                     {
                         this.mc.thePlayer.sendChatMessage("/p " + name);
                     }
@@ -228,51 +233,61 @@ public class HypixelEventHandler
                     ExtendedConfig.instance.hypixelNickName = nickMatcher.group("nick");
                     ExtendedConfig.instance.save();
                 }
-                else if (rareDropPattern.matches())
+
+                if (RareDropMode.getById(ExtendedConfig.instance.itemDropMode).equalsIgnoreCase("toast"))
                 {
-                    String name = rareDropPattern.group("item");
-                    HypixelEventHandler.ITEM_DROP_LIST.add(new ItemDrop(EnumChatFormatting.getTextWithoutFormattingCodes(name), ItemDropsToast.Type.RARE_DROP));
-                    event.message = null;
-                }
-                else if (goodCatchPattern.matches())
-                {
-                    HypixelEventHandler.addFishLoot(goodCatchPattern, ItemDropsToast.Type.GOOD_CATCH);
-                    event.message = null;
-                }
-                else if (greatCatchPattern.matches())
-                {
-                    HypixelEventHandler.addFishLoot(greatCatchPattern, ItemDropsToast.Type.GREAT_CATCH);
-                    event.message = null;
-                }
-                else if (dragonDropPattern.matches())
-                {
-                    String name = dragonDropPattern.group("item");
-                    HypixelEventHandler.ITEM_DROP_LIST.add(new ItemDrop(EnumChatFormatting.getTextWithoutFormattingCodes(name), ItemDropsToast.Type.DRAGON_DROP));
-                    event.message = null;
-                }
-                else if (goodCatchCoinsPattern.matches())
-                {
-                    String coin = goodCatchCoinsPattern.group("coin");
-                    HUDRenderEventHandler.INSTANCE.getToastGui().add(new ItemDropsToast(HypixelEventHandler.getCoinItemStack(coin), ItemDropsToast.Type.GOOD_CATCH_COINS));
-                    event.message = null;
-                }
-                else if (greatCatchCoinsPattern.matches())
-                {
-                    String coin = greatCatchCoinsPattern.group("coin");
-                    HUDRenderEventHandler.INSTANCE.getToastGui().add(new ItemDropsToast(HypixelEventHandler.getCoinItemStack(coin), ItemDropsToast.Type.GREAT_CATCH_COINS));
-                    event.message = null;
-                }
-                else if (slayerRareDropPattern.matches())
-                {
-                    String name = slayerRareDropPattern.group("item");
-                    HypixelEventHandler.ITEM_DROP_LIST.add(new ItemDrop(EnumChatFormatting.getTextWithoutFormattingCodes(name), ItemDropsToast.Type.SLAYER_RARE_DROP));
-                    event.message = null;
-                }
-                else if (slayerVeryRareDropPattern.matches())
-                {
-                    String name = slayerVeryRareDropPattern.group("item");
-                    HypixelEventHandler.ITEM_DROP_LIST.add(new ItemDrop(EnumChatFormatting.getTextWithoutFormattingCodes(name), ItemDropsToast.Type.SLAYER_VERY_RARE_DROP));
-                    event.message = null;
+                    if (message.contains("You destroyed an Ender Crystal!"))
+                    {
+                        HypixelEventHandler.ITEM_DROP_LIST.add(new ItemDrop("Crystal Fragment", ItemDropsToast.Type.DRAGON_CRYSTAL_FRAGMENT));
+                        event.message = null;
+                    }
+
+                    if (rareDropPattern.matches())
+                    {
+                        String name = rareDropPattern.group("item");
+                        HypixelEventHandler.ITEM_DROP_LIST.add(new ItemDrop(EnumChatFormatting.getTextWithoutFormattingCodes(name), ItemDropsToast.Type.RARE_DROP));
+                        event.message = null;
+                    }
+                    else if (goodCatchPattern.matches())
+                    {
+                        HypixelEventHandler.addFishLoot(goodCatchPattern, ItemDropsToast.Type.GOOD_CATCH);
+                        event.message = null;
+                    }
+                    else if (greatCatchPattern.matches())
+                    {
+                        HypixelEventHandler.addFishLoot(greatCatchPattern, ItemDropsToast.Type.GREAT_CATCH);
+                        event.message = null;
+                    }
+                    else if (dragonDropPattern.matches())
+                    {
+                        String name = dragonDropPattern.group("item");
+                        HypixelEventHandler.ITEM_DROP_LIST.add(new ItemDrop(EnumChatFormatting.getTextWithoutFormattingCodes(name), ItemDropsToast.Type.DRAGON_DROP));
+                        event.message = null;
+                    }
+                    else if (goodCatchCoinsPattern.matches())
+                    {
+                        String coin = goodCatchCoinsPattern.group("coin");
+                        HUDRenderEventHandler.INSTANCE.getToastGui().add(new ItemDropsToast(HypixelEventHandler.getCoinItemStack(coin), ItemDropsToast.Type.GOOD_CATCH_COINS));
+                        event.message = null;
+                    }
+                    else if (greatCatchCoinsPattern.matches())
+                    {
+                        String coin = greatCatchCoinsPattern.group("coin");
+                        HUDRenderEventHandler.INSTANCE.getToastGui().add(new ItemDropsToast(HypixelEventHandler.getCoinItemStack(coin), ItemDropsToast.Type.GREAT_CATCH_COINS));
+                        event.message = null;
+                    }
+                    else if (slayerRareDropPattern.matches())
+                    {
+                        String name = slayerRareDropPattern.group("item");
+                        HypixelEventHandler.ITEM_DROP_LIST.add(new ItemDrop(EnumChatFormatting.getTextWithoutFormattingCodes(name), ItemDropsToast.Type.SLAYER_RARE_DROP));
+                        event.message = null;
+                    }
+                    else if (slayerVeryRareDropPattern.matches())
+                    {
+                        String name = slayerVeryRareDropPattern.group("item");
+                        HypixelEventHandler.ITEM_DROP_LIST.add(new ItemDrop(EnumChatFormatting.getTextWithoutFormattingCodes(name), ItemDropsToast.Type.SLAYER_VERY_RARE_DROP));
+                        event.message = null;
+                    }
                 }
             }
         }

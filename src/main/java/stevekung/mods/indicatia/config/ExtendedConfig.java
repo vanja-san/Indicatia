@@ -32,6 +32,8 @@ public class ExtendedConfig
     private static final String[] POTION_STATUS_HUD_STYLE = new String[] {"indicatia.default", "potion_hud.icon_and_time"};
     private static final String[] POTION_STATUS_HUD_POSITION = new String[] {"indicatia.left", "indicatia.right", "indicatia.hotbar_left", "indicatia.hotbar_right"};
     private static final String[] PING_MODE = new String[] {"indicatia.only_ping", "indicatia.ping_and_delay"};
+    private static final String[] VISIT_ISLAND_MODE = new String[] {"indicatia.chat", "indicatia.toast", "indicatia.disabled"};
+    private static final String[] RARE_DROP_MODE = new String[] {"indicatia.chat", "indicatia.toast"};
     private static File file;
 
     // Render Info
@@ -124,6 +126,8 @@ public class ExtendedConfig
     public int jungleAxeDelay = 2000;
     public int grapplingHookDelay = 2000;
     public int zealotRespawnDelay = 15000;
+    public int visitIslandMode = 1;
+    public int itemDropMode = 1;
 
     private ExtendedConfig() {}
 
@@ -172,6 +176,8 @@ public class ExtendedConfig
             this.potionHUDStyle = ExtendedConfig.getInteger(nbt, "PotionHUDStyle", this.potionHUDStyle);
             this.potionHUDPosition = ExtendedConfig.getInteger(nbt, "PotionHUDPosition", this.potionHUDPosition);
             this.pingMode = ExtendedConfig.getInteger(nbt, "PingMode", this.pingMode);
+            this.visitIslandMode = ExtendedConfig.getInteger(nbt, "VisitIslandMode", this.visitIslandMode);
+            this.itemDropMode = ExtendedConfig.getInteger(nbt, "ItemDropMode", this.itemDropMode);
 
             // Movement
             this.toggleSprint = ExtendedConfig.getBoolean(nbt, "ToggleSprint", this.toggleSprint);
@@ -281,6 +287,8 @@ public class ExtendedConfig
             nbt.setInteger("PotionHUDStyle", this.potionHUDStyle);
             nbt.setInteger("PotionHUDPosition", this.potionHUDPosition);
             nbt.setInteger("PingMode", this.pingMode);
+            nbt.setInteger("VisitIslandMode", this.visitIslandMode);
+            nbt.setInteger("ItemDropMode", this.itemDropMode);
 
             // Movement
             nbt.setBoolean("ToggleSprint", this.toggleSprint);
@@ -459,6 +467,14 @@ public class ExtendedConfig
         {
             return name + this.getTranslation(PING_MODE, this.pingMode);
         }
+        else if (options == ExtendedConfig.Options.VISIT_ISLAND_MODE)
+        {
+            return name + this.getTranslation(VISIT_ISLAND_MODE, this.visitIslandMode);
+        }
+        else if (options == ExtendedConfig.Options.RARE_DROP_MODE)
+        {
+            return name + this.getTranslation(RARE_DROP_MODE, this.itemDropMode);
+        }
         else
         {
             return name;
@@ -506,6 +522,14 @@ public class ExtendedConfig
         else if (options == ExtendedConfig.Options.PING_MODE)
         {
             this.pingMode = (this.pingMode + value) % 2;
+        }
+        else if (options == ExtendedConfig.Options.VISIT_ISLAND_MODE)
+        {
+            this.visitIslandMode = (this.visitIslandMode + value) % 3;
+        }
+        else if (options == ExtendedConfig.Options.RARE_DROP_MODE)
+        {
+            this.itemDropMode = (this.itemDropMode + value) % 2;
         }
 
         else if (options == ExtendedConfig.Options.FPS)
@@ -956,6 +980,8 @@ public class ExtendedConfig
         POTION_HUD_STYLE(false, false),
         POTION_HUD_POSITION(false, false),
         PING_MODE(false, false),
+        VISIT_ISLAND_MODE(false, false),
+        RARE_DROP_MODE(false, false),
 
         FPS(false, true),
         XYZ(false, true),
@@ -1028,7 +1054,6 @@ public class ExtendedConfig
         private final boolean isBoolean;
         private final float valueStep;
         private boolean isTextbox;
-        private String comment;
         private float valueMin;
         private float valueMax;
         private static final Options[] values = Options.values();
@@ -1047,30 +1072,24 @@ public class ExtendedConfig
 
         private Options(boolean isFloat, boolean isBoolean)
         {
-            this(isFloat, isBoolean, false, null, 0.0F, 1.0F, 0.0F);
+            this(isFloat, isBoolean, false, 0.0F, 1.0F, 0.0F);
         }
 
         private Options(boolean isFloat, boolean isBoolean, float valMin, float valMax, float valStep)
         {
-            this(isFloat, isBoolean, false, null, valMin, valMax, valStep);
+            this(isFloat, isBoolean, false, valMin, valMax, valStep);
         }
 
         private Options(boolean isFloat, boolean isBoolean, boolean isTextbox)
         {
-            this(isFloat, isBoolean, isTextbox, null, 0.0F, 1.0F, 0.0F);
+            this(isFloat, isBoolean, isTextbox, 0.0F, 1.0F, 0.0F);
         }
 
-        private Options(boolean isFloat, boolean isBoolean, boolean isTextbox, String comment)
-        {
-            this(isFloat, isBoolean, isTextbox, comment, 0.0F, 1.0F, 0.0F);
-        }
-
-        private Options(boolean isFloat, boolean isBoolean, boolean isTextbox, String comment, float valMin, float valMax, float valStep)
+        private Options(boolean isFloat, boolean isBoolean, boolean isTextbox, float valMin, float valMax, float valStep)
         {
             this.isFloat = isFloat;
             this.isBoolean = isBoolean;
             this.isTextbox = isTextbox;
-            this.comment = comment;
             this.valueMin = valMin;
             this.valueMax = valMax;
             this.valueStep = valStep;
@@ -1099,11 +1118,6 @@ public class ExtendedConfig
         public String getTranslation()
         {
             return LangUtils.translate(this.name().toLowerCase() + ".extended_config");
-        }
-
-        public String getComment()
-        {
-            return LangUtils.translate(this.comment);
         }
 
         public float getValueMin()

@@ -50,6 +50,8 @@ indicatia.hotbar_left=Hotbar Left
 indicatia.hotbar_right=Hotbar Right
 indicatia.default=Default
 indicatia.none=None
+indicatia.chat=Chat
+indicatia.toast=Toast
 equipment.reverse=Reverse
 equipment.vertical=Vertical
 equipment.horizontal=Horizontal
@@ -146,6 +148,8 @@ zealot_respawn_delay.extended_config=Zealot Respawn Delay
 jungle_axe_overlay.extended_config=Jungle Axe Overlay
 grappling_hook_overlay.extended_config=Grappling Hook Overlay
 zealot_respawn_overlay.extended_config=Zealot Respawn Overlay
+visit_island_mode.extended_config=Visit Island Mode
+rare_drop_mode.extended_config=Rare Drop Mode
 
 # MESSAGE
 message.toggle_sprint_enabled=Enabled Toggle Sprint
