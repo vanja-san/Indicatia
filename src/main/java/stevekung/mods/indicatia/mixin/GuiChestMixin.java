@@ -2,6 +2,7 @@ package stevekung.mods.indicatia.mixin;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -42,10 +43,10 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
     private int autocompleteIndex;
     private List<String> foundPlayerNames = new ArrayList<>();
     private String historyBuffer = "";
-
     private final SkyblockAddonsGuiChest chest = new SkyblockAddonsGuiChest();
     private GuiTextField textFieldMatch = null;
     private GuiTextField textFieldExclusions = null;
+    private static final List<String> INVENTORY_LIST = new ArrayList<>(Arrays.asList("You                  Other", "Ender Chest", "Craft Item", "Auctions Browser", "Reforge Item", "Enchant Item", "Runic Pedestal", "Your Bids", "Bank", "Bank Deposit", "Bank Withdrawal"));
 
     @Shadow
     private IInventory lowerChestInventory;
@@ -60,7 +61,7 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
     {
         super.initGui();
 
-        if (this.isTradeGUI())
+        if (this.isWhitelistGUI())
         {
             Keyboard.enableRepeatEvents(true);
             this.sentHistoryCursor = this.mc.ingameGUI.getChatGUI().getSentMessages().size();
@@ -75,6 +76,7 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
             this.textFieldMatch = this.chest.initGui(this.lowerChestInventory, this.fontRendererObj, this.guiTop, this.guiLeft)[0];
             this.textFieldExclusions = this.chest.initGui(this.lowerChestInventory, this.fontRendererObj, this.guiTop, this.guiLeft)[1];
         }
+        System.out.println(this.lowerChestInventory.getDisplayName().getUnformattedText());
     }
 
     @Override
@@ -89,7 +91,7 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
         GlStateManager.disableLighting();
         GlStateManager.disableDepth();
 
-        if (this.isTradeGUI())
+        if (this.isWhitelistGUI())
         {
             Gui.drawRect(2, this.height - 14, this.width - 2, this.height - 2, Integer.MIN_VALUE);
             this.inputField.drawTextBox();
@@ -183,7 +185,7 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
             int i3 = this.returningStackDestSlot.yDisplayPosition - this.touchUpY;
             int l1 = this.touchUpX + (int)(l2 * f);
             int i2 = this.touchUpY + (int)(i3 * f);
-            this.drawItemStack(this.returningStack, l1, i2, (String)null);
+            this.drawItemStack(this.returningStack, l1, i2, null);
         }
 
         GlStateManager.popMatrix();
@@ -206,7 +208,7 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
-        if (this.isTradeGUI())
+        if (this.isWhitelistGUI())
         {
             this.inputField.mouseClicked(mouseX, mouseY, mouseButton);
         }
@@ -221,7 +223,7 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
     @Override
     public void onGuiClosed()
     {
-        if (this.isTradeGUI())
+        if (this.isWhitelistGUI())
         {
             Keyboard.enableRepeatEvents(false);
         }
@@ -235,7 +237,7 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
     @Override
     public void updateScreen()
     {
-        if (this.isTradeGUI())
+        if (this.isWhitelistGUI())
         {
             this.inputField.updateCursorCounter();
         }
@@ -250,11 +252,15 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
     @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
-        if (this.isTradeGUI())
+        if (this.isWhitelistGUI())
         {
             if ((keyCode == 1 || keyCode == this.mc.gameSettings.keyBindInventory.getKeyCode()) && !this.inputField.isFocused())
             {
                 this.mc.thePlayer.closeScreen();
+            }
+            if (keyCode == 1 && this.inputField.isFocused())
+            {
+                this.inputField.setFocused(false);
             }
 
             if (keyCode != 28 && keyCode != 156)
@@ -315,7 +321,7 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
     @Override
     protected void setText(String newChatText, boolean shouldOverwrite)
     {
-        if (this.isTradeGUI())
+        if (this.isWhitelistGUI())
         {
             if (shouldOverwrite)
             {
@@ -470,8 +476,8 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
         this.inputField.writeText(EnumChatFormatting.getTextWithoutFormattingCodes(this.foundPlayerNames.get(this.autocompleteIndex++)));
     }
 
-    private boolean isTradeGUI()
+    private boolean isWhitelistGUI()
     {
-        return this.lowerChestInventory.getDisplayName().getUnformattedText().equals("You                  Other");
+        return INVENTORY_LIST.stream().anyMatch(invName -> this.lowerChestInventory.getDisplayName().getUnformattedText().equals(invName));
     }
 }
