@@ -257,9 +257,28 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
             {
                 this.mc.thePlayer.closeScreen();
             }
-            if (keyCode == 1 && this.inputField.isFocused())
+            if (this.inputField.isFocused())
             {
-                this.inputField.setFocused(false);
+                if (keyCode == 1)
+                {
+                    this.inputField.setFocused(false);
+                }
+            }
+            else
+            {
+                this.checkHotbarKeys(keyCode);
+
+                if (this.theSlot != null && this.theSlot.getHasStack())
+                {
+                    if (keyCode == this.mc.gameSettings.keyBindPickBlock.getKeyCode())
+                    {
+                        this.handleMouseClick(this.theSlot, this.theSlot.slotNumber, 0, 3);
+                    }
+                    else if (keyCode == this.mc.gameSettings.keyBindDrop.getKeyCode())
+                    {
+                        this.handleMouseClick(this.theSlot, this.theSlot.slotNumber, isCtrlKeyDown() ? 1 : 0, 4);
+                    }
+                }
             }
 
             if (keyCode != 28 && keyCode != 156)
