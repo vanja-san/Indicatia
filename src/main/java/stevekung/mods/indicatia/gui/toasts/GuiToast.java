@@ -29,7 +29,7 @@ public class GuiToast extends Gui
 
     public void drawToast(ScaledResolution resolution)
     {
-        if (!this.mc.gameSettings.hideGUI)
+        if (!this.mc.gameSettings.hideGUI && !this.mc.gameSettings.showDebugInfo)
         {
             RenderHelper.disableStandardItemLighting();
 
