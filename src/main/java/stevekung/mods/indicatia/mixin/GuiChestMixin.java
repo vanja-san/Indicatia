@@ -199,8 +199,7 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
 
         if (IndicatiaMod.isSkyblockAddonsLoaded)
         {
-            SkyBlockAddonsBackpack backpack = new SkyBlockAddonsBackpack();
-            backpack.drawBackpacks(mouseX, mouseY, partialTicks);
+            SkyBlockAddonsBackpack.INSTANCE.drawBackpacks(mouseX, mouseY, partialTicks);
         }
     }
 

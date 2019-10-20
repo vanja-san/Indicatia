@@ -15,6 +15,7 @@ import net.minecraft.util.ResourceLocation;
 
 public class SkyBlockAddonsBackpack
 {
+    public static final SkyBlockAddonsBackpack INSTANCE = new SkyBlockAddonsBackpack();
     private static final ResourceLocation CHEST_GUI_TEXTURE = new ResourceLocation("textures/gui/container/generic_54.png");
     private float zLevel;
 
