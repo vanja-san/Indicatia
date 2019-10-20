@@ -138,8 +138,11 @@ public class IndicatiaEventHandler
     {
         MovementInput movement = event.getMovementInput();
         EntityPlayer player = event.getEntityPlayer();
+        String[] keyTS = ConfigManagerIN.keyToggleSprint.split(",");
+        int keyTGCtrl = InfoUtils.INSTANCE.parseInt(keyTS[0], "Toggle Sprint");
+        int keyTGOther = InfoUtils.INSTANCE.parseInt(keyTS[1], "Toggle Sprint");
 
-        if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) && Keyboard.isKeyDown(Keyboard.KEY_S))
+        if (Keyboard.isKeyDown(keyTGCtrl) && Keyboard.isKeyDown(keyTGOther))
         {
             ++movement.moveForward;
         }
