@@ -28,6 +28,7 @@ public class GuiIndicatiaChat implements IGuiChat, IDropboxCallback
     public void initGui(List<GuiButton> buttonList, int width, int height)
     {
         this.updateButton(buttonList, width, height);
+        this.mode = ChatMode.VALUES[ExtendedConfig.instance.chatMode];
     }
 
     @Override
@@ -109,15 +110,22 @@ public class GuiIndicatiaChat implements IGuiChat, IDropboxCallback
         {
         case 200:
             this.mode = ChatMode.ALL;
+            player.sendChatMessage("/chat a");
+            ExtendedConfig.instance.chatMode = 0;
             break;
         case 201:
             this.mode = ChatMode.PARTY;
+            player.sendChatMessage("/chat p");
+            ExtendedConfig.instance.chatMode = 1;
             break;
         case 202:
             this.mode = ChatMode.GUILD;
+            player.sendChatMessage("/chat g");
+            ExtendedConfig.instance.chatMode = 2;
             break;
         case 203:
             this.mode = ChatMode.SKYBLOCK_COOP;
+            ExtendedConfig.instance.chatMode = 3;
             break;
         }
     }
@@ -125,7 +133,14 @@ public class GuiIndicatiaChat implements IGuiChat, IDropboxCallback
     @Override
     public String sendChatMessage(String original)
     {
-        return this.mode.getCommand() + " " + original;
+        if (this.mode == ChatMode.SKYBLOCK_COOP)
+        {
+            return this.mode.getCommand() + " " + original;
+        }
+        else
+        {
+            return original;
+        }
     }
 
     @Override
@@ -279,6 +294,7 @@ public class GuiIndicatiaChat implements IGuiChat, IDropboxCallback
 
         private final String command;
         private final String desc;
+        public static final ChatMode[] VALUES = ChatMode.values();
 
         private ChatMode(String command, String desc)
         {

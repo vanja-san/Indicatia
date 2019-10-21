@@ -128,6 +128,7 @@ public class ExtendedConfig
     public int zealotRespawnDelay = 15000;
     public int visitIslandMode = 1;
     public int itemDropMode = 1;
+    public int chatMode = 0;
 
     private ExtendedConfig() {}
 
@@ -178,6 +179,7 @@ public class ExtendedConfig
             this.pingMode = ExtendedConfig.getInteger(nbt, "PingMode", this.pingMode);
             this.visitIslandMode = ExtendedConfig.getInteger(nbt, "VisitIslandMode", this.visitIslandMode);
             this.itemDropMode = ExtendedConfig.getInteger(nbt, "ItemDropMode", this.itemDropMode);
+            this.chatMode = ExtendedConfig.getInteger(nbt, "ChatMode", this.chatMode);
 
             // Movement
             this.toggleSprint = ExtendedConfig.getBoolean(nbt, "ToggleSprint", this.toggleSprint);
@@ -289,6 +291,7 @@ public class ExtendedConfig
             nbt.setInteger("PingMode", this.pingMode);
             nbt.setInteger("VisitIslandMode", this.visitIslandMode);
             nbt.setInteger("ItemDropMode", this.itemDropMode);
+            nbt.setInteger("ChatMode", this.chatMode);
 
             // Movement
             nbt.setBoolean("ToggleSprint", this.toggleSprint);
