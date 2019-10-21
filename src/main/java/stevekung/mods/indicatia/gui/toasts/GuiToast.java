@@ -122,21 +122,20 @@ public class GuiToast extends Gui
                 this.visibleTime = i;
             }
 
-            if (!Minecraft.getMinecraft().ingameGUI.getChatGUI().getChatOpen())
-            {
-                GlStateManager.pushMatrix();
-                GlStateManager.enableBlend();
-                GlStateManager.translate(x - 160.0F * this.getVisibility(i), z * 32, 500 + z);
-                IToast.Visibility itoast$visibility = this.toast.draw(GuiToast.this, i - this.visibleTime);
-                GlStateManager.disableBlend();
-                GlStateManager.popMatrix();
+            float chatOffset = Minecraft.getMinecraft().ingameGUI.getChatGUI().getChatOpen() ? 41.0F : 0.0F;
+            GlStateManager.pushMatrix();
+            GlStateManager.enableBlend();
+            GlStateManager.translate(0.0F, chatOffset, 0.0F);
+            GlStateManager.translate(x - 160.0F * this.getVisibility(i), z * 32, 500 + z);
+            IToast.Visibility itoast$visibility = this.toast.draw(GuiToast.this, i - this.visibleTime);
+            GlStateManager.disableBlend();
+            GlStateManager.popMatrix();
 
-                if (itoast$visibility != this.visibility)
-                {
-                    this.animationTime = i - (int)((1.0F - this.getVisibility(i)) * 600.0F);
-                    this.visibility = itoast$visibility;
-                    this.visibility.playSound(GuiToast.this.mc.getSoundHandler());
-                }
+            if (itoast$visibility != this.visibility)
+            {
+                this.animationTime = i - (int)((1.0F - this.getVisibility(i)) * 600.0F);
+                this.visibility = itoast$visibility;
+                this.visibility.playSound(GuiToast.this.mc.getSoundHandler());
             }
             return this.visibility == IToast.Visibility.HIDE && i - this.animationTime > 600L;
         }
