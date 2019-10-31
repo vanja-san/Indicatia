@@ -209,6 +209,11 @@ public class HypixelEventHandler
                     ExtendedConfig.instance.hypixelNickName = "";
                     ExtendedConfig.instance.save();
                 }
+                else if (message.contains("You are not in a party and have been moved to the ALL channel!") || message.contains("has disbanded the party!"))
+                {
+                    ExtendedConfig.instance.chatMode = 0;
+                    ExtendedConfig.instance.save();
+                }
 
                 if (visitIslandMatcher.matches())
                 {
