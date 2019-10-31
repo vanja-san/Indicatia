@@ -37,14 +37,7 @@ public abstract class ThreadDownloadImageDataMixin
 
     @Shadow
     @Final
-    private BufferedImage bufferedImage;
-
-    @Shadow
-    @Final
     private static Logger logger;
-
-    @Shadow
-    protected abstract void setBufferedImage(BufferedImage bufferedImage);
 
     private final ThreadDownloadImageData that = (ThreadDownloadImageData) (Object) this;
 
