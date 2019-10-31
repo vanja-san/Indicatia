@@ -47,7 +47,7 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
     private final SkyblockAddonsGuiChest chest = new SkyblockAddonsGuiChest();
     private GuiTextField textFieldMatch = null;
     private GuiTextField textFieldExclusions = null;
-    private static final List<String> INVENTORY_LIST = new ArrayList<>(Arrays.asList("You                  Other", "Ender Chest", "Craft Item", "Auctions Browser", "Trades", "Shop Trading Options", "Runic Pedestal", "Your Bids", "Bank", "Bank Deposit", "Bank Withdrawal"));
+    private static final List<String> INVENTORY_LIST = new ArrayList<>(Arrays.asList("You                  Other", "Ender Chest", "Auctions Browser", "Trades", "Shop Trading Options", "Runic Pedestal", "Your Bids", "Bank", "Bank Deposit", "Bank Withdrawal"));
 
     @Shadow
     private IInventory lowerChestInventory;
@@ -74,8 +74,17 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
         }
         if (this.isOnSkyBlockOrModLoaded())
         {
-            this.textFieldMatch = this.chest.initGui(this.lowerChestInventory, this.fontRendererObj, this.guiTop, this.guiLeft)[0];
-            this.textFieldExclusions = this.chest.initGui(this.lowerChestInventory, this.fontRendererObj, this.guiTop, this.guiLeft)[1];
+            this.chest.initGui(this.lowerChestInventory);
+
+            if (this.chest.isCraftingPattern())
+            {
+                this.chest.initGuiCraftingPattern(this.lowerChestInventory, this.guiTop, this.guiLeft);
+            }
+            else
+            {
+                this.textFieldMatch = this.chest.initGuiTextField(this.lowerChestInventory, this.fontRendererObj, this.guiTop, this.guiLeft)[0];
+                this.textFieldExclusions = this.chest.initGuiTextField(this.lowerChestInventory, this.fontRendererObj, this.guiTop, this.guiLeft)[1];
+            }
         }
     }
 
@@ -202,6 +211,7 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
         if (this.isOnSkyBlockOrModLoaded())
         {
             SkyBlockAddonsBackpack.INSTANCE.drawBackpacks(mouseX, mouseY, partialTicks);
+            this.chest.drawScreenCraftingPattern();
         }
     }
 
@@ -221,7 +231,7 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
             }
             if (this.chest.getCraftingPatternSelection() != null)
             {
-                this.chest.onMouseClick(mouseX, mouseY, mouseButton);
+                this.chest.mouseClicked(mouseX, mouseY, mouseButton);
             }
         }
         super.mouseClicked(mouseX, mouseY, mouseButton);

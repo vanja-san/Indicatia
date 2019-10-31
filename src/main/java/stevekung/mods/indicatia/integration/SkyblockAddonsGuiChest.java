@@ -27,38 +27,47 @@ public class SkyblockAddonsGuiChest
     private static final int SHIFTCLICK_CLICK_TYPE = 1;
     private CraftingPatternSelection craftingPatternSelection = null;
 
-    public GuiTextField[] initGui(IInventory lowerChestInventory, FontRenderer fontRendererObj, int guiTop, int guiLeft)
+    public void initGui(IInventory lowerChestInventory)
     {
-        GuiTextField[] textFields = new GuiTextField[2];
         String guiName = lowerChestInventory.getDisplayName().getUnformattedText();
 
         if (guiName.equals("Enchant Item"))
         {
             this.inventoryType = EnumUtils.InventoryType.ENCHANTMENT_TABLE;
         }
-        if (guiName.equals("Reforge Item"))
+        else if (guiName.equals("Reforge Item"))
         {
             this.inventoryType = EnumUtils.InventoryType.REFORGE_ANVIL;
         }
-        if (guiName.equals(CraftingPattern.CRAFTING_TABLE_DISPLAYNAME))
+        else if (guiName.equals(CraftingPattern.CRAFTING_TABLE_DISPLAYNAME))
         {
             this.inventoryType = EnumUtils.InventoryType.CRAFTING_TABLE;
         }
+    }
 
+    public void initGuiCraftingPattern(IInventory lowerChestInventory, int guiTop, int guiLeft)
+    {
         if (this.inventoryType != null)
         {
-            if (this.inventoryType == EnumUtils.InventoryType.CRAFTING_TABLE)
+            if (this.isCraftingPattern())
             {
                 if (SkyblockAddons.getInstance().getConfigValues().isEnabled(Feature.CRAFTING_PATTERNS))
                 {
                     this.craftingPatternSelection = new CraftingPatternSelection(Minecraft.getMinecraft(), Math.max(guiLeft - CraftingPatternSelection.ICON_SIZE - 2, 10), guiTop);
                 }
-                return null;
             }
+        }
+    }
 
+    public GuiTextField[] initGuiTextField(IInventory lowerChestInventory, FontRenderer fontRendererObj, int guiTop, int guiLeft)
+    {
+        GuiTextField[] textFields = new GuiTextField[2];
+
+        if (this.inventoryType != null)
+        {
             int xPos = guiLeft - 160;
 
-            if (xPos<0)
+            if (xPos < 0)
             {
                 xPos = 20;
             }
@@ -152,8 +161,11 @@ public class SkyblockAddonsGuiChest
         {
             mc.ingameGUI.drawString(mc.fontRendererObj, "ex. \"proj, blast\"", x+4, guiTop + 126, ConfigColor.DARK_GRAY.getColor());
         }
+    }
 
-        if (this.inventoryType == EnumUtils.InventoryType.CRAFTING_TABLE && this.craftingPatternSelection != null)
+    public void drawScreenCraftingPattern()
+    {
+        if (this.isCraftingPattern() && this.craftingPatternSelection != null)
         {
             this.craftingPatternSelection.draw();
             return;
@@ -179,7 +191,7 @@ public class SkyblockAddonsGuiChest
         Container slots = inventorySlots;
 
         // Crafting patterns
-        if (slot != null && this.inventoryType == EnumUtils.InventoryType.CRAFTING_TABLE && main.getConfigValues().isEnabled(Feature.CRAFTING_PATTERNS))
+        if (slot != null && this.isCraftingPattern() && main.getConfigValues().isEnabled(Feature.CRAFTING_PATTERNS))
         {
             CraftingPattern selectedPattern = CraftingPatternSelection.selectedPattern;
 
@@ -292,7 +304,7 @@ public class SkyblockAddonsGuiChest
         return true;
     }
 
-    public void onMouseClick(int mouseX, int mouseY, int mouseButton)
+    public void mouseClicked(int mouseX, int mouseY, int mouseButton)
     {
         this.craftingPatternSelection.mouseClicked(mouseX, mouseY, mouseButton);
     }
