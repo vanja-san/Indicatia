@@ -29,6 +29,7 @@ import net.minecraft.network.play.client.C14PacketTabComplete;
 import net.minecraft.util.*;
 import net.minecraftforge.client.ClientCommandHandler;
 import stevekung.mods.indicatia.core.IndicatiaMod;
+import stevekung.mods.indicatia.event.HypixelEventHandler;
 import stevekung.mods.indicatia.integration.SkyBlockAddonsBackpack;
 import stevekung.mods.indicatia.integration.SkyblockAddonsGuiChest;
 import stevekung.mods.indicatia.utils.ITradeGUI;
@@ -46,7 +47,7 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
     private final SkyblockAddonsGuiChest chest = new SkyblockAddonsGuiChest();
     private GuiTextField textFieldMatch = null;
     private GuiTextField textFieldExclusions = null;
-    private static final List<String> INVENTORY_LIST = new ArrayList<>(Arrays.asList("You                  Other", "Ender Chest", "Craft Item", "Auctions Browser", "Reforge Item", "Enchant Item", "Runic Pedestal", "Your Bids", "Bank", "Bank Deposit", "Bank Withdrawal"));
+    private static final List<String> INVENTORY_LIST = new ArrayList<>(Arrays.asList("You                  Other", "Ender Chest", "Craft Item", "Auctions Browser", "Trades", "Shop Trading Options", "Runic Pedestal", "Your Bids", "Bank", "Bank Deposit", "Bank Withdrawal"));
 
     @Shadow
     private IInventory lowerChestInventory;
@@ -71,7 +72,7 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
             this.inputField.setFocused(false);
             this.inputField.setCanLoseFocus(true);
         }
-        if (IndicatiaMod.isSkyblockAddonsLoaded)
+        if (this.isOnSkyBlockOrModLoaded())
         {
             this.textFieldMatch = this.chest.initGui(this.lowerChestInventory, this.fontRendererObj, this.guiTop, this.guiLeft)[0];
             this.textFieldExclusions = this.chest.initGui(this.lowerChestInventory, this.fontRendererObj, this.guiTop, this.guiLeft)[1];
@@ -96,7 +97,7 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
             this.inputField.drawTextBox();
         }
 
-        if (this.textFieldMatch != null && IndicatiaMod.isSkyblockAddonsLoaded)
+        if (this.textFieldMatch != null && this.isOnSkyBlockOrModLoaded())
         {
             this.chest.drawScreen(this.mc, this.guiLeft, this.guiTop, this.textFieldMatch, this.textFieldExclusions);
         }
@@ -198,7 +199,7 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
         GlStateManager.enableDepth();
         RenderHelper.enableStandardItemLighting();
 
-        if (IndicatiaMod.isSkyblockAddonsLoaded)
+        if (this.isOnSkyBlockOrModLoaded())
         {
             SkyBlockAddonsBackpack.INSTANCE.drawBackpacks(mouseX, mouseY, partialTicks);
         }
@@ -211,10 +212,17 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
         {
             this.inputField.mouseClicked(mouseX, mouseY, mouseButton);
         }
-        if (IndicatiaMod.isSkyblockAddonsLoaded && this.textFieldMatch != null)
+        if (this.isOnSkyBlockOrModLoaded())
         {
-            this.textFieldMatch.mouseClicked(mouseX, mouseY, mouseButton);
-            this.textFieldExclusions.mouseClicked(mouseX, mouseY, mouseButton);
+            if (this.textFieldMatch != null)
+            {
+                this.textFieldMatch.mouseClicked(mouseX, mouseY, mouseButton);
+                this.textFieldExclusions.mouseClicked(mouseX, mouseY, mouseButton);
+            }
+            if (this.chest.getCraftingPatternSelection() != null)
+            {
+                this.chest.onMouseClick(mouseX, mouseY, mouseButton);
+            }
         }
         super.mouseClicked(mouseX, mouseY, mouseButton);
     }
@@ -226,7 +234,7 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
         {
             Keyboard.enableRepeatEvents(false);
         }
-        if (IndicatiaMod.isSkyblockAddonsLoaded && this.textFieldMatch != null && this.textFieldExclusions != null)
+        if (this.isOnSkyBlockOrModLoaded() && this.textFieldMatch != null && this.textFieldExclusions != null)
         {
             Keyboard.enableRepeatEvents(false);
         }
@@ -240,7 +248,7 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
         {
             this.inputField.updateCursorCounter();
         }
-        if (IndicatiaMod.isSkyblockAddonsLoaded && this.textFieldMatch != null && this.textFieldExclusions != null)
+        if (this.isOnSkyBlockOrModLoaded() && this.textFieldMatch != null && this.textFieldExclusions != null)
         {
             this.textFieldMatch.updateCursorCounter();
             this.textFieldExclusions.updateCursorCounter();
@@ -321,7 +329,7 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
         }
         else
         {
-            if (this.chest.getInventoryType() != null && IndicatiaMod.isSkyblockAddonsLoaded)
+            if (this.chest.getInventoryType() != null && !this.chest.isCraftingPattern() && this.isOnSkyBlockOrModLoaded())
             {
                 if (keyCode != this.mc.gameSettings.keyBindInventory.getKeyCode() || !this.textFieldMatch.isFocused() && !this.textFieldExclusions.isFocused())
                 {
@@ -395,9 +403,9 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
     @Override
     protected void handleMouseClick(Slot slot, int slotId, int clickedButton, int clickType)
     {
-        if (IndicatiaMod.isSkyblockAddonsLoaded)
+        if (this.isOnSkyBlockOrModLoaded())
         {
-            if (this.chest.handleMouseClick(slot, this.mc, this.inventorySlots, this.lowerChestInventory))
+            if (this.chest.handleMouseClick(slot, this.mc, this.inventorySlots, this.lowerChestInventory, clickType))
             {
                 super.handleMouseClick(slot, slotId, clickedButton, clickType);
             }
@@ -497,5 +505,10 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
     private boolean isWhitelistGUI()
     {
         return INVENTORY_LIST.stream().anyMatch(invName -> this.lowerChestInventory.getDisplayName().getUnformattedText().equals(invName));
+    }
+
+    private boolean isOnSkyBlockOrModLoaded()
+    {
+        return IndicatiaMod.isSkyblockAddonsLoaded && HypixelEventHandler.isSkyBlock;
     }
 }

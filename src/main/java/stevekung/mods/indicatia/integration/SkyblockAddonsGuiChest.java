@@ -8,10 +8,8 @@ import java.util.regex.Pattern;
 import org.lwjgl.input.Keyboard;
 
 import codes.biscuit.skyblockaddons.SkyblockAddons;
-import codes.biscuit.skyblockaddons.utils.ConfigColor;
-import codes.biscuit.skyblockaddons.utils.EnumUtils;
-import codes.biscuit.skyblockaddons.utils.Feature;
-import codes.biscuit.skyblockaddons.utils.Message;
+import codes.biscuit.skyblockaddons.gui.elements.CraftingPatternSelection;
+import codes.biscuit.skyblockaddons.utils.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiTextField;
@@ -26,6 +24,8 @@ import net.minecraft.util.EnumChatFormatting;
 public class SkyblockAddonsGuiChest
 {
     private EnumUtils.InventoryType inventoryType = null;
+    private static final int SHIFTCLICK_CLICK_TYPE = 1;
+    private CraftingPatternSelection craftingPatternSelection = null;
 
     public GuiTextField[] initGui(IInventory lowerChestInventory, FontRenderer fontRendererObj, int guiTop, int guiLeft)
     {
@@ -40,9 +40,22 @@ public class SkyblockAddonsGuiChest
         {
             this.inventoryType = EnumUtils.InventoryType.REFORGE_ANVIL;
         }
+        if (guiName.equals(CraftingPattern.CRAFTING_TABLE_DISPLAYNAME))
+        {
+            this.inventoryType = EnumUtils.InventoryType.CRAFTING_TABLE;
+        }
 
         if (this.inventoryType != null)
         {
+            if (this.inventoryType == EnumUtils.InventoryType.CRAFTING_TABLE)
+            {
+                if (SkyblockAddons.getInstance().getConfigValues().isEnabled(Feature.CRAFTING_PATTERNS))
+                {
+                    this.craftingPatternSelection = new CraftingPatternSelection(Minecraft.getMinecraft(), Math.max(guiLeft - CraftingPatternSelection.ICON_SIZE - 2, 10), guiTop);
+                }
+                return null;
+            }
+
             int xPos = guiLeft - 160;
 
             if (xPos<0)
@@ -130,14 +143,20 @@ public class SkyblockAddonsGuiChest
 
         if (textFieldMatch.getText().equals(""))
         {
-            mc.ingameGUI.drawString(mc.fontRendererObj, "ex. \"prot, feather\"", x+4, guiTop + 86, ConfigColor.DARK_GRAY.getColor(255));
+            mc.ingameGUI.drawString(mc.fontRendererObj, "ex. \"prot, feather\"", x+4, guiTop + 86, ConfigColor.DARK_GRAY.getColor());
         }
 
         textFieldExclusions.drawTextBox();
 
         if (textFieldExclusions.getText().equals(""))
         {
-            mc.ingameGUI.drawString(mc.fontRendererObj, "ex. \"proj, blast\"", x+4, guiTop + 126, ConfigColor.DARK_GRAY.getColor(255));
+            mc.ingameGUI.drawString(mc.fontRendererObj, "ex. \"proj, blast\"", x+4, guiTop + 126, ConfigColor.DARK_GRAY.getColor());
+        }
+
+        if (this.inventoryType == EnumUtils.InventoryType.CRAFTING_TABLE && this.craftingPatternSelection != null)
+        {
+            this.craftingPatternSelection.draw();
+            return;
         }
     }
 
@@ -154,16 +173,54 @@ public class SkyblockAddonsGuiChest
         }
     }
 
-    public boolean handleMouseClick(Slot slot, Minecraft mc, Container inventorySlots, IInventory lowerChestInventory)
+    public boolean handleMouseClick(Slot slot, Minecraft mc, Container inventorySlots, IInventory lowerChestInventory, int clickType)
     {
         SkyblockAddons main = SkyblockAddons.getInstance();
+        Container slots = inventorySlots;
+
+        // Crafting patterns
+        if (slot != null && this.inventoryType == EnumUtils.InventoryType.CRAFTING_TABLE && main.getConfigValues().isEnabled(Feature.CRAFTING_PATTERNS))
+        {
+            CraftingPattern selectedPattern = CraftingPatternSelection.selectedPattern;
+
+            if (selectedPattern != CraftingPattern.FREE)
+            {
+                boolean[] filledPattern = new boolean[9];
+
+                for (int i = 0; i < CraftingPattern.CRAFTING_GRID_SLOTS.size(); i++)
+                {
+                    int slotIndex = CraftingPattern.CRAFTING_GRID_SLOTS.get(i);
+                    filledPattern[i] = slots.getSlot(slotIndex).getHasStack();
+                }
+
+                boolean patternFilled = selectedPattern.fillsPattern(filledPattern); // whether all pattern slots are filled
+                boolean patternSatisfied = selectedPattern.satisfiesPattern(filledPattern); // whether all pattern slots are filled and no non-pattern slots are filled
+
+                if (slot.inventory.equals(mc.thePlayer.inventory))
+                {
+                    if (patternFilled && clickType == SHIFTCLICK_CLICK_TYPE)
+                    {
+                        // cancel shift-clicking items from the inventory if the pattern is already filled
+                        main.getUtils().playSound("note.bass", 0.5);
+                        return false;
+                    }
+                }
+                else
+                {
+                    if (slot.getSlotIndex() == CraftingPattern.CRAFTING_RESULT_INDEX && !patternSatisfied)
+                    {
+                        // cancel clicking the result if the pattern isn't satisfied
+                        main.getUtils().playSound("note.bass", 0.5);
+                        return false;
+                    }
+                }
+            }
+        }
 
         if (main.getUtils().getEnchantmentMatch().size() > 0)
         {
             if (slot != null && !slot.inventory.equals(mc.thePlayer.inventory) && slot.getHasStack())
             {
-                Container slots = inventorySlots;
-
                 if (slot.getSlotIndex() == 13 && this.inventoryType == EnumUtils.InventoryType.ENCHANTMENT_TABLE)
                 {
                     ItemStack[] enchantBottles = {slots.getSlot(29).getStack(), slots.getSlot(31).getStack(), slots.getSlot(33).getStack()};
@@ -178,12 +235,17 @@ public class SkyblockAddonsGuiChest
 
                                 if (toolip.size() > 2)
                                 {
-                                    String enchantLine = toolip.get(2).split(Pattern.quote("* "))[1];
+                                    String[] lines = toolip.get(2).split(Pattern.quote("* "));
 
-                                    if (main.getUtils().enchantReforgeMatches(enchantLine))
+                                    if (lines.length > 1)
                                     {
-                                        main.getUtils().playSound("random.orb", 0.1);
-                                        return false;
+                                        String enchantLine = lines[1];
+
+                                        if (main.getUtils().enchantReforgeMatches(enchantLine))
+                                        {
+                                            main.getUtils().playSound("random.orb", 0.1);
+                                            return false;
+                                        }
                                     }
                                 }
                             }
@@ -220,7 +282,7 @@ public class SkyblockAddonsGuiChest
                 }
             }
         }
-        if (main.getConfigValues().isEnabled(Feature.STOP_DROPPING_SELLING_RARE_ITEMS) && lowerChestInventory.hasCustomName() && EnumUtils.Merchant.isMerchant(lowerChestInventory.getDisplayName().getUnformattedText()) && slot != null && slot.inventory instanceof InventoryPlayer)
+        if (main.getConfigValues().isEnabled(Feature.STOP_DROPPING_SELLING_RARE_ITEMS) && lowerChestInventory.hasCustomName() && EnumUtils.SkyblockNPC.isMerchant(lowerChestInventory.getDisplayName().getUnformattedText()) && slot != null && slot.inventory instanceof InventoryPlayer)
         {
             if (main.getInventoryUtils().shouldCancelDrop(slot))
             {
@@ -230,8 +292,23 @@ public class SkyblockAddonsGuiChest
         return true;
     }
 
+    public void onMouseClick(int mouseX, int mouseY, int mouseButton)
+    {
+        this.craftingPatternSelection.mouseClicked(mouseX, mouseY, mouseButton);
+    }
+
     public Object getInventoryType()
     {
         return this.inventoryType;
+    }
+
+    public Object getCraftingPatternSelection()
+    {
+        return this.craftingPatternSelection;
+    }
+
+    public boolean isCraftingPattern()
+    {
+        return this.inventoryType == EnumUtils.InventoryType.CRAFTING_TABLE;
     }
 }
