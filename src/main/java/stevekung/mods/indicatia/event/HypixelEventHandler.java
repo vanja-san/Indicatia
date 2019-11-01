@@ -51,13 +51,13 @@ public class HypixelEventHandler
 
     // Item Drop Stuff
     private static final String DROP_PATTERN = "(?<item>[\\w\\u0027\\u25C6 -]+)";
-    public static final Pattern RARE_DROP_PATTERN = Pattern.compile("RARE DROP! " + DROP_PATTERN + "?(?: \\u0028\\u002B[0-9]+% Magic Find!\\u0029){0,1}");
-    public static final Pattern RARE_DROP_WITH_BRACKET_PATTERN = Pattern.compile("(RARE|VERY RARE|CRAZY RARE) DROP!? {1,2}\\u0028" + DROP_PATTERN + "\\u0029?(?: \\u0028\\u002B[0-9]+% Magic Find!\\u0029){0,1}");
+    public static final Pattern RARE_DROP_PATTERN = Pattern.compile("RARE DROP! " + DROP_PATTERN + " ?(?:\\u0028\\u002B[0-9]+% Magic Find!\\u0029){0,1}");
+    public static final Pattern RARE_DROP_WITH_BRACKET_PATTERN = Pattern.compile("(?<type>RARE|VERY RARE|CRAZY RARE) DROP!? {1,2}\\u0028" + DROP_PATTERN + "\\u0029 ?(?:\\u0028\\u002B[0-9]+% Magic Find!\\u0029){0,1}");
     public static final Pattern DRAGON_DROP_PATTERN = Pattern.compile("(?:(?:" + GameProfileUtils.getUsername() + ")|(?:\\[VIP?\\u002B{0,1}\\]|\\[MVP?\\u002B{0,2}\\]|\\[YOUTUBER\\]) " + GameProfileUtils.getUsername() + ") has obtained " + DROP_PATTERN + "!");
 
     // Fish catch stuff
-    public static final Pattern FISH_CATCH_PATTERN = Pattern.compile("(GOOD|GREAT) CATCH! You found a " + DROP_PATTERN + ".");
-    public static final Pattern COINS_CATCH_PATTERN = Pattern.compile("(GOOD|GREAT) CATCH! You found (?<coin>[0-9,]+) Coins.");
+    public static final Pattern FISH_CATCH_PATTERN = Pattern.compile("(?<type>GOOD|GREAT) CATCH! You found a " + DROP_PATTERN + ".");
+    public static final Pattern COINS_CATCH_PATTERN = Pattern.compile("(?<type>GOOD|GREAT) CATCH! You found (?<coin>[0-9,]+) Coins.");
 
     public static boolean isSkyBlock = false;
     public static SkyBlockLocation SKY_BLOCK_LOCATION = SkyBlockLocation.YOUR_ISLAND;
@@ -81,7 +81,7 @@ public class HypixelEventHandler
             {
                 HypixelEventHandler.getHypixelNickedPlayer(this.mc);
 
-                if (this.mc.thePlayer.ticksExisted % 4 == 0)
+                if (this.mc.thePlayer.ticksExisted % 5 == 0)
                 {
                     this.getInventoryDifference(this.mc.thePlayer.inventory.mainInventory);
                 }
@@ -272,14 +272,14 @@ public class HypixelEventHandler
                     }
                     else if (coinsCatchPattern.matches())
                     {
-                        String type = coinsCatchPattern.group(0);
+                        String type = coinsCatchPattern.group("type");
                         String coin = coinsCatchPattern.group("coin");
                         HUDRenderEventHandler.INSTANCE.getToastGui().add(new ItemDropsToast(HypixelEventHandler.getCoinItemStack(coin), type.equals("GOOD") ? ItemDropsToast.Type.GOOD_CATCH_COINS : ItemDropsToast.Type.GREAT_CATCH_COINS));
                         event.message = null;
                     }
                     else if (rareDropBracketPattern.matches())
                     {
-                        String type = rareDropBracketPattern.group(0);
+                        String type = rareDropBracketPattern.group("type");
                         String name = rareDropBracketPattern.group("item");
                         ItemDropsToast.Type dropType = type.equals("RARE") ? ItemDropsToast.Type.SLAYER_RARE_DROP : type.equals("VERY RARE") ? ItemDropsToast.Type.SLAYER_VERY_RARE_DROP : ItemDropsToast.Type.SLAYER_CRAZY_RARE_DROP;
                         HypixelEventHandler.ITEM_DROP_LIST.add(new ItemDrop(EnumChatFormatting.getTextWithoutFormattingCodes(name), dropType));
@@ -366,7 +366,7 @@ public class HypixelEventHandler
 
     private static void addFishLoot(Matcher matcher)
     {
-        String dropType = matcher.group(0);
+        String dropType = matcher.group("type");
         String name = matcher.group("item");
         HypixelEventHandler.ITEM_DROP_LIST.add(new ItemDrop(EnumChatFormatting.getTextWithoutFormattingCodes(name), dropType.equals("GOOD") ? ItemDropsToast.Type.GOOD_CATCH : ItemDropsToast.Type.GREAT_CATCH));
     }
