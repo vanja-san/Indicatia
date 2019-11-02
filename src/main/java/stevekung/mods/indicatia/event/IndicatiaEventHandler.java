@@ -223,6 +223,15 @@ public class IndicatiaEventHandler
     }
 
     @SubscribeEvent
+    public void onGuiOpen(GuiOpenEvent event)
+    {
+        if (event.gui instanceof GuiChest)
+        {
+            event.gui.buttonList.clear();
+        }
+    }
+
+    @SubscribeEvent
     public void onInitGui(GuiScreenEvent.InitGuiEvent.Post event)
     {
         int width = event.gui.width / 2;
@@ -245,7 +254,6 @@ public class IndicatiaEventHandler
             }
             else if (event.gui instanceof GuiChest)
             {
-                event.buttonList.clear();
                 GuiChest chest = (GuiChest)event.gui;
                 IInventory lowerChestInventory = chest.lowerChestInventory;
                 int height = chest.height / 2 - 106;
