@@ -9,13 +9,19 @@ import org.lwjgl.input.Keyboard;
 
 import codes.biscuit.skyblockaddons.SkyblockAddons;
 import codes.biscuit.skyblockaddons.gui.elements.CraftingPatternSelection;
+import codes.biscuit.skyblockaddons.listeners.RenderListener;
 import codes.biscuit.skyblockaddons.utils.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
+import net.minecraft.inventory.ContainerPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
@@ -23,6 +29,8 @@ import net.minecraft.util.EnumChatFormatting;
 
 public class SkyblockAddonsGuiChest
 {
+    private static final int OVERLAY_RED = ConfigColor.RED.getColor(127);
+    private static final int OVERLAY_GREEN = ConfigColor.GREEN.getColor(127);
     private EnumUtils.InventoryType inventoryType = null;
     private static final int SHIFTCLICK_CLICK_TYPE = 1;
     private CraftingPatternSelection craftingPatternSelection = null;
@@ -302,6 +310,107 @@ public class SkyblockAddonsGuiChest
             }
         }
         return true;
+    }
+
+    public void drawSBASlot(Minecraft mc, Gui gui, Slot slot)
+    {
+        SkyblockAddons main = SkyblockAddons.getInstance();
+        Container container = mc.thePlayer.openContainer;
+
+        if (slot != null)
+        {
+            // Draw crafting pattern overlays inside the crafting grid
+            if (main.getConfigValues().isEnabled(Feature.CRAFTING_PATTERNS) && main.getUtils().isOnSkyblock() && slot.inventory.getDisplayName().getUnformattedText().equals(CraftingPattern.CRAFTING_TABLE_DISPLAYNAME) && CraftingPatternSelection.selectedPattern != CraftingPattern.FREE)
+            {
+                int craftingGridIndex = CraftingPattern.slotToCraftingGridIndex(slot.getSlotIndex());
+
+                if (craftingGridIndex >= 0)
+                {
+                    int slotLeft = slot.xDisplayPosition;
+                    int slotTop = slot.yDisplayPosition;
+                    int slotRight = slotLeft + 16;
+                    int slotBottom = slotTop + 16;
+
+                    if (CraftingPatternSelection.selectedPattern.isSlotInPattern(craftingGridIndex))
+                    {
+                        if (!slot.getHasStack())
+                        {
+                            this.drawGradientRect(gui, slotLeft, slotTop, slotRight, slotBottom, OVERLAY_GREEN, OVERLAY_GREEN);
+                        }
+                    }
+                    else
+                    {
+                        if (slot.getHasStack())
+                        {
+                            this.drawGradientRect(gui, slotLeft, slotTop, slotRight, slotBottom, OVERLAY_RED, OVERLAY_RED);
+                        }
+                    }
+                }
+            }
+
+            if (main.getConfigValues().isEnabled(Feature.LOCK_SLOTS) && main.getUtils().isOnSkyblock())
+            {
+                int slotNum = slot.slotNumber + main.getInventoryUtils().getSlotDifference(container);
+
+                if (main.getConfigValues().getLockedSlots().contains(slotNum) && (slotNum >= 9 || container instanceof ContainerPlayer && slotNum >= 5))
+                {
+                    GlStateManager.disableLighting();
+                    GlStateManager.disableDepth();
+                    GlStateManager.color(1,1,1,0.4F);
+                    GlStateManager.enableBlend();
+                    Minecraft.getMinecraft().getTextureManager().bindTexture(RenderListener.LOCK);
+                    mc.ingameGUI.drawTexturedModalRect(slot.xDisplayPosition, slot.yDisplayPosition, 0, 0, 16, 16);
+                    GlStateManager.enableLighting();
+                    GlStateManager.enableDepth();
+                }
+            }
+        }
+    }
+
+    private void drawGradientRect(Gui gui, int left, int top, int right, int bottom, int startColor, int endColor)
+    {
+        float f = (startColor >> 24 & 255) / 255.0F;
+        float f1 = (startColor >> 16 & 255) / 255.0F;
+        float f2 = (startColor >> 8 & 255) / 255.0F;
+        float f3 = (startColor & 255) / 255.0F;
+        float f4 = (endColor >> 24 & 255) / 255.0F;
+        float f5 = (endColor >> 16 & 255) / 255.0F;
+        float f6 = (endColor >> 8 & 255) / 255.0F;
+        float f7 = (endColor & 255) / 255.0F;
+        GlStateManager.disableTexture2D();
+        GlStateManager.enableBlend();
+        GlStateManager.disableAlpha();
+        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+        GlStateManager.shadeModel(7425);
+        Tessellator tessellator = Tessellator.getInstance();
+        WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+        worldrenderer.begin(7, DefaultVertexFormats.POSITION_COLOR);
+        worldrenderer.pos(right, top, gui.zLevel).color(f1, f2, f3, f).endVertex();
+        worldrenderer.pos(left, top, gui.zLevel).color(f1, f2, f3, f).endVertex();
+        worldrenderer.pos(left, bottom, gui.zLevel).color(f5, f6, f7, f4).endVertex();
+        worldrenderer.pos(right, bottom, gui.zLevel).color(f5, f6, f7, f4).endVertex();
+        tessellator.draw();
+        GlStateManager.shadeModel(7424);
+        GlStateManager.disableBlend();
+        GlStateManager.enableAlpha();
+        GlStateManager.enableTexture2D();
+    }
+
+    public void drawGradientRectMod(Gui gui, Slot slot, Minecraft mc, int left, int top, int right, int bottom, int startColor, int endColor)
+    {
+        SkyblockAddons main = SkyblockAddons.getInstance();
+        Container container = mc.thePlayer.openContainer;
+        int slotNum = slot.slotNumber + main.getInventoryUtils().getSlotDifference(container);
+        main.getUtils().setLastHoveredSlot(slotNum);
+
+        if (slot != null && main.getConfigValues().isEnabled(Feature.LOCK_SLOTS) && main.getUtils().isOnSkyblock() && main.getConfigValues().getLockedSlots().contains(slotNum) && (slotNum >= 9 || container instanceof ContainerPlayer && slotNum >= 5))
+        {
+            this.drawGradientRect(gui, left, top, right, bottom, OVERLAY_RED, OVERLAY_RED);
+        }
+        else
+        {
+            this.drawGradientRect(gui, left, top, right, bottom, startColor, endColor);
+        }
     }
 
     public void mouseClicked(int mouseX, int mouseY, int mouseButton)

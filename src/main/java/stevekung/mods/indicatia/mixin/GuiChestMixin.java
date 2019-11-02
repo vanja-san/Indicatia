@@ -136,6 +136,11 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
             Slot slot = this.inventorySlots.inventorySlots.get(i1);
             this.drawSlot(slot);
 
+            if (this.isOnSkyBlockOrModLoaded())
+            {
+                this.chest.drawSBASlot(this.mc, this, slot);
+            }
+
             if (this.isMouseOverSlot(slot, mouseX, mouseY) && slot.canBeHovered())
             {
                 this.theSlot = slot;
@@ -144,7 +149,16 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
                 int j1 = slot.xDisplayPosition;
                 int k1 = slot.yDisplayPosition;
                 GlStateManager.colorMask(true, true, true, false);
-                this.drawGradientRect(j1, k1, j1 + 16, k1 + 16, -2130706433, -2130706433);
+
+                if (!this.isOnSkyBlockOrModLoaded())
+                {
+                    this.drawGradientRect(j1, k1, j1 + 16, k1 + 16, -2130706433, -2130706433);
+                }
+                else
+                {
+                    this.chest.drawGradientRectMod(this, slot, this.mc, j1, k1, j1 + 16, k1 + 16, -2130706433, -2130706433);
+                }
+
                 GlStateManager.colorMask(true, true, true, true);
                 GlStateManager.enableLighting();
                 GlStateManager.enableDepth();

@@ -223,15 +223,6 @@ public class IndicatiaEventHandler
     }
 
     @SubscribeEvent
-    public void onGuiOpen(GuiOpenEvent event)
-    {
-        if (event.gui instanceof GuiChest)
-        {
-            event.gui.buttonList.clear();
-        }
-    }
-
-    @SubscribeEvent
     public void onInitGui(GuiScreenEvent.InitGuiEvent.Post event)
     {
         int width = event.gui.width / 2;
@@ -245,7 +236,7 @@ public class IndicatiaEventHandler
         {
             if (event.gui instanceof GuiInventory)
             {
-                event.buttonList.clear();
+                event.gui.buttonList.clear();
                 int height = event.gui.height / 2 - 106;
                 GuiButton craftingButton = new GuiButtonItem(1000, width + 10, height + 86, width + 70, Item.getItemFromBlock(Blocks.crafting_table));
                 craftingButton.visible = HypixelEventHandler.SKY_BLOCK_LOCATION.isPublicIsland();
@@ -254,6 +245,7 @@ public class IndicatiaEventHandler
             }
             else if (event.gui instanceof GuiChest)
             {
+                event.gui.buttonList.clear();
                 GuiChest chest = (GuiChest)event.gui;
                 IInventory lowerChestInventory = chest.lowerChestInventory;
                 int height = chest.height / 2 - 106;
