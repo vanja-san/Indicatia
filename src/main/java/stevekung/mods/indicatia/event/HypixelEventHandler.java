@@ -229,6 +229,7 @@ public class HypixelEventHandler
                     else if (VisitIslandMode.getById(ExtendedConfig.instance.visitIslandMode).equalsIgnoreCase("toast"))
                     {
                         HypixelEventHandler.addVisitingToast(name);
+                        LoggerIN.logToast(message);
                         event.message = null;
                     }
 
@@ -253,6 +254,7 @@ public class HypixelEventHandler
                     if (message.contains("You destroyed an Ender Crystal!"))
                     {
                         HypixelEventHandler.ITEM_DROP_LIST.add(new ItemDrop("Crystal Fragment", ItemDropsToast.Type.DRAGON_CRYSTAL_FRAGMENT));
+                        LoggerIN.logToast(message);
                         event.message = null;
                     }
 
@@ -260,17 +262,20 @@ public class HypixelEventHandler
                     {
                         String name = rareDropPattern.group("item");
                         HypixelEventHandler.ITEM_DROP_LIST.add(new ItemDrop(EnumChatFormatting.getTextWithoutFormattingCodes(name), ItemDropsToast.Type.RARE_DROP));
+                        LoggerIN.logToast(message);
                         event.message = null;
                     }
                     else if (fishCatchPattern.matches())
                     {
                         HypixelEventHandler.addFishLoot(fishCatchPattern);
+                        LoggerIN.logToast(message);
                         event.message = null;
                     }
                     else if (dragonDropPattern.matches())
                     {
                         String name = dragonDropPattern.group("item");
                         HypixelEventHandler.ITEM_DROP_LIST.add(new ItemDrop(EnumChatFormatting.getTextWithoutFormattingCodes(name), ItemDropsToast.Type.DRAGON_DROP));
+                        LoggerIN.logToast(message);
                         event.message = null;
                     }
                     else if (coinsCatchPattern.matches())
@@ -278,6 +283,7 @@ public class HypixelEventHandler
                         String type = coinsCatchPattern.group("type");
                         String coin = coinsCatchPattern.group("coin");
                         HUDRenderEventHandler.INSTANCE.getToastGui().add(new ItemDropsToast(HypixelEventHandler.getCoinItemStack(coin), type.equals("GOOD") ? ItemDropsToast.Type.GOOD_CATCH_COINS : ItemDropsToast.Type.GREAT_CATCH_COINS));
+                        LoggerIN.logToast(message);
                         event.message = null;
                     }
                     else if (rareDropBracketPattern.matches())
@@ -286,6 +292,7 @@ public class HypixelEventHandler
                         String name = rareDropBracketPattern.group("item");
                         ItemDropsToast.Type dropType = type.equals("RARE") ? ItemDropsToast.Type.SLAYER_RARE_DROP : type.equals("VERY RARE") ? ItemDropsToast.Type.SLAYER_VERY_RARE_DROP : ItemDropsToast.Type.SLAYER_CRAZY_RARE_DROP;
                         HypixelEventHandler.ITEM_DROP_LIST.add(new ItemDrop(EnumChatFormatting.getTextWithoutFormattingCodes(name), dropType));
+                        LoggerIN.logToast(message);
                         event.message = null;
                     }
                 }

@@ -56,6 +56,7 @@ public class IndicatiaMod
     static
     {
         IndicatiaMod.initProfileFile();
+        LoggerIN.setup();
     }
 
     public static final Block.SoundType CROPS = new Block.SoundType("crops", 1.0F, 1.0F)
