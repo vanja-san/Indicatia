@@ -22,6 +22,7 @@ import net.minecraft.client.multiplayer.ServerAddress;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.Item;
@@ -226,18 +227,17 @@ public class IndicatiaEventHandler
     public void onInitGui(GuiScreenEvent.InitGuiEvent.Post event)
     {
         int width = event.gui.width / 2;
+        int height = event.gui.height / 2 - 106;
 
         if (event.gui instanceof GuiMainMenu)
         {
-            int height = event.gui.height / 4 + 48;
+            height = event.gui.height / 4 + 48;
             event.buttonList.add(new GuiButtonMojangStatus(200, width + 104, height + 84));
         }
         if (HypixelEventHandler.isSkyBlock)
         {
             if (event.gui instanceof GuiInventory)
             {
-                event.gui.buttonList.clear();
-                int height = event.gui.height / 2 - 106;
                 GuiButton craftingButton = new GuiButtonItem(1000, width + 10, height + 86, width + 70, Item.getItemFromBlock(Blocks.crafting_table));
                 craftingButton.visible = HypixelEventHandler.SKY_BLOCK_LOCATION.isPublicIsland();
                 event.buttonList.add(craftingButton);
@@ -245,27 +245,25 @@ public class IndicatiaEventHandler
             }
             else if (event.gui instanceof GuiChest)
             {
-                event.gui.buttonList.clear();
                 GuiChest chest = (GuiChest)event.gui;
                 IInventory lowerChestInventory = chest.lowerChestInventory;
-                int height = chest.height / 2 - 106;
-                GuiButton craftingButton = new GuiButtonItem(1000, width + 88, height + 65, width + 70, Item.getItemFromBlock(Blocks.crafting_table));
+                GuiButton craftingButton = new GuiButtonItem(1000, width + 88, height + 65, Item.getItemFromBlock(Blocks.crafting_table), HypixelEventHandler.SKY_BLOCK_LOCATION.isPublicIsland());
 
                 if (IndicatiaEventHandler.isSuitableForGUI(IndicatiaEventHandler.INVENTORY_LIST, lowerChestInventory))
                 {
-                    craftingButton.visible = HypixelEventHandler.SKY_BLOCK_LOCATION.isPublicIsland();
-                    event.buttonList.add(new GuiButtonItem(999, width + 88, height + 47, width + 51, Item.getItemFromBlock(Blocks.ender_chest)));
+                    event.buttonList.add(new GuiButtonItem(999, width + 88, height + 47, Item.getItemFromBlock(Blocks.ender_chest)));
                     event.buttonList.add(craftingButton);
                 }
                 else if (lowerChestInventory.getDisplayName().getUnformattedText().equals("Craft Item"))
                 {
-                    event.buttonList.add(new GuiButtonItem(999, width + 88, height + 47, width + 51, Item.getItemFromBlock(Blocks.ender_chest)));
+                    event.buttonList.add(new GuiButtonItem(999, width + 88, height + 47, Item.getItemFromBlock(Blocks.ender_chest)));
+                    event.buttonList.add(new GuiButtonItem(1001, width + 88, height + 65, Items.nether_star, "SkyBlock Menu"));
                 }
                 else if (lowerChestInventory.getDisplayName().getUnformattedText().equals("Ender Chest"))
                 {
-                    craftingButton = new GuiButtonItem(1000, width + 88, height + 47, width + 70, Item.getItemFromBlock(Blocks.crafting_table));
-                    craftingButton.visible = HypixelEventHandler.SKY_BLOCK_LOCATION.isPublicIsland();
+                    craftingButton = new GuiButtonItem(1000, width + 88, height + 47, Item.getItemFromBlock(Blocks.crafting_table), HypixelEventHandler.SKY_BLOCK_LOCATION.isPublicIsland());
                     event.buttonList.add(craftingButton);
+                    event.buttonList.add(new GuiButtonItem(1001, width + 88, height + (HypixelEventHandler.SKY_BLOCK_LOCATION.isPublicIsland() ? 65 : 47), Items.nether_star, "SkyBlock Menu"));
                 }
             }
         }
@@ -327,6 +325,10 @@ public class IndicatiaEventHandler
             else if (event.button.id == 1000)
             {
                 this.mc.thePlayer.sendChatMessage("/viewcraftingtable");
+            }
+            else if (event.button.id == 1001)
+            {
+                this.mc.thePlayer.sendChatMessage("/sbmenu");
             }
             this.lastButtonClick = now;
         }
