@@ -50,10 +50,9 @@ public class LoggerIN
     public static void logToast(Object object)
     {
         String message = object == null ? "null" : object.toString();
-
         String preLine = new SimpleDateFormat("[HH:mm:ss]").format(new Date()) + " [" + Level.DEBUG.name() + "] ";
 
-        for(String line : message.split("\\n"))
+        for (String line : message.split("\\n"))
         {
             LoggerIN.LOG.log(Level.DEBUG, line);
             logWriter.println(preLine + line);
@@ -65,7 +64,6 @@ public class LoggerIN
     {
         File logDirectory = new File("./logs/indicatia/");
         logDirectory.mkdirs();
-
         logFile = new File(logDirectory, "indicatia-toast.log");
 
         try
