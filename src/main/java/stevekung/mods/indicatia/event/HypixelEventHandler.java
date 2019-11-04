@@ -46,14 +46,14 @@ public class HypixelEventHandler
 {
     private static final Pattern LETTERS_NUMBERS = Pattern.compile("[^a-z A-Z:0-9/']");
     private static final Pattern JOINED_PARTY_PATTERN = Pattern.compile("(?<name>\\w+) joined the party!");
-    private static final Pattern VISIT_ISLAND_PATTERN = Pattern.compile("(?:\\[SkyBlock\\]|\\[SkyBlock\\] (?:\\[VIP?\\u002B{0,1}\\]|\\[MVP?\\u002B{0,2}\\]|\\[YOUTUBER\\])) (?<name>\\w+) is visiting Your Island!");
+    private static final Pattern VISIT_ISLAND_PATTERN = Pattern.compile("(?:\\[SkyBlock\\]|\\[SkyBlock\\] (?:\\[VIP?\\u002B{0,1}\\]|\\[MVP?\\u002B{0,2}\\]|\\[YOUTUBE\\])) (?<name>\\w+) is visiting Your Island!");
     private static final Pattern NICK_PATTERN = Pattern.compile("^You are now nicked as (?<nick>\\w+)!");
 
     // Item Drop Stuff
     private static final String DROP_PATTERN = "(?<item>[\\w\\u0027\\u25C6 -]+)";
     public static final Pattern RARE_DROP_PATTERN = Pattern.compile("RARE DROP! " + DROP_PATTERN + " ?(?:\\u0028\\u002B[0-9]+% Magic Find!\\u0029){0,1}");
     public static final Pattern RARE_DROP_WITH_BRACKET_PATTERN = Pattern.compile("(?<type>RARE|VERY RARE|CRAZY RARE) DROP!? {1,2}\\u0028" + DROP_PATTERN + "\\u0029 ?(?:\\u0028\\u002B[0-9]+% Magic Find!\\u0029){0,1}");
-    public static final Pattern DRAGON_DROP_PATTERN = Pattern.compile("(?:(?:" + GameProfileUtils.getUsername() + ")|(?:\\[VIP?\\u002B{0,1}\\]|\\[MVP?\\u002B{0,2}\\]|\\[YOUTUBER\\]) " + GameProfileUtils.getUsername() + ") has obtained " + DROP_PATTERN + "!");
+    public static final Pattern DRAGON_DROP_PATTERN = Pattern.compile("(?:(?:" + GameProfileUtils.getUsername() + ")|(?:\\[VIP?\\u002B{0,1}\\]|\\[MVP?\\u002B{0,2}\\]|\\[YOUTUBE\\]) " + GameProfileUtils.getUsername() + ") has obtained " + DROP_PATTERN + "!");
 
     // Fish catch stuff
     public static final Pattern FISH_CATCH_PATTERN = Pattern.compile("(?<type>GOOD|GREAT) CATCH! You found a " + DROP_PATTERN + ".");
