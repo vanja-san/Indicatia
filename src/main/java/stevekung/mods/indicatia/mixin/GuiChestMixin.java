@@ -258,9 +258,14 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
         {
             Keyboard.enableRepeatEvents(false);
         }
-        if (this.isOnSkyBlockOrModLoaded() && this.textFieldMatch != null && this.textFieldExclusions != null)
+        if (this.isOnSkyBlockOrModLoaded())
         {
-            Keyboard.enableRepeatEvents(false);
+            this.chest.onGuiClosed();
+
+            if (this.textFieldMatch != null && this.textFieldExclusions != null)
+            {
+                Keyboard.enableRepeatEvents(false);
+            }
         }
         super.onGuiClosed();
     }
