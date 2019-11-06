@@ -343,6 +343,7 @@ public class HypixelEventHandler
         if (event.entity == this.mc.thePlayer)
         {
             this.previousInventory = null;
+            ITEM_DROP_LIST.clear();
         }
     }
 
