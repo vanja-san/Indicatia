@@ -52,6 +52,7 @@ public class HUDRenderEventHandler
     private long lastBlockBreak = -1;
     private long lastGrapplingHookUse = -1;
     private long lastZealotRespawn = -1;
+    private boolean foundDragon;
     private Set<CoordsPair> recentlyLoadedChunks = new HashSet<>();
     private static final ImmutableList<AxisAlignedBB> ZEALOT_SPAWN_AREA = ImmutableList.of(new AxisAlignedBB(-609, 9, -303, -631, 5, -320), new AxisAlignedBB(-622, 5, -321, -640, 5, -334), new AxisAlignedBB(-631, 7, -293, -648, 7, -312), new AxisAlignedBB(-658, 8, -308, -672, 7, -320), new AxisAlignedBB(-709, 9, -325, -694, 10, -315), new AxisAlignedBB(-702, 10, -303, -738, 5, -261), new AxisAlignedBB(-705, 5, -257, -678, 5, -296), new AxisAlignedBB(-657, 5, -210, -624, 8, -242), new AxisAlignedBB(-625, 7, -256, -662, 5, -286));
 
@@ -70,7 +71,11 @@ public class HUDRenderEventHandler
             {
                 if (entity instanceof EntityDragon)
                 {
-                    this.lastZealotRespawn = -1;
+                    this.foundDragon = true;
+                }
+                else
+                {
+                    this.foundDragon = false;
                 }
             }
         }
@@ -138,7 +143,7 @@ public class HUDRenderEventHandler
             {
                 crosshairInfo.add(new CrosshairOverlay(ExtendedConfig.instance.grapplingHookDelayColor, grapplingHookDelay));
             }
-            if (ExtendedConfig.instance.zealotRespawnOverlay && zealotRespawnDelay >= 0.01D)
+            if (ExtendedConfig.instance.zealotRespawnOverlay && zealotRespawnDelay >= 0.01D && !this.foundDragon)
             {
                 crosshairInfo.add(new CrosshairOverlay(ExtendedConfig.instance.zealotRespawnDelayColor, zealotRespawnDelay));
             }
