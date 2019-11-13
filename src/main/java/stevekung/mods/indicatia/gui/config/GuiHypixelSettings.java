@@ -30,6 +30,7 @@ public class GuiHypixelSettings extends GuiScreen
         OPTIONS.add(ExtendedConfig.Options.ZEALOT_RESPAWN_DELAY);
         OPTIONS.add(ExtendedConfig.Options.VISIT_ISLAND_MODE);
         OPTIONS.add(ExtendedConfig.Options.RARE_DROP_MODE);
+        OPTIONS.add(ExtendedConfig.Options.DRAGON_SET_GLOWING_EYE);
     }
 
     public GuiHypixelSettings(GuiScreen parent)

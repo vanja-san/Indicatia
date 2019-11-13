@@ -12,6 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.indicatia.config.ExtendedConfig;
 
 @SideOnly(Side.CLIENT)
 public class LayerGlowingTexture implements LayerRenderer<EntityLivingBase>
@@ -27,13 +28,18 @@ public class LayerGlowingTexture implements LayerRenderer<EntityLivingBase>
     @Override
     public void doRenderLayer(EntityLivingBase entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale)
     {
+        if (!ExtendedConfig.instance.dragonSetGlowingEye)
+        {
+            return;
+        }
+
         ItemStack itemstack = entity.getCurrentArmor(3);
 
         if (itemstack != null && itemstack.getItem() == Items.skull)
         {
             String texture = "";
 
-            /*if (entity instanceof EntityPlayerSP)
+            /*if (entity instanceof net.minecraft.client.entity.EntityPlayerSP)
             {
                 System.out.println(itemstack.getTagCompound());
             }*/
@@ -52,6 +58,22 @@ public class LayerGlowingTexture implements LayerRenderer<EntityLivingBase>
             else if (id.equals("WISE_DRAGON_HELMET"))
             {
                 texture = "wise";
+            }
+            else if (id.equals("YOUNG_DRAGON_HELMET"))
+            {
+                texture = "young";
+            }
+            else if (id.equals("OLD_DRAGON_HELMET") || id.equals("PROTECTOR_DRAGON_HELMET"))
+            {
+                texture = "white_eye";
+            }
+            else if (id.equals("UNSTABLE_DRAGON_HELMET"))
+            {
+                texture = "unstable";
+            }
+            else if (id.equals("STRONG_DRAGON_HELMET"))
+            {
+                texture = "strong";
             }
 
             if (texture.isEmpty())

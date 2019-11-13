@@ -120,6 +120,7 @@ public class ExtendedConfig
     public boolean jungleAxeOverlay = true;
     public boolean grapplingHookOverlay = true;
     public boolean zealotRespawnOverlay = false;
+    public boolean dragonSetGlowingEye = false;
     public String hypixelNickName = "";
     public int selectedHypixelMinigame = 0;
     public int hypixelMinigameScrollPos = 0;
@@ -244,6 +245,7 @@ public class ExtendedConfig
             this.jungleAxeOverlay = ExtendedConfig.getBoolean(nbt, "JungleAxeOverlay", this.jungleAxeOverlay);
             this.grapplingHookOverlay = ExtendedConfig.getBoolean(nbt, "GrapplingHookOverlay", this.grapplingHookOverlay);
             this.zealotRespawnOverlay = ExtendedConfig.getBoolean(nbt, "ZealotRespawnOverlay", this.zealotRespawnOverlay);
+            this.dragonSetGlowingEye = ExtendedConfig.getBoolean(nbt, "DragonSetGlowingEye", this.dragonSetGlowingEye);
 
             LoggerIN.info("Loading extended config {}", ExtendedConfig.file.getPath());
         }
@@ -350,6 +352,7 @@ public class ExtendedConfig
             nbt.setBoolean("JungleAxeOverlay", this.jungleAxeOverlay);
             nbt.setBoolean("GrapplingHookOverlay", this.grapplingHookOverlay);
             nbt.setBoolean("ZealotRespawnOverlay", this.zealotRespawnOverlay);
+            nbt.setBoolean("DragonSetGlowingEye", this.dragonSetGlowingEye);
             nbt.setString("HypixelNickName", this.hypixelNickName);
             nbt.setInteger("SelectedHypixelMinigame", this.selectedHypixelMinigame);
             nbt.setInteger("HypixelMinigameScrollPos", this.hypixelMinigameScrollPos);
@@ -620,6 +623,10 @@ public class ExtendedConfig
         {
             this.zealotRespawnOverlay = !this.zealotRespawnOverlay;
         }
+        else if (options == ExtendedConfig.Options.DRAGON_SET_GLOWING_EYE)
+        {
+            this.dragonSetGlowingEye = !this.dragonSetGlowingEye;
+        }
     }
 
     public void setOptionFloatValue(ExtendedConfig.Options options, float value)
@@ -881,6 +888,8 @@ public class ExtendedConfig
             return this.grapplingHookOverlay;
         case ZEALOT_RESPAWN_OVERLAY:
             return this.zealotRespawnOverlay;
+        case DRAGON_SET_GLOWING_EYE:
+            return this.dragonSetGlowingEye;
         default:
             return false;
         }
@@ -1048,6 +1057,7 @@ public class ExtendedConfig
         JUNGLE_AXE_OVERLAY(false, true),
         GRAPPLING_HOOK_OVERLAY(false, true),
         ZEALOT_RESPAWN_OVERLAY(false, true),
+        DRAGON_SET_GLOWING_EYE(false, true),
         JUNGLE_AXE_DELAY(true, false, 1500.0F, 2000.0F, 50.0F),
         GRAPPLING_HOOK_DELAY(true, false, 1500.0F, 2000.0F, 50.0F),
         ZEALOT_RESPAWN_DELAY(true, false, 10000.0F, 15000.0F, 50.0F),

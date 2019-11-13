@@ -150,6 +150,7 @@ grappling_hook_overlay.extended_config=Grappling Hook Overlay
 zealot_respawn_overlay.extended_config=Zealot Respawn Overlay
 visit_island_mode.extended_config=Visit Island Mode
 rare_drop_mode.extended_config=Rare Drop Mode
+dragon_set_glowing_eye.extended_config=Dragon Set Glowing Eye
 
 # MESSAGE
 message.toggle_sprint_enabled=Enabled Toggle Sprint
