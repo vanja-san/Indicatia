@@ -62,6 +62,7 @@ public class HypixelEventHandler
     private static final List<String> LEFT_PARTY_MESSAGE = new ArrayList<>(Arrays.asList("You are not in a party and have been moved to the ALL channel!", "has disbanded the party!", "The party was disbanded because all invites have expired and all members have left."));
 
     public static boolean isSkyBlock = false;
+    public static boolean foundSkyBlockPack;
     public static SkyBlockLocation SKY_BLOCK_LOCATION = SkyBlockLocation.YOUR_ISLAND;
     private static final List<String> PARTY_LIST = new ArrayList<>();
     public static String SKYBLOCK_AMPM = "";

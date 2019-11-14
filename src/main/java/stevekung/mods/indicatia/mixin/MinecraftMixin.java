@@ -18,6 +18,7 @@ import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.resources.ResourcePackRepository;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.crash.CrashReport;
@@ -33,6 +34,8 @@ import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import stevekung.mods.indicatia.event.HUDRenderEventHandler;
+import stevekung.mods.indicatia.event.HypixelEventHandler;
+import stevekung.mods.indicatia.utils.LoggerIN;
 
 @Mixin(Minecraft.class)
 public abstract class MinecraftMixin
@@ -404,6 +407,31 @@ public abstract class MinecraftMixin
     private void runGameLoop(CallbackInfo info)
     {
         HUDRenderEventHandler.INSTANCE.getToastGui().drawToast(new ScaledResolution(this.that));
+    }
+
+    @Inject(method = "refreshResources()V", cancellable = true, at = @At("HEAD"))
+    private void refreshResources(CallbackInfo info)
+    {
+        boolean found = false;
+
+        for (ResourcePackRepository.Entry resourcepackrepository$entry : this.that.getResourcePackRepository().getRepositoryEntries())
+        {
+            if (resourcepackrepository$entry.getResourcePack().getPackName().contains("Hypixel Skyblock Pack(16x)"))
+            {
+                HypixelEventHandler.foundSkyBlockPack = true;
+                found = true;
+                break;
+            }
+        }
+        if (found)
+        {
+            LoggerIN.info("Found SkyBlock Pack! Loaded Glowing Texture for Dragon Set Armor");
+        }
+        else
+        {
+            HypixelEventHandler.foundSkyBlockPack = false;
+            LoggerIN.info("SkyBlock Pack not found! Glowing Texture will not loaded for Dragon Set Armor");
+        }
     }
 
     private void updateKeyBindState()

@@ -88,8 +88,7 @@ public class LayerGlowingTexture implements LayerRenderer<EntityLivingBase>
             GlStateManager.blendFunc(1, 1);
             GlStateManager.disableLighting();
             GlStateManager.depthMask(!entity.isInvisible());
-            float light = 128.0F;
-            OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, light, light);
+            OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 128.0F, 128.0F);
             GlStateManager.enableLighting();
 
             if (entity.isSneaking())
