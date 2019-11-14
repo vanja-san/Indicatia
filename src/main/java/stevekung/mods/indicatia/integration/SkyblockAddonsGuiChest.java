@@ -389,4 +389,9 @@ public class SkyblockAddonsGuiChest
     {
         return this.inventoryType == EnumUtils.InventoryType.CRAFTING_TABLE;
     }
+
+    public boolean isNonCraftingPattern()
+    {
+        return this.inventoryType == EnumUtils.InventoryType.ENCHANTMENT_TABLE || this.inventoryType == EnumUtils.InventoryType.REFORGE_ANVIL;
+    }
 }

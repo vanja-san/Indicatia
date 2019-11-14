@@ -46,7 +46,7 @@ public class IndicatiaMod
     protected static final String GUI_FACTORY = "stevekung.mods.indicatia.config.ConfigGuiFactory";
     public static final String VERSION = IndicatiaMod.MAJOR_VERSION + "." + IndicatiaMod.MINOR_VERSION + "." + IndicatiaMod.BUILD_VERSION;
     protected static final String FORGE_VERSION = "after:Forge@[11.15.1.2318,);";
-    protected static final String DEPENDENCIES = "after:skyblockaddons@[1.4.1,); " + IndicatiaMod.FORGE_VERSION;
+    protected static final String DEPENDENCIES = "after:skyblockaddons@[1.4.2,); " + IndicatiaMod.FORGE_VERSION;
     private static final String URL = "https://minecraft.curseforge.com/projects/indicatia";
 
     public static final File profile = new File(ExtendedConfig.userDir, "profile.txt");

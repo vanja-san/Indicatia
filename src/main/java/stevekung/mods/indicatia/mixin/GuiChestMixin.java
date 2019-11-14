@@ -47,7 +47,7 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
     private final SkyblockAddonsGuiChest chest = new SkyblockAddonsGuiChest();
     private GuiTextField textFieldMatch = null;
     private GuiTextField textFieldExclusions = null;
-    private static final List<String> INVENTORY_LIST = new ArrayList<>(Arrays.asList("You                  Other", "Ender Chest", "Auctions Browser", "Trades", "Shop Trading Options", "Runic Pedestal", "Your Bids", "Bank", "Bank Deposit", "Bank Withdrawal"));
+    private static final List<String> INVENTORY_LIST = new ArrayList<>(Arrays.asList("You                  Other", "Ender Chest", "Craft Item", "Auctions Browser", "Trades", "Shop Trading Options", "Runic Pedestal", "Your Bids", "Bank", "Bank Deposit", "Bank Withdrawal"));
 
     @Shadow
     private IInventory lowerChestInventory;
@@ -358,7 +358,7 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
         }
         else
         {
-            if (this.chest.getInventoryType() != null && !this.chest.isCraftingPattern() && this.isOnSkyBlockOrModLoaded())
+            if (this.chest.getInventoryType() != null && this.chest.isNonCraftingPattern() && this.isOnSkyBlockOrModLoaded())
             {
                 if (keyCode != this.mc.gameSettings.keyBindInventory.getKeyCode() || !this.textFieldMatch.isFocused() && !this.textFieldExclusions.isFocused())
                 {
