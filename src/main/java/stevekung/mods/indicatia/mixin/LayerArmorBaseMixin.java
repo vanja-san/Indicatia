@@ -16,6 +16,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import stevekung.mods.indicatia.config.ConfigManagerIN;
+import stevekung.mods.indicatia.config.ExtendedConfig;
 import stevekung.mods.indicatia.event.HypixelEventHandler;
 
 @Mixin(LayerArmorBase.class)
@@ -50,7 +51,7 @@ public abstract class LayerArmorBaseMixin implements LayerRenderer<EntityLivingB
 
     private void renderGlowingLayer(EntityLivingBase entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale, int armorSlot)
     {
-        if (!HypixelEventHandler.foundSkyBlockPack)
+        if (!HypixelEventHandler.foundSkyBlockPack || !ExtendedConfig.instance.glowingDragonArmor)
         {
             return;
         }
@@ -76,7 +77,7 @@ public abstract class LayerArmorBaseMixin implements LayerRenderer<EntityLivingB
                 return;
             }
 
-            this.renderer.bindTexture(this.getArmorType(itemstack, armorSlot));
+            this.renderer.bindTexture(res);
 
             GlStateManager.enableBlend();
             GlStateManager.blendFunc(1, 1);

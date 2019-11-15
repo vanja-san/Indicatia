@@ -151,6 +151,7 @@ zealot_respawn_overlay.extended_config=Zealot Respawn Overlay
 visit_island_mode.extended_config=Visit Island Mode
 rare_drop_mode.extended_config=Rare Drop Mode
 dragon_set_glowing_eye.extended_config=Dragon Set Glowing Eye
+glowing_dragon_armor.extended_config=Glowing Dragon Armor
 
 # MESSAGE
 message.toggle_sprint_enabled=Enabled Toggle Sprint
