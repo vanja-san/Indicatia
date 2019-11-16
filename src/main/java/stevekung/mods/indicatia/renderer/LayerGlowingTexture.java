@@ -28,7 +28,7 @@ public class LayerGlowingTexture implements LayerRenderer<EntityLivingBase>
     @Override
     public void doRenderLayer(EntityLivingBase entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale)
     {
-        if (!ExtendedConfig.instance.dragonSetGlowingEye)
+        if (!ExtendedConfig.instance.glowingDragonArmor)
         {
             return;
         }
