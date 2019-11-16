@@ -416,11 +416,19 @@ public abstract class MinecraftMixin
 
         for (ResourcePackRepository.Entry resourcepackrepository$entry : this.that.getResourcePackRepository().getRepositoryEntries())
         {
-            if (resourcepackrepository$entry.getResourcePack().getPackName().contains("Hypixel Skyblock Pack(16x)"))
+            if (resourcepackrepository$entry.getResourcePack().getPackName().contains("Hypixel Skyblock Pack(16x)") || resourcepackrepository$entry.getResourcePack().getPackName().contains("Hypixel Skyblock Pack (32x)"))
             {
                 HypixelEventHandler.foundSkyBlockPack = true;
                 found = true;
                 break;
+            }
+            if (resourcepackrepository$entry.getResourcePack().getPackName().contains("Hypixel Skyblock Pack (32x)"))
+            {
+                HypixelEventHandler.skyBlockPackResolution = "32";
+            }
+            else if (resourcepackrepository$entry.getResourcePack().getPackName().contains("Hypixel Skyblock Pack(16x)"))
+            {
+                HypixelEventHandler.skyBlockPackResolution = "16";
             }
         }
         if (found)

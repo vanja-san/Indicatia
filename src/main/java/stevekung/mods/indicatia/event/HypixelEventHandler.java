@@ -63,6 +63,7 @@ public class HypixelEventHandler
 
     public static boolean isSkyBlock = false;
     public static boolean foundSkyBlockPack;
+    public static String skyBlockPackResolution = "16";
     public static SkyBlockLocation SKY_BLOCK_LOCATION = SkyBlockLocation.YOUR_ISLAND;
     private static final List<String> PARTY_LIST = new ArrayList<>();
     public static String SKYBLOCK_AMPM = "";

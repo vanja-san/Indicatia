@@ -140,7 +140,7 @@ public abstract class LayerArmorBaseMixin implements LayerRenderer<EntityLivingB
             texture = "strong";
         }
 
-        String s1 = String.format("indicatia:textures/model/armor/%s_layer_%d.png", texture, armorSlot == 2 ? 2 : 1);
+        String s1 = String.format("indicatia:textures/model/armor/" + HypixelEventHandler.skyBlockPackResolution + "/%s_layer_%d.png", texture, armorSlot == 2 ? 2 : 1);
         return texture.isEmpty() ? null : new ResourceLocation(s1);
     }
 }
