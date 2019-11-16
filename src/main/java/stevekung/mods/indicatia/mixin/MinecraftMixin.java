@@ -414,26 +414,29 @@ public abstract class MinecraftMixin
     {
         boolean found = false;
 
-        for (ResourcePackRepository.Entry resourcepackrepository$entry : this.that.getResourcePackRepository().getRepositoryEntries())
+        for (ResourcePackRepository.Entry entry : this.that.getResourcePackRepository().getRepositoryEntries())
         {
-            if (resourcepackrepository$entry.getResourcePack().getPackName().contains("Hypixel Skyblock Pack(16x)") || resourcepackrepository$entry.getResourcePack().getPackName().contains("Hypixel Skyblock Pack (32x)"))
+            String packName = entry.getResourcePack().getPackName();
+
+            if (packName.contains("Hypixel Skyblock Pack(16x)"))
+            {
+                HypixelEventHandler.skyBlockPackResolution = "16";
+            }
+            else if (packName.contains("Hypixel Skyblock Pack (32x)"))
+            {
+                HypixelEventHandler.skyBlockPackResolution = "32";
+            }
+
+            if (packName.contains("Hypixel Skyblock Pack(16x)") || packName.contains("Hypixel Skyblock Pack (32x)"))
             {
                 HypixelEventHandler.foundSkyBlockPack = true;
                 found = true;
                 break;
             }
-            if (resourcepackrepository$entry.getResourcePack().getPackName().contains("Hypixel Skyblock Pack (32x)"))
-            {
-                HypixelEventHandler.skyBlockPackResolution = "32";
-            }
-            else if (resourcepackrepository$entry.getResourcePack().getPackName().contains("Hypixel Skyblock Pack(16x)"))
-            {
-                HypixelEventHandler.skyBlockPackResolution = "16";
-            }
         }
         if (found)
         {
-            LoggerIN.info("Found SkyBlock Pack! Loaded Glowing Texture for Dragon Set Armor");
+            LoggerIN.info("Found SkyBlock Pack with x" + HypixelEventHandler.skyBlockPackResolution + "! Loaded Glowing Texture for Dragon Set Armor");
         }
         else
         {
