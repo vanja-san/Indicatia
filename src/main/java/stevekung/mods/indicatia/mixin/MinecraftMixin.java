@@ -417,17 +417,18 @@ public abstract class MinecraftMixin
         for (ResourcePackRepository.Entry entry : this.that.getResourcePackRepository().getRepositoryEntries())
         {
             String packName = entry.getResourcePack().getPackName();
+            String packDesc = entry.getTexturePackDescription();
 
-            if (packName.contains("Hypixel Skyblock Pack(16x)"))
+            if (packName.contains("v8F1.8 Hypixel Skyblock Pack (16x)") || packName.contains("v8O1.8 Hypixel Skyblock Pack(16x)"))
             {
                 HypixelEventHandler.skyBlockPackResolution = "16";
             }
-            else if (packName.contains("Hypixel Skyblock Pack (32x)"))
+            else if (packName.contains("v8F1.8 Hypixel Skyblock Pack (x32)") || packName.contains("v8O1.8 Hypixel Skyblock Pack (32x)"))
             {
                 HypixelEventHandler.skyBlockPackResolution = "32";
             }
 
-            if (packName.contains("Hypixel Skyblock Pack(16x)") || packName.contains("Hypixel Skyblock Pack (32x)"))
+            if (packName.contains("Hypixel Skyblock Pack") && packDesc.contains("by Hypixel Packs HQ"))
             {
                 HypixelEventHandler.foundSkyBlockPack = true;
                 found = true;
