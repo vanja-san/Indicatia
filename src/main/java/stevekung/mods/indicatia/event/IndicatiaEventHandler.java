@@ -66,6 +66,7 @@ public class IndicatiaEventHandler
     private int disconnectClickCooldown;
     private long lastButtonClick = -1;
     private static final List<String> INVENTORY_LIST = new ArrayList<>(Arrays.asList("Trades", "Shop Trading Options", "Runic Pedestal"));
+    public static String auctionPrice = "";
 
     private static long sneakTimeOld = 0L;
     private static boolean sneakingOld = false;

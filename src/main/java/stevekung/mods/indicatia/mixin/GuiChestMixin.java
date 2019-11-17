@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.input.Keyboard;
@@ -25,13 +27,17 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.play.client.C14PacketTabComplete;
 import net.minecraft.util.*;
 import net.minecraftforge.client.ClientCommandHandler;
 import stevekung.mods.indicatia.core.IndicatiaMod;
 import stevekung.mods.indicatia.event.HypixelEventHandler;
+import stevekung.mods.indicatia.event.IndicatiaEventHandler;
 import stevekung.mods.indicatia.integration.SkyBlockAddonsBackpack;
 import stevekung.mods.indicatia.integration.SkyblockAddonsGuiChest;
+import stevekung.mods.indicatia.utils.ColorUtils;
 import stevekung.mods.indicatia.utils.ITradeGUI;
 
 @Mixin(GuiChest.class)
@@ -47,6 +53,7 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
     private final SkyblockAddonsGuiChest chest = new SkyblockAddonsGuiChest();
     private GuiTextField textFieldMatch = null;
     private GuiTextField textFieldExclusions = null;
+    private GuiTextField priceSearch = null;
     private static final List<String> INVENTORY_LIST = new ArrayList<>(Arrays.asList("You                  Other", "Ender Chest", "Craft Item", "Auctions Browser", "Trades", "Shop Trading Options", "Runic Pedestal", "Your Bids", "Bank", "Bank Deposit", "Bank Withdrawal"));
 
     @Shadow
@@ -62,6 +69,13 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
     {
         super.initGui();
 
+        if (this.isAuctionBrowser())
+        {
+            Keyboard.enableRepeatEvents(true);
+            this.priceSearch = new GuiTextField(2, this.fontRendererObj, this.guiLeft + 180, this.guiTop + 40, 100, 20);
+            this.priceSearch.setText(IndicatiaEventHandler.auctionPrice);
+            this.priceSearch.setCanLoseFocus(true);
+        }
         if (this.isWhitelistGUI())
         {
             Keyboard.enableRepeatEvents(true);
@@ -105,6 +119,11 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
             Gui.drawRect(2, this.height - 14, this.width - 2, this.height - 2, Integer.MIN_VALUE);
             this.inputField.drawTextBox();
         }
+        if (this.priceSearch != null && this.isAuctionBrowser())
+        {
+            this.drawString(this.fontRendererObj, "Search for price:", this.guiLeft + 180, this.guiTop + 26, 10526880);
+            this.priceSearch.drawTextBox();
+        }
 
         if (this.textFieldMatch != null && this.isOnSkyBlockOrModLoaded())
         {
@@ -139,6 +158,10 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
             if (this.isOnSkyBlockOrModLoaded())
             {
                 this.chest.drawSBASlot(this.mc, this, slot);
+            }
+            if (this.isAuctionBrowser())
+            {
+                this.drawBids(slot);
             }
 
             if (this.isMouseOverSlot(slot, mouseX, mouseY) && slot.canBeHovered())
@@ -236,6 +259,10 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
         {
             this.inputField.mouseClicked(mouseX, mouseY, mouseButton);
         }
+        if (this.isAuctionBrowser())
+        {
+            this.priceSearch.mouseClicked(mouseX, mouseY, mouseButton);
+        }
         if (this.isOnSkyBlockOrModLoaded())
         {
             if (this.textFieldMatch != null)
@@ -254,9 +281,13 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
     @Override
     public void onGuiClosed()
     {
-        if (this.isWhitelistGUI())
+        if (this.isWhitelistGUI() || this.isAuctionBrowser())
         {
             Keyboard.enableRepeatEvents(false);
+        }
+        if (this.isAuctionBrowser())
+        {
+            IndicatiaEventHandler.auctionPrice = this.priceSearch.getText();
         }
         if (this.isOnSkyBlockOrModLoaded())
         {
@@ -277,6 +308,11 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
         {
             this.inputField.updateCursorCounter();
         }
+        if (this.priceSearch != null && this.isAuctionBrowser())
+        {
+            IndicatiaEventHandler.auctionPrice = this.priceSearch.getText();
+            this.priceSearch.updateCursorCounter();
+        }
         if (this.isOnSkyBlockOrModLoaded() && this.textFieldMatch != null && this.textFieldExclusions != null)
         {
             this.textFieldMatch.updateCursorCounter();
@@ -288,6 +324,11 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
     @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
+        if (this.isAuctionBrowser())
+        {
+            this.priceSearch.textboxKeyTyped(typedChar, keyCode);
+        }
+
         if (this.isWhitelistGUI())
         {
             if ((keyCode == 1 || keyCode == this.mc.gameSettings.keyBindInventory.getKeyCode()) && !this.inputField.isFocused())
@@ -536,8 +577,86 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
         return INVENTORY_LIST.stream().anyMatch(invName -> this.lowerChestInventory.getDisplayName().getUnformattedText().equals(invName));
     }
 
+    private boolean isAuctionBrowser()
+    {
+        return this.lowerChestInventory.getDisplayName().getUnformattedText().equals("Auctions Browser");
+    }
+
     private boolean isOnSkyBlockOrModLoaded()
     {
         return IndicatiaMod.isSkyblockAddonsLoaded && HypixelEventHandler.isSkyBlock;
+    }
+
+    private void drawBids(Slot slot)
+    {
+        if (slot.getStack() != null && slot.getStack().hasTagCompound())
+        {
+            NBTTagCompound compound = slot.getStack().getTagCompound().getCompoundTag("display");
+
+            if (compound.getTagId("Lore") == 9)
+            {
+                NBTTagList list = compound.getTagList("Lore", 8);
+
+                if (list.tagCount() > 0)
+                {
+                    for (int j1 = 0; j1 < list.tagCount(); ++j1)
+                    {
+                        int slotLeft = slot.xDisplayPosition;
+                        int slotTop = slot.yDisplayPosition;
+                        int slotRight = slotLeft + 16;
+                        int slotBottom = slotTop + 16;
+                        String lore = EnumChatFormatting.getTextWithoutFormattingCodes(list.getStringTagAt(j1));
+                        Matcher matcher = Pattern.compile("(?:Top|Starting) bid: (?<coin>[0-9,]+) coins").matcher(lore);
+                        int red = ColorUtils.to32BitColor(128, 255, 85, 85);
+                        int green = ColorUtils.to32BitColor(128, 85, 255, 85);
+                        int yellow = ColorUtils.to32BitColor(128, 255, 255, 85);
+
+                        if (this.priceSearch.getText().isEmpty())
+                        {
+                            if (lore.contains("Starting bid:"))
+                            {
+                                this.drawGradientRect(slotLeft, slotTop, slotRight, slotBottom, green, green);
+                            }
+                            else if (lore.contains("Bidder:"))
+                            {
+                                this.drawGradientRect(slotLeft, slotTop, slotRight, slotBottom, red, red);
+                            }
+                        }
+                        else
+                        {
+                            int moneyFromText = Integer.parseInt(IndicatiaEventHandler.auctionPrice);
+
+                            if (matcher.matches())
+                            {
+                                int moneyFromAh = Integer.parseInt(matcher.group("coin").replaceAll("[^\\d.]+", ""));
+
+                                if (lore.startsWith("Top bid:"))
+                                {
+                                    if (moneyFromText == moneyFromAh)
+                                    {
+                                        this.drawGradientRect(slotLeft, slotTop, slotRight, slotBottom, yellow, yellow);
+                                    }
+                                    else
+                                    {
+                                        this.drawGradientRect(slotLeft, slotTop, slotRight, slotBottom, red, red);
+                                    }
+                                }
+                                else if (lore.contains("Starting bid:"))
+                                {
+                                    if (moneyFromText == moneyFromAh)
+                                    {
+                                        this.drawGradientRect(slotLeft, slotTop, slotRight, slotBottom, green, green);
+                                    }
+                                    else
+                                    {
+                                        this.drawGradientRect(slotLeft, slotTop, slotRight, slotBottom, red, red);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
