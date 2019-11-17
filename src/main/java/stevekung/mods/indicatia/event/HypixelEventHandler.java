@@ -355,23 +355,26 @@ public class HypixelEventHandler
     @SubscribeEvent
     public void onItemTooltip(ItemTooltipEvent event)
     {
-        String startTime = EnumChatFormatting.getTextWithoutFormattingCodes(event.toolTip.get(1));
-
-        if (!StringUtils.isNullOrEmpty(startTime) && startTime.startsWith("Starts in:"))
+        for (String tooltip : event.toolTip)
         {
-            startTime = startTime.replace("Starts in: ", "");
-            String[] timeEstimate = Arrays.stream(startTime.split(" ")).map(time -> time.replaceAll("[^0-9]+", "")).toArray(size -> new String[size]);
-            Calendar calendar = Calendar.getInstance();
-            int dayF = Integer.valueOf(timeEstimate[0]);
-            int hourF = Integer.valueOf(timeEstimate[1]);
-            int minuteF = Integer.valueOf(timeEstimate[2]);
-            int secondF = Integer.valueOf(timeEstimate[3]);
-            calendar.add(Calendar.DATE, dayF);
-            calendar.add(Calendar.HOUR, hourF);
-            calendar.add(Calendar.MINUTE, minuteF);
-            calendar.add(Calendar.SECOND, secondF);
-            String startDate = new SimpleDateFormat("\nEEEE HH:mm:ss a\nd MMMMM yyyy").format(calendar.getTime());
-            event.toolTip.set(1, "Event starts at: " + EnumChatFormatting.YELLOW + startDate);
+            String startTime = EnumChatFormatting.getTextWithoutFormattingCodes(tooltip);
+
+            if (!StringUtils.isNullOrEmpty(startTime) && startTime.startsWith("Starts in:"))
+            {
+                startTime = startTime.replace("Starts in: ", "");
+                String[] timeEstimate = Arrays.stream(startTime.split(" ")).map(time -> time.replaceAll("[^0-9]+", "")).toArray(size -> new String[size]);
+                Calendar calendar = Calendar.getInstance();
+                int dayF = Integer.valueOf(timeEstimate[0]);
+                int hourF = Integer.valueOf(timeEstimate[1]);
+                int minuteF = Integer.valueOf(timeEstimate[2]);
+                int secondF = Integer.valueOf(timeEstimate[3]);
+                calendar.add(Calendar.DATE, dayF);
+                calendar.add(Calendar.HOUR, hourF);
+                calendar.add(Calendar.MINUTE, minuteF);
+                calendar.add(Calendar.SECOND, secondF);
+                String startDate = new SimpleDateFormat("\nEEEE HH:mm:ss a\nd MMMMM yyyy").format(calendar.getTime());
+                event.toolTip.set(1, "Event starts at: " + EnumChatFormatting.YELLOW + startDate);
+            }
         }
     }
 
