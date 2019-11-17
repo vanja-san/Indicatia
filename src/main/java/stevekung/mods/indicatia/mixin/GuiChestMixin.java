@@ -35,6 +35,7 @@ import net.minecraftforge.client.ClientCommandHandler;
 import stevekung.mods.indicatia.core.IndicatiaMod;
 import stevekung.mods.indicatia.event.HypixelEventHandler;
 import stevekung.mods.indicatia.event.IndicatiaEventHandler;
+import stevekung.mods.indicatia.gui.GuiNumberField;
 import stevekung.mods.indicatia.integration.SkyBlockAddonsBackpack;
 import stevekung.mods.indicatia.integration.SkyblockAddonsGuiChest;
 import stevekung.mods.indicatia.utils.ColorUtils;
@@ -53,7 +54,7 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
     private final SkyblockAddonsGuiChest chest = new SkyblockAddonsGuiChest();
     private GuiTextField textFieldMatch = null;
     private GuiTextField textFieldExclusions = null;
-    private GuiTextField priceSearch = null;
+    private GuiNumberField priceSearch = null;
     private static final List<String> INVENTORY_LIST = new ArrayList<>(Arrays.asList("You                  Other", "Ender Chest", "Craft Item", "Auctions Browser", "Trades", "Shop Trading Options", "Runic Pedestal", "Your Bids", "Bank", "Bank Deposit", "Bank Withdrawal"));
 
     @Shadow
@@ -72,7 +73,7 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
         if (this.isAuctionBrowser())
         {
             Keyboard.enableRepeatEvents(true);
-            this.priceSearch = new GuiTextField(2, this.fontRendererObj, this.guiLeft + 180, this.guiTop + 40, 100, 20);
+            this.priceSearch = new GuiNumberField(2, this.fontRendererObj, this.guiLeft + 180, this.guiTop + 40, 100, 20);
             this.priceSearch.setText(IndicatiaEventHandler.auctionPrice);
             this.priceSearch.setCanLoseFocus(true);
         }
