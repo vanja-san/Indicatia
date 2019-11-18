@@ -370,10 +370,10 @@ public class HypixelEventHandler
             {
                 String lore = EnumChatFormatting.getTextWithoutFormattingCodes(tooltip);
                 int tooltipSize = event.toolTip.size();
+
                 HypixelEventHandler.replaceEventEstimateTime(lore, calendar, event.toolTip, dates, "Starts in: ", 1);
                 HypixelEventHandler.replaceEventEstimateTime(lore, calendar, event.toolTip, dates, "Starting in: ", tooltipSize - 3);
 
-                // TODO workaround for minutes and seconds pattern!
                 HypixelEventHandler.replaceBankInterestTime(lore, calendar, event.toolTip, dates, "Interest in: ", tooltipSize - 3);
                 HypixelEventHandler.replaceBankInterestTime(lore, calendar, event.toolTip, dates, "Until interest: ", tooltipSize - 3);
             }
@@ -551,8 +551,8 @@ public class HypixelEventHandler
             }
             else if (timeEstimate.length == 2)
             {
-                minuteF = Integer.valueOf(timeEstimate[1]);
-                secondF = Integer.valueOf(timeEstimate[2]);
+                minuteF = Integer.valueOf(timeEstimate[0]);
+                secondF = Integer.valueOf(timeEstimate[1]);
             }
             else
             {
