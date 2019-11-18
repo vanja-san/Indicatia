@@ -26,11 +26,12 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
+import stevekung.mods.indicatia.utils.ColorUtils;
 
 public class SkyblockAddonsGuiChest
 {
-    private static final int OVERLAY_RED = ConfigColor.RED.getColor(127);
-    private static final int OVERLAY_GREEN = ConfigColor.GREEN.getColor(127);
+    private static final int OVERLAY_RED = ColorUtils.to32BitColor(128, 255, 85, 85);
+    private static final int OVERLAY_GREEN = ColorUtils.to32BitColor(128, 85, 255, 85);
     private EnumUtils.InventoryType inventoryType = null;
     private CraftingPatternSelection craftingPatternSelection = null;
 
