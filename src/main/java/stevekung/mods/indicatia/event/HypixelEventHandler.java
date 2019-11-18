@@ -28,7 +28,6 @@ import net.minecraft.scoreboard.ScorePlayerTeam;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.StringUtils;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.sound.PlaySoundEvent;
@@ -355,27 +354,58 @@ public class HypixelEventHandler
     @SubscribeEvent
     public void onItemTooltip(ItemTooltipEvent event)
     {
-        for (String tooltip : event.toolTip)
-        {
-            String startTime = EnumChatFormatting.getTextWithoutFormattingCodes(tooltip);
+        List<String> dates = new ArrayList<>();
+        Calendar calendar = Calendar.getInstance();
 
-            if (!StringUtils.isNullOrEmpty(startTime) && startTime.startsWith("Starts in:"))
+        try
+        {
+            for (String tooltip : event.toolTip)
             {
-                startTime = startTime.replace("Starts in: ", "");
-                String[] timeEstimate = Arrays.stream(startTime.split(" ")).map(time -> time.replaceAll("[^0-9]+", "")).toArray(size -> new String[size]);
-                Calendar calendar = Calendar.getInstance();
-                int dayF = Integer.valueOf(timeEstimate[0]);
-                int hourF = Integer.valueOf(timeEstimate[1]);
-                int minuteF = Integer.valueOf(timeEstimate[2]);
-                int secondF = Integer.valueOf(timeEstimate[3]);
-                calendar.add(Calendar.DATE, dayF);
-                calendar.add(Calendar.HOUR, hourF);
-                calendar.add(Calendar.MINUTE, minuteF);
-                calendar.add(Calendar.SECOND, secondF);
-                String startDate = new SimpleDateFormat("\nEEEE HH:mm:ss a\nd MMMMM yyyy").format(calendar.getTime());
-                event.toolTip.set(1, "Event starts at: " + EnumChatFormatting.YELLOW + startDate);
+                String startTime = EnumChatFormatting.getTextWithoutFormattingCodes(tooltip);
+
+                if (startTime.startsWith("Starts in:"))
+                {
+                    startTime = startTime.replace("Starts in: ", "");
+                    String[] timeEstimate = Arrays.stream(startTime.split(" ")).map(time -> time.replaceAll("[^0-9]+", "")).toArray(size -> new String[size]);
+                    int dayF = Integer.valueOf(timeEstimate[0]);
+                    int hourF = Integer.valueOf(timeEstimate[1]);
+                    int minuteF = Integer.valueOf(timeEstimate[2]);
+                    int secondF = Integer.valueOf(timeEstimate[3]);
+                    calendar.add(Calendar.DATE, dayF);
+                    calendar.add(Calendar.HOUR, hourF);
+                    calendar.add(Calendar.MINUTE, minuteF);
+                    calendar.add(Calendar.SECOND, secondF);
+                    String startDate1 = new SimpleDateFormat("EEEE HH:mm:ss a").format(calendar.getTime());
+                    String startDate2 = new SimpleDateFormat("d MMMMM yyyy").format(calendar.getTime());
+                    dates.add("Event starts at: ");
+                    dates.add(EnumChatFormatting.YELLOW + startDate1);
+                    dates.add(EnumChatFormatting.YELLOW + startDate2);
+                    event.toolTip.remove(1);
+                    event.toolTip.addAll(1, dates);
+                }
+                else if (startTime.startsWith("Starting in:"))
+                {
+                    startTime = startTime.replace("Starting in: ", "");
+                    String[] timeEstimate = Arrays.stream(startTime.split(" ")).map(time -> time.replaceAll("[^0-9]+", "")).toArray(size -> new String[size]);
+                    int dayF = Integer.valueOf(timeEstimate[0]);
+                    int hourF = Integer.valueOf(timeEstimate[1]);
+                    int minuteF = Integer.valueOf(timeEstimate[2]);
+                    int secondF = Integer.valueOf(timeEstimate[3]);
+                    calendar.add(Calendar.DATE, dayF);
+                    calendar.add(Calendar.HOUR, hourF);
+                    calendar.add(Calendar.MINUTE, minuteF);
+                    calendar.add(Calendar.SECOND, secondF);
+                    String startDate1 = new SimpleDateFormat("EEEE HH:mm:ss a").format(calendar.getTime());
+                    String startDate2 = new SimpleDateFormat("d MMMMM yyyy").format(calendar.getTime());
+                    dates.add("Event starts at: ");
+                    dates.add(EnumChatFormatting.YELLOW + startDate1);
+                    dates.add(EnumChatFormatting.YELLOW + startDate2);
+                    event.toolTip.remove(event.toolTip.size() - 3);
+                    event.toolTip.addAll(event.toolTip.size() - 2, dates);
+                }
             }
         }
+        catch (Exception e) {}
     }
 
     private static void getHypixelNickedPlayer(Minecraft mc)
