@@ -9,6 +9,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.lwjgl.input.Keyboard;
+
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
@@ -354,6 +356,11 @@ public class HypixelEventHandler
     @SubscribeEvent
     public void onItemTooltip(ItemTooltipEvent event)
     {
+        if (GameProfileUtils.isSteveKunG() && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) // used for debugging
+        {
+            return;
+        }
+
         List<String> dates = new ArrayList<>();
         Calendar calendar = Calendar.getInstance();
 
@@ -361,48 +368,14 @@ public class HypixelEventHandler
         {
             for (String tooltip : event.toolTip)
             {
-                String startTime = EnumChatFormatting.getTextWithoutFormattingCodes(tooltip);
+                String lore = EnumChatFormatting.getTextWithoutFormattingCodes(tooltip);
+                int tooltipSize = event.toolTip.size();
+                HypixelEventHandler.replaceEventEstimateTime(lore, calendar, event.toolTip, dates, "Starts in: ", 1);
+                HypixelEventHandler.replaceEventEstimateTime(lore, calendar, event.toolTip, dates, "Starting in: ", tooltipSize - 3);
 
-                if (startTime.startsWith("Starts in:"))
-                {
-                    startTime = startTime.replace("Starts in: ", "");
-                    String[] timeEstimate = Arrays.stream(startTime.split(" ")).map(time -> time.replaceAll("[^0-9]+", "")).toArray(size -> new String[size]);
-                    int dayF = Integer.valueOf(timeEstimate[0]);
-                    int hourF = Integer.valueOf(timeEstimate[1]);
-                    int minuteF = Integer.valueOf(timeEstimate[2]);
-                    int secondF = Integer.valueOf(timeEstimate[3]);
-                    calendar.add(Calendar.DATE, dayF);
-                    calendar.add(Calendar.HOUR, hourF);
-                    calendar.add(Calendar.MINUTE, minuteF);
-                    calendar.add(Calendar.SECOND, secondF);
-                    String startDate1 = new SimpleDateFormat("EEEE HH:mm:ss a").format(calendar.getTime());
-                    String startDate2 = new SimpleDateFormat("d MMMMM yyyy").format(calendar.getTime());
-                    dates.add("Event starts at: ");
-                    dates.add(EnumChatFormatting.YELLOW + startDate1);
-                    dates.add(EnumChatFormatting.YELLOW + startDate2);
-                    event.toolTip.remove(1);
-                    event.toolTip.addAll(1, dates);
-                }
-                else if (startTime.startsWith("Starting in:"))
-                {
-                    startTime = startTime.replace("Starting in: ", "");
-                    String[] timeEstimate = Arrays.stream(startTime.split(" ")).map(time -> time.replaceAll("[^0-9]+", "")).toArray(size -> new String[size]);
-                    int dayF = Integer.valueOf(timeEstimate[0]);
-                    int hourF = Integer.valueOf(timeEstimate[1]);
-                    int minuteF = Integer.valueOf(timeEstimate[2]);
-                    int secondF = Integer.valueOf(timeEstimate[3]);
-                    calendar.add(Calendar.DATE, dayF);
-                    calendar.add(Calendar.HOUR, hourF);
-                    calendar.add(Calendar.MINUTE, minuteF);
-                    calendar.add(Calendar.SECOND, secondF);
-                    String startDate1 = new SimpleDateFormat("EEEE HH:mm:ss a").format(calendar.getTime());
-                    String startDate2 = new SimpleDateFormat("d MMMMM yyyy").format(calendar.getTime());
-                    dates.add("Event starts at: ");
-                    dates.add(EnumChatFormatting.YELLOW + startDate1);
-                    dates.add(EnumChatFormatting.YELLOW + startDate2);
-                    event.toolTip.remove(event.toolTip.size() - 3);
-                    event.toolTip.addAll(event.toolTip.size() - 2, dates);
-                }
+                // TODO workaround for minutes and seconds pattern!
+                HypixelEventHandler.replaceBankInterestTime(lore, calendar, event.toolTip, dates, "Interest in: ", tooltipSize - 3);
+                HypixelEventHandler.replaceBankInterestTime(lore, calendar, event.toolTip, dates, "Until interest: ", tooltipSize - 3);
             }
         }
         catch (Exception e) {}
@@ -536,6 +509,47 @@ public class HypixelEventHandler
             builder.append((char) cp);
         }
         return builder.toString();
+    }
+
+    private static void replaceEventEstimateTime(String startTime, Calendar calendar, List<String> tooltip, List<String> dates, String replacedText, int indexToRemove)
+    {
+        if (startTime.startsWith(replacedText))
+        {
+            startTime = startTime.replace(replacedText, "");
+            String[] timeEstimate = Arrays.stream(startTime.split(" ")).map(time -> time.replaceAll("[^0-9]+", "")).toArray(size -> new String[size]);
+            int dayF = Integer.valueOf(timeEstimate[0]);
+            int hourF = Integer.valueOf(timeEstimate[1]);
+            int minuteF = Integer.valueOf(timeEstimate[2]);
+            int secondF = Integer.valueOf(timeEstimate[3]);
+            calendar.add(Calendar.DATE, dayF);
+            calendar.add(Calendar.HOUR, hourF);
+            calendar.add(Calendar.MINUTE, minuteF);
+            calendar.add(Calendar.SECOND, secondF);
+            String date1 = new SimpleDateFormat("EEEE HH:mm:ss a").format(calendar.getTime());
+            String date2 = new SimpleDateFormat("d MMMMM yyyy").format(calendar.getTime());
+            dates.add("Event starts at: ");
+            dates.add(EnumChatFormatting.YELLOW + date1);
+            dates.add(EnumChatFormatting.YELLOW + date2);
+            tooltip.remove(indexToRemove);
+            tooltip.addAll(indexToRemove, dates);
+        }
+    }
+
+    private static void replaceBankInterestTime(String lore, Calendar calendar, List<String> tooltip, List<String> dates, String replacedText, int indexToRemove)
+    {
+        if (lore.startsWith(replacedText))
+        {
+            lore = lore.replace(replacedText, "").replaceAll("[^0-9]+", "");
+            int hourF = Integer.valueOf(lore);
+            calendar.add(Calendar.HOUR, hourF);
+            String date1 = new SimpleDateFormat("EEEE H:00 a").format(calendar.getTime());
+            String date2 = new SimpleDateFormat("d MMMMM yyyy").format(calendar.getTime());
+            dates.add("Interest receive at: ");
+            dates.add(EnumChatFormatting.YELLOW + date1);
+            dates.add(EnumChatFormatting.YELLOW + date2);
+            tooltip.remove(indexToRemove);
+            tooltip.addAll(indexToRemove, dates);
+        }
     }
 
     static class ItemDrop
