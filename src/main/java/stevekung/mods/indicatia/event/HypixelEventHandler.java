@@ -525,7 +525,7 @@ public class HypixelEventHandler
             calendar.add(Calendar.HOUR, hourF);
             calendar.add(Calendar.MINUTE, minuteF);
             calendar.add(Calendar.SECOND, secondF);
-            String date1 = new SimpleDateFormat("EEEE HH:mm:ss a").format(calendar.getTime());
+            String date1 = new SimpleDateFormat("EEEE h:mm:ss a").format(calendar.getTime());
             String date2 = new SimpleDateFormat("d MMMMM yyyy").format(calendar.getTime());
             dates.add("Event starts at: ");
             dates.add(EnumChatFormatting.YELLOW + date1);
@@ -564,11 +564,11 @@ public class HypixelEventHandler
             calendar.add(Calendar.HOUR, hourF);
             calendar.add(Calendar.MINUTE, minuteF);
             calendar.add(Calendar.SECOND, secondF);
-            String date1 = new SimpleDateFormat("EEEE HH:mm:ss a").format(calendar.getTime());
+            String date1 = new SimpleDateFormat("EEEE h:mm:ss a").format(calendar.getTime());
 
             if (timeEstimate.length == 1)
             {
-                date1 = new SimpleDateFormat("EEEE H:00 a").format(calendar.getTime());
+                date1 = new SimpleDateFormat("EEEE h:00 a").format(calendar.getTime());
             }
 
             String date2 = new SimpleDateFormat("d MMMMM yyyy").format(calendar.getTime());
