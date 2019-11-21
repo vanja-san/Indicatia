@@ -38,9 +38,11 @@ import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import stevekung.mods.indicatia.config.ExtendedConfig;
 import stevekung.mods.indicatia.config.RareDropMode;
 import stevekung.mods.indicatia.config.VisitIslandMode;
+import stevekung.mods.indicatia.gui.AuctionPriceSelectionList;
 import stevekung.mods.indicatia.gui.toasts.ItemDropsToast;
 import stevekung.mods.indicatia.gui.toasts.VisitIslandToast;
 import stevekung.mods.indicatia.handler.KeyBindingHandler;
@@ -351,6 +353,12 @@ public class HypixelEventHandler
             this.previousInventory = null;
             ITEM_DROP_LIST.clear();
         }
+    }
+
+    @SubscribeEvent
+    public void onDisconnectedFromServerEvent(FMLNetworkEvent.ClientDisconnectionFromServerEvent event)
+    {
+        AuctionPriceSelectionList.getAuctionPrice().clear();
     }
 
     @SubscribeEvent
