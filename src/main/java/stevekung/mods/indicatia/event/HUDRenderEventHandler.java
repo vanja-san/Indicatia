@@ -114,9 +114,22 @@ public class HUDRenderEventHandler
     public void onPreInfoRender(RenderGameOverlayEvent.Pre event)
     {
         GuiIngameForge.renderObjective = !this.mc.gameSettings.showDebugInfo;
-        double jungleAxeDelay = this.getItemDelay(ExtendedConfig.instance.jungleAxeDelay, this.lastBlockBreak);
-        double grapplingHookDelay = this.getItemDelay(ExtendedConfig.instance.grapplingHookDelay, this.lastGrapplingHookUse);
-        double zealotRespawnDelay = this.getItemDelay(ExtendedConfig.instance.zealotRespawnDelay, this.lastZealotRespawn);
+        double jungleAxeDelay = 0;
+        double grapplingHookDelay = 0;
+        double zealotRespawnDelay = 0;
+
+        if (ExtendedConfig.instance.jungleAxeOverlay)
+        {
+            jungleAxeDelay = this.getItemDelay(ExtendedConfig.instance.jungleAxeDelay, this.lastBlockBreak);
+        }
+        if (ExtendedConfig.instance.grapplingHookOverlay)
+        {
+            grapplingHookDelay = this.getItemDelay(ExtendedConfig.instance.grapplingHookDelay, this.lastGrapplingHookUse);
+        }
+        if (ExtendedConfig.instance.zealotRespawnOverlay)
+        {
+            zealotRespawnDelay = this.getItemDelay(ExtendedConfig.instance.zealotRespawnDelay, this.lastZealotRespawn);
+        }
 
         if (event.type == RenderGameOverlayEvent.ElementType.HOTBAR || event.type == RenderGameOverlayEvent.ElementType.CROSSHAIRS)
         {
@@ -404,12 +417,15 @@ public class HUDRenderEventHandler
     private double getItemDelay(int base, long delay)
     {
         long now = System.currentTimeMillis();
-        DecimalFormat numberFormat = new DecimalFormat("0.0");
+        DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance(Locale.ENGLISH);
+        symbols.setDecimalSeparator('.');
+        symbols.setGroupingSeparator('.');
+        DecimalFormat numberFormat = new DecimalFormat("##.#", symbols);
         double seconds = base / 1000.0D - (now - delay) / 1000.0D;
 
         if (seconds >= 0.01D)
         {
-            return Double.valueOf(numberFormat.format(seconds));
+            return Double.parseDouble(numberFormat.format(seconds));
         }
         return 0.0D;
     }
