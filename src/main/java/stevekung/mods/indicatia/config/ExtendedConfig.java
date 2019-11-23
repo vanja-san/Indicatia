@@ -91,6 +91,7 @@ public class ExtendedConfig
     public String jungleAxeDelayColor = defaultWhite;
     public String grapplingHookDelayColor = defaultWhite;
     public String zealotRespawnDelayColor = defaultWhite;
+    public String placedSummoningEyeColor = defaultWhite;
 
     // Custom Color : Value
     public String fpsValueColor = "85,255,85";
@@ -109,6 +110,7 @@ public class ExtendedConfig
     public String gameTimeValueColor = defaultWhite;
     public String gameWeatherValueColor = defaultWhite;
     public String moonPhaseValueColor = defaultWhite;
+    public String placedSummoningEyeValueColor = defaultWhite;
 
     // Misc
     public String toggleSprintUseMode = "command";
@@ -130,6 +132,7 @@ public class ExtendedConfig
     public int visitIslandMode = 1;
     public int itemDropMode = 1;
     public int chatMode = 0;
+    public boolean placedSummoningEyeTracker = false;
 
     private ExtendedConfig() {}
 
@@ -210,6 +213,7 @@ public class ExtendedConfig
             this.jungleAxeDelayColor = ExtendedConfig.getString(nbt, "JungleAxeDelayColor", this.jungleAxeDelayColor);
             this.grapplingHookDelayColor = ExtendedConfig.getString(nbt, "GrapplingHookDelayColor", this.grapplingHookDelayColor);
             this.zealotRespawnDelayColor = ExtendedConfig.getString(nbt, "ZealotRespawnDelayColor", this.zealotRespawnDelayColor);
+            this.placedSummoningEyeColor = ExtendedConfig.getString(nbt, "PlacedSummoningEyeColor", this.placedSummoningEyeColor);
 
             // Custom Color : Value
             this.fpsValueColor = ExtendedConfig.getString(nbt, "FPSValueColor", this.fpsValueColor);
@@ -228,6 +232,7 @@ public class ExtendedConfig
             this.gameTimeValueColor = ExtendedConfig.getString(nbt, "GameTimeValueColor", this.gameTimeValueColor);
             this.gameWeatherValueColor = ExtendedConfig.getString(nbt, "GameWeatherValueColor", this.gameWeatherValueColor);
             this.moonPhaseValueColor = ExtendedConfig.getString(nbt, "MoonPhaseValueColor", this.moonPhaseValueColor);
+            this.placedSummoningEyeValueColor = ExtendedConfig.getString(nbt, "PlacedSummoningEyeValueColor", this.placedSummoningEyeValueColor);
 
             // Misc
             this.toggleSprintUseMode = ExtendedConfig.getString(nbt, "ToggleSprintUseMode", this.toggleSprintUseMode);
@@ -246,6 +251,7 @@ public class ExtendedConfig
             this.grapplingHookOverlay = ExtendedConfig.getBoolean(nbt, "GrapplingHookOverlay", this.grapplingHookOverlay);
             this.zealotRespawnOverlay = ExtendedConfig.getBoolean(nbt, "ZealotRespawnOverlay", this.zealotRespawnOverlay);
             this.glowingDragonArmor = ExtendedConfig.getBoolean(nbt, "GlowingDragonArmor", this.glowingDragonArmor);
+            this.placedSummoningEyeTracker = ExtendedConfig.getBoolean(nbt, "PlacedSummoningEyeTracker", this.placedSummoningEyeTracker);
 
             LoggerIN.info("Loading extended config {}", ExtendedConfig.file.getPath());
         }
@@ -323,6 +329,7 @@ public class ExtendedConfig
             nbt.setString("JungleAxeDelayColor", this.jungleAxeDelayColor);
             nbt.setString("GrapplingHookDelayColor", this.grapplingHookDelayColor);
             nbt.setString("ZealotRespawnDelayColor", this.zealotRespawnDelayColor);
+            nbt.setString("PlacedSummoningEyeColor", this.placedSummoningEyeColor);
 
             // Custom Color : Value
             nbt.setString("FPSValueColor", this.fpsValueColor);
@@ -341,6 +348,7 @@ public class ExtendedConfig
             nbt.setString("GameTimeValueColor", this.gameTimeValueColor);
             nbt.setString("GameWeatherValueColor", this.gameWeatherValueColor);
             nbt.setString("MoonPhaseValueColor", this.moonPhaseValueColor);
+            nbt.setString("PlacedSummoningEyeValueColor", this.placedSummoningEyeValueColor);
 
             // Misc
             nbt.setString("ToggleSprintUseMode", this.toggleSprintUseMode);
@@ -353,6 +361,7 @@ public class ExtendedConfig
             nbt.setBoolean("GrapplingHookOverlay", this.grapplingHookOverlay);
             nbt.setBoolean("ZealotRespawnOverlay", this.zealotRespawnOverlay);
             nbt.setBoolean("GlowingDragonArmor", this.glowingDragonArmor);
+            nbt.setBoolean("PlacedSummoningEyeTracker", this.placedSummoningEyeTracker);
             nbt.setString("HypixelNickName", this.hypixelNickName);
             nbt.setInteger("SelectedHypixelMinigame", this.selectedHypixelMinigame);
             nbt.setInteger("HypixelMinigameScrollPos", this.hypixelMinigameScrollPos);
@@ -627,6 +636,10 @@ public class ExtendedConfig
         {
             this.glowingDragonArmor = !this.glowingDragonArmor;
         }
+        else if (options == ExtendedConfig.Options.PLACED_SUMMONING_EYE_TRACKER)
+        {
+            this.placedSummoningEyeTracker = !this.placedSummoningEyeTracker;
+        }
     }
 
     public void setOptionFloatValue(ExtendedConfig.Options options, float value)
@@ -732,6 +745,10 @@ public class ExtendedConfig
         {
             this.zealotRespawnDelayColor = value;
         }
+        else if (options == ExtendedConfig.Options.PLACED_SUMMONING_EYE_COLOR)
+        {
+            this.placedSummoningEyeColor = value;
+        }
 
         else if (options == ExtendedConfig.Options.FPS_VALUE_COLOR)
         {
@@ -796,6 +813,10 @@ public class ExtendedConfig
         else if (options == ExtendedConfig.Options.MOON_PHASE_VALUE_COLOR)
         {
             this.moonPhaseValueColor = value;
+        }
+        else if (options == ExtendedConfig.Options.PLACED_SUMMONING_EYE_VALUE_COLOR)
+        {
+            this.placedSummoningEyeValueColor = value;
         }
     }
 
@@ -890,6 +911,8 @@ public class ExtendedConfig
             return this.zealotRespawnOverlay;
         case GLOWING_DRAGON_ARMOR:
             return this.glowingDragonArmor;
+        case PLACED_SUMMONING_EYE_TRACKER:
+            return this.placedSummoningEyeTracker;
         default:
             return false;
         }
@@ -931,6 +954,8 @@ public class ExtendedConfig
             return this.grapplingHookDelayColor;
         case ZEALOT_RESPAWN_DELAY_COLOR:
             return this.zealotRespawnDelayColor;
+        case PLACED_SUMMONING_EYE_COLOR:
+            return this.placedSummoningEyeColor;
 
         case FPS_VALUE_COLOR:
             return this.fpsValueColor;
@@ -964,6 +989,8 @@ public class ExtendedConfig
             return this.gameWeatherValueColor;
         case MOON_PHASE_VALUE_COLOR:
             return this.moonPhaseValueColor;
+        case PLACED_SUMMONING_EYE_VALUE_COLOR:
+            return this.placedSummoningEyeValueColor;
         default:
             return "";
         }
@@ -1034,6 +1061,7 @@ public class ExtendedConfig
         JUNGLE_AXE_DELAY_COLOR(false, false, true),
         GRAPPLING_HOOK_DELAY_COLOR(false, false, true),
         ZEALOT_RESPAWN_DELAY_COLOR(false, false, true),
+        PLACED_SUMMONING_EYE_COLOR(false, false, true),
 
         FPS_VALUE_COLOR(false, false, true),
         FPS_26_AND_40_COLOR(false, false, true),
@@ -1051,6 +1079,7 @@ public class ExtendedConfig
         GAME_TIME_VALUE_COLOR(false, false, true),
         GAME_WEATHER_VALUE_COLOR(false, false, true),
         MOON_PHASE_VALUE_COLOR(false, false, true),
+        PLACED_SUMMONING_EYE_VALUE_COLOR(false, false, true),
 
         RIGHT_CLICK_ADD_PARTY(false, true),
         ADD_PARTY_VISIT_ISLAND(false, true),
@@ -1058,6 +1087,7 @@ public class ExtendedConfig
         GRAPPLING_HOOK_OVERLAY(false, true),
         ZEALOT_RESPAWN_OVERLAY(false, true),
         GLOWING_DRAGON_ARMOR(false, true),
+        PLACED_SUMMONING_EYE_TRACKER(false, true),
         JUNGLE_AXE_DELAY(true, false, 1500.0F, 2000.0F, 50.0F),
         GRAPPLING_HOOK_DELAY(true, false, 1500.0F, 2000.0F, 50.0F),
         ZEALOT_RESPAWN_DELAY(true, false, 10000.0F, 15000.0F, 50.0F),

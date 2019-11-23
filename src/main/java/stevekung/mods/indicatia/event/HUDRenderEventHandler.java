@@ -1,14 +1,13 @@
 package stevekung.mods.indicatia.event;
 
 import java.text.DecimalFormat;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.text.DecimalFormatSymbols;
+import java.util.*;
 
 import com.google.common.collect.ImmutableList;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockEndPortalFrame;
 import net.minecraft.block.BlockLog;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -22,6 +21,7 @@ import net.minecraft.entity.boss.BossStatus;
 import net.minecraft.entity.boss.EntityDragon;
 import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.monster.EntityEnderman;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.*;
 import net.minecraftforge.client.GuiIngameForge;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -55,6 +55,7 @@ public class HUDRenderEventHandler
     private boolean foundDragon;
     private Set<CoordsPair> recentlyLoadedChunks = new HashSet<>();
     private static final ImmutableList<AxisAlignedBB> ZEALOT_SPAWN_AREA = ImmutableList.of(new AxisAlignedBB(-609, 9, -303, -631, 5, -320), new AxisAlignedBB(-622, 5, -321, -640, 5, -334), new AxisAlignedBB(-631, 7, -293, -648, 7, -312), new AxisAlignedBB(-658, 8, -308, -672, 7, -320), new AxisAlignedBB(-709, 9, -325, -694, 10, -315), new AxisAlignedBB(-702, 10, -303, -738, 5, -261), new AxisAlignedBB(-705, 5, -257, -678, 5, -296), new AxisAlignedBB(-657, 5, -210, -624, 8, -242), new AxisAlignedBB(-625, 7, -256, -662, 5, -286));
+    private static final ImmutableList<BlockPos> END_PORTAL_FRAMES = ImmutableList.of(new BlockPos(-669, 9, -277), new BlockPos(-669, 9, -275), new BlockPos(-670, 9, -278), new BlockPos(-672, 9, -278), new BlockPos(-673, 9, -277), new BlockPos(-673, 9, -275), new BlockPos(-672, 9, -274), new BlockPos(-670, 9, -274));
 
     public HUDRenderEventHandler()
     {
@@ -230,6 +231,21 @@ public class HUDRenderEventHandler
                 if (ExtendedConfig.instance.moonPhase)
                 {
                     rightInfo.add(InfoUtils.INSTANCE.getMoonPhase(this.mc));
+                }
+
+                if (ExtendedConfig.instance.placedSummoningEyeTracker && (HypixelEventHandler.SKY_BLOCK_LOCATION == SkyBlockLocation.THE_END || HypixelEventHandler.SKY_BLOCK_LOCATION == SkyBlockLocation.DRAGON_NEST))
+                {
+                    int summoningEyeCount = 0;
+
+                    for (BlockPos pos : END_PORTAL_FRAMES)
+                    {
+                        if (this.mc.theWorld.getBlockState(pos).getBlock() == Blocks.end_portal_frame && this.mc.theWorld.getBlockState(pos).getValue(BlockEndPortalFrame.EYE))
+                        {
+                            ++summoningEyeCount;
+                        }
+                    }
+                    String color = ColorUtils.stringToRGB(ExtendedConfig.instance.placedSummoningEyeValueColor).toColoredFont();
+                    rightInfo.add(ColorUtils.stringToRGB(ExtendedConfig.instance.placedSummoningEyeColor).toColoredFont() + "Placed Eye: " + color + summoningEyeCount + "/8");
                 }
 
                 // equipments

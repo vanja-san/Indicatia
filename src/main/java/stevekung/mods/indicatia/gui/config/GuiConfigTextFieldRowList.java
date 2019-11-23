@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiListExtended;
 import net.minecraft.client.gui.GuiScreen;
@@ -137,7 +138,8 @@ public class GuiConfigTextFieldRowList extends GuiListExtended
                     GuiTextFieldExtended text = (GuiTextFieldExtended)this.gui;
                     text.yPosition = y;
                     text.drawTextBox();
-                    this.mc.fontRendererObj.drawString(this.name, x + 64, y + 5, ColorUtils.rgbToDecimal(255, 255, 255));
+                    FontRenderer font = this.name.length() > 32 ? ColorUtils.unicodeFontRenderer : this.mc.fontRendererObj;
+                    font.drawString(this.name, x + 64, y + 5, ColorUtils.rgbToDecimal(255, 255, 255));
                 }
                 if (this.gui instanceof GuiConfigButton)
                 {

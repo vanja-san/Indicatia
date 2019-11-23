@@ -124,6 +124,7 @@ moon_phase_color.extended_config=Moon Phase Color
 jungle_axe_delay_color.extended_config=Jungle Axe Delay Color
 grappling_hook_delay_color.extended_config=Grappling Hook Delay Color
 zealot_respawn_delay_color.extended_config=Zealot Respawn Delay Color
+placed_summoning_eye_color.extended_config=Placed Summoning Eye Tracker Color
 fps_value_color.extended_config=FPS Value Color
 fps_26_and_40_color.extended_config=FPS 26 & 40 Color
 fps_low_25_color.extended_config=FPS < 25 Color
@@ -140,6 +141,7 @@ real_time_ddmmyy_value_color.extended_config=Real Time DDMMYY Value Color
 game_time_value_color.extended_config=Game Time Value Color
 game_weather_value_color.extended_config=Game Weather Value Color
 moon_phase_value_color.extended_config=Moon Phase Value Color
+placed_summoning_eye_value_color.extended_config=Placed Summoning Eye Tracker Value Color
 right_click_add_party.extended_config=Right Click to Add Party
 add_party_visit_island.extended_config=Add Party when people visit island
 jungle_axe_delay.extended_config=Jungle Axe Delay
@@ -151,6 +153,7 @@ zealot_respawn_overlay.extended_config=Zealot Respawn Overlay
 visit_island_mode.extended_config=Visit Island Mode
 rare_drop_mode.extended_config=Rare Drop Mode
 glowing_dragon_armor.extended_config=Glowing Dragon Armor
+placed_summoning_eye_tracker.extended_config=Placed Summoning Eye Tracker
 
 # MESSAGE
 message.toggle_sprint_enabled=Enabled Toggle Sprint
