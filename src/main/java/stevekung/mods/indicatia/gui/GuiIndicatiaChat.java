@@ -9,11 +9,13 @@ import org.lwjgl.input.Mouse;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.util.ChatStyle;
+import net.minecraft.util.EnumChatFormatting;
 import stevekung.mods.indicatia.config.ExtendedConfig;
 import stevekung.mods.indicatia.gui.GuiDropdownMinigames.IDropboxCallback;
 import stevekung.mods.indicatia.utils.*;
@@ -47,8 +49,11 @@ public class GuiIndicatiaChat implements IGuiChat, IDropboxCallback
         if (InfoUtils.INSTANCE.isHypixel())
         {
             Minecraft mc = Minecraft.getMinecraft();
-            ScaledResolution res = new ScaledResolution(mc);
-            mc.fontRendererObj.drawStringWithShadow("CHAT MODE: " + this.mode.getDesc(), 2, res.getScaledHeight() - 30, ColorUtils.rgbToDecimal(255, 255, 255));
+            String chatMode = "CHAT MODE: " + JsonUtils.create(this.mode.getDesc()).setChatStyle(new ChatStyle().setColor(this.mode.getColor()).setBold(true)).getFormattedText();
+            int x = 4;
+            int y = mc.currentScreen.height - 30;
+            Gui.drawRect(x - 2, y - 3, x + mc.fontRendererObj.getStringWidth(chatMode) + 2, y + 10, ColorUtils.to32BitColor(128, 0, 0, 0));
+            mc.fontRendererObj.drawStringWithShadow(chatMode, x, y, ColorUtils.rgbToDecimal(255, 255, 255));
         }
     }
 
@@ -287,19 +292,21 @@ public class GuiIndicatiaChat implements IGuiChat, IDropboxCallback
 
     public enum ChatMode
     {
-        ALL("/achat", "All Chat"),
-        PARTY("/pchat", "Party Chat"),
-        GUILD("/gchat", "Guild Chat"),
-        SKYBLOCK_COOP("/cc", "Coop Chat");
+        ALL("/achat", "All Chat", EnumChatFormatting.GRAY),
+        PARTY("/pchat", "Party Chat", EnumChatFormatting.BLUE),
+        GUILD("/gchat", "Guild Chat", EnumChatFormatting.DARK_GREEN),
+        SKYBLOCK_COOP("/cc", "Coop Chat", EnumChatFormatting.AQUA);
 
         private final String command;
         private final String desc;
+        private final EnumChatFormatting color;
         public static final ChatMode[] VALUES = ChatMode.values();
 
-        private ChatMode(String command, String desc)
+        private ChatMode(String command, String desc, EnumChatFormatting color)
         {
             this.command = command;
             this.desc = desc;
+            this.color = color;
         }
 
         public String getCommand()
@@ -310,6 +317,11 @@ public class GuiIndicatiaChat implements IGuiChat, IDropboxCallback
         public String getDesc()
         {
             return this.desc;
+        }
+
+        public EnumChatFormatting getColor()
+        {
+            return this.color;
         }
     }
 }
