@@ -65,7 +65,7 @@ public class HUDRenderEventHandler
     @SubscribeEvent
     public void onClientTick(ClientTickEvent event)
     {
-        if (this.mc.thePlayer != null && this.mc.thePlayer.ticksExisted % 100 == 0)
+        if (this.mc.thePlayer != null)
         {
             for (Entity entity : this.mc.theWorld.loadedEntityList)
             {

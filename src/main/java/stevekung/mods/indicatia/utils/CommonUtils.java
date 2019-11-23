@@ -4,6 +4,8 @@ import java.awt.Desktop;
 import java.net.URI;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.MovementInput;
@@ -13,7 +15,16 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 
 public class CommonUtils
 {
-    public static final ExecutorService POOL = Executors.newCachedThreadPool();
+    public static final ExecutorService POOL = Executors.newFixedThreadPool(100, new ThreadFactory()
+    {
+        final AtomicInteger counter = new AtomicInteger(0);
+
+        @Override
+        public Thread newThread(Runnable runnable)
+        {
+            return new Thread(runnable, String.format("Thread %s", this.counter.incrementAndGet()));
+        }
+    });
 
     public static void registerEventHandler(Object event)
     {
