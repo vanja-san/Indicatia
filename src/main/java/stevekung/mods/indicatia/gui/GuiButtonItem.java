@@ -5,6 +5,7 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
@@ -82,6 +83,12 @@ public class GuiButtonItem extends GuiButton
         if (this.visible)
         {
             ItemStack itemStack = new ItemStack(this.item);
+
+            if (this.item == Items.nether_star)
+            {
+                itemStack.setStackDisplayName("SkyBlock Menu");
+            }
+
             boolean flag = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
 
             mc.getTextureManager().bindTexture(TEXTURE);

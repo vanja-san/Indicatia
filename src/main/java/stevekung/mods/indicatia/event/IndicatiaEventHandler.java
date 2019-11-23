@@ -67,7 +67,8 @@ public class IndicatiaEventHandler
     private long lastButtonClick = -1;
     private static final List<String> INVENTORY_LIST = new ArrayList<>(Arrays.asList("Trades", "Shop Trading Options", "Runic Pedestal"));
     public static String auctionPrice = "";
-
+    public static final List<String> CHATABLE_LIST = new ArrayList<>(Arrays.asList("You                  Other", "Ender Chest", "Craft Item", "Trades", "Shop Trading Options", "Runic Pedestal", "Your Bids", "Bank", "Bank Deposit", "Bank Withdrawal"));
+    public static boolean showChat = false;
     private static long sneakTimeOld = 0L;
     private static boolean sneakingOld = false;
 
@@ -250,6 +251,11 @@ public class IndicatiaEventHandler
                 IInventory lowerChestInventory = chest.lowerChestInventory;
                 GuiButton craftingButton = new GuiButtonItem(1000, width + 88, height + 65, Item.getItemFromBlock(Blocks.crafting_table), HypixelEventHandler.SKY_BLOCK_LOCATION.isPublicIsland());
 
+                if (IndicatiaEventHandler.isSuitableForGUI(IndicatiaEventHandler.CHATABLE_LIST, lowerChestInventory))
+                {
+                    event.buttonList.add(new GuiButton(500, width - 108, height + 190, 20, 20, "C"));
+                }
+
                 if (IndicatiaEventHandler.isSuitableForGUI(IndicatiaEventHandler.INVENTORY_LIST, lowerChestInventory))
                 {
                     event.buttonList.add(new GuiButtonItem(999, width + 88, height + 47, Item.getItemFromBlock(Blocks.ender_chest)));
@@ -317,21 +323,28 @@ public class IndicatiaEventHandler
                 this.mc.displayGuiScreen(new GuiMojangStatusChecker(event.gui));
             }
         }
-        if ((event.gui instanceof GuiInventory || event.gui instanceof GuiChest) && HypixelEventHandler.isSkyBlock && now - this.lastButtonClick > 100L)
+        if ((event.gui instanceof GuiInventory || event.gui instanceof GuiChest) && HypixelEventHandler.isSkyBlock)
         {
-            if (event.button.id == 999)
+            if (now - this.lastButtonClick > 100L)
             {
-                this.mc.thePlayer.sendChatMessage("/enderchest");
+                if (event.button.id == 999)
+                {
+                    this.mc.thePlayer.sendChatMessage("/enderchest");
+                }
+                else if (event.button.id == 1000)
+                {
+                    this.mc.thePlayer.sendChatMessage("/viewcraftingtable");
+                }
+                else if (event.button.id == 1001)
+                {
+                    this.mc.thePlayer.sendChatMessage("/sbmenu");
+                }
+                this.lastButtonClick = now;
             }
-            else if (event.button.id == 1000)
+            if (event.button.id == 500)
             {
-                this.mc.thePlayer.sendChatMessage("/viewcraftingtable");
+                IndicatiaEventHandler.showChat = !IndicatiaEventHandler.showChat;
             }
-            else if (event.button.id == 1001)
-            {
-                this.mc.thePlayer.sendChatMessage("/sbmenu");
-            }
-            this.lastButtonClick = now;
         }
     }
 

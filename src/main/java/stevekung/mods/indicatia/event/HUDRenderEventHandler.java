@@ -13,6 +13,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RendererLivingEntity;
 import net.minecraft.entity.Entity;
@@ -108,6 +109,20 @@ public class HUDRenderEventHandler
         if (now - this.lastBlockBreak > ExtendedConfig.instance.jungleAxeDelay && block instanceof BlockLog)
         {
             this.lastBlockBreak = now;
+        }
+    }
+
+    @SubscribeEvent
+    public void onRenderChat(RenderGameOverlayEvent.Chat event)
+    {
+        if (this.mc.currentScreen != null && this.mc.currentScreen instanceof GuiChest)
+        {
+            GuiChest chest = (GuiChest)this.mc.currentScreen;
+
+            if (IndicatiaEventHandler.showChat && IndicatiaEventHandler.CHATABLE_LIST.stream().anyMatch(invName -> chest.lowerChestInventory.getDisplayName().getUnformattedText().equals(invName)))
+            {
+                event.setCanceled(true);
+            }
         }
     }
 

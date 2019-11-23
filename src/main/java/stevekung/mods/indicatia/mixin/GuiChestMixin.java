@@ -2,7 +2,6 @@ package stevekung.mods.indicatia.mixin;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -15,13 +14,16 @@ import org.spongepowered.asm.mixin.Shadow;
 import com.google.common.collect.ObjectArrays;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ChatLine;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
@@ -55,7 +57,6 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
     private GuiTextField textFieldMatch = null;
     private GuiTextField textFieldExclusions = null;
     private GuiNumberField priceSearch = null;
-    private static final List<String> INVENTORY_LIST = new ArrayList<>(Arrays.asList("You                  Other", "Ender Chest", "Craft Item", "Trades", "Shop Trading Options", "Runic Pedestal", "Your Bids", "Bank", "Bank Deposit", "Bank Withdrawal"));
 
     @Shadow
     private IInventory lowerChestInventory;
@@ -77,7 +78,7 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
             this.priceSearch.setText(IndicatiaEventHandler.auctionPrice);
             this.priceSearch.setCanLoseFocus(true);
         }
-        if (this.isWhitelistGUI())
+        if (this.isChatableGui())
         {
             Keyboard.enableRepeatEvents(true);
             this.sentHistoryCursor = this.mc.ingameGUI.getChatGUI().getSentMessages().size();
@@ -115,8 +116,20 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
         GlStateManager.disableLighting();
         GlStateManager.disableDepth();
 
-        if (this.isWhitelistGUI())
+        if (this.isChatableGui())
         {
+            if (IndicatiaEventHandler.showChat)
+            {
+                ScaledResolution scaledresolution = new ScaledResolution(this.mc);
+                int height = scaledresolution.getScaledHeight();
+                GlStateManager.enableBlend();
+                GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+                GlStateManager.disableAlpha();
+                GlStateManager.pushMatrix();
+                GlStateManager.translate(0.0F, height - 48, 0.0F);
+                this.drawChat();
+                GlStateManager.popMatrix();
+            }
             Gui.drawRect(2, this.height - 14, this.width - 2, this.height - 2, Integer.MIN_VALUE);
             this.inputField.drawTextBox();
         }
@@ -256,7 +269,7 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
-        if (this.isWhitelistGUI())
+        if (this.isChatableGui())
         {
             this.inputField.mouseClicked(mouseX, mouseY, mouseButton);
         }
@@ -282,7 +295,7 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
     @Override
     public void onGuiClosed()
     {
-        if (this.isWhitelistGUI() || this.isAuctionBrowser())
+        if (this.isChatableGui() || this.isAuctionBrowser())
         {
             Keyboard.enableRepeatEvents(false);
         }
@@ -305,7 +318,7 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
     @Override
     public void updateScreen()
     {
-        if (this.isWhitelistGUI())
+        if (this.isChatableGui())
         {
             this.inputField.updateCursorCounter();
         }
@@ -325,7 +338,7 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
     @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
-        if (this.isWhitelistGUI())
+        if (this.isChatableGui())
         {
             if ((keyCode == 1 || keyCode == this.mc.gameSettings.keyBindInventory.getKeyCode()) && !this.inputField.isFocused())
             {
@@ -445,7 +458,7 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
     @Override
     protected void setText(String newChatText, boolean shouldOverwrite)
     {
-        if (this.isWhitelistGUI())
+        if (this.isChatableGui())
         {
             if (shouldOverwrite)
             {
@@ -600,9 +613,9 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
         this.inputField.writeText(EnumChatFormatting.getTextWithoutFormattingCodes(this.foundPlayerNames.get(this.autocompleteIndex++)));
     }
 
-    private boolean isWhitelistGUI()
+    private boolean isChatableGui()
     {
-        return INVENTORY_LIST.stream().anyMatch(invName -> this.lowerChestInventory.getDisplayName().getUnformattedText().equals(invName));
+        return IndicatiaEventHandler.CHATABLE_LIST.stream().anyMatch(invName -> this.lowerChestInventory.getDisplayName().getUnformattedText().equals(invName));
     }
 
     private boolean isAuctionBrowser()
@@ -684,6 +697,57 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
                         }
                     }
                 }
+            }
+        }
+    }
+
+    private void drawChat()
+    {
+        if (this.mc.gameSettings.chatVisibility != EntityPlayer.EnumChatVisibility.HIDDEN)
+        {
+            int i = this.mc.ingameGUI.getChatGUI().getLineCount();
+            int k = this.mc.ingameGUI.getChatGUI().field_146253_i.size();
+            float f = this.mc.gameSettings.chatOpacity * 0.9F + 0.1F;
+
+            if (k > 0)
+            {
+                float f1 = this.mc.ingameGUI.getChatGUI().getChatScale();
+                GlStateManager.pushMatrix();
+                GlStateManager.translate(2.0F, 8.0F, 0.0F);
+                GlStateManager.scale(f1, f1, 1.0F);
+
+                for (int i1 = 0; i1 + this.mc.ingameGUI.getChatGUI().scrollPos < this.mc.ingameGUI.getChatGUI().field_146253_i.size() && i1 < i; ++i1)
+                {
+                    ChatLine chatline = this.mc.ingameGUI.getChatGUI().field_146253_i.get(i1 + this.mc.ingameGUI.getChatGUI().scrollPos);
+
+                    if (chatline != null)
+                    {
+                        int j1 = this.mc.ingameGUI.getUpdateCounter() - chatline.getUpdatedCounter();
+
+                        if (j1 < 200)
+                        {
+                            double d0 = j1 / 200.0D;
+                            d0 = 1.0D - d0;
+                            d0 = d0 * 10.0D;
+                            d0 = MathHelper.clamp_double(d0, 0.0D, 1.0D);
+                            d0 = d0 * d0;
+                            int l1 = (int)(255.0D * d0);
+                            l1 = (int)(l1 * f);
+
+                            if (l1 > 3)
+                            {
+                                int i2 = 0;
+                                int j2 = -i1 * 9;
+                                String s = chatline.getChatComponent().getFormattedText();
+                                GlStateManager.enableBlend();
+                                this.mc.fontRendererObj.drawStringWithShadow(s, i2, j2 - 8, 16777215 + (l1 << 24));
+                                GlStateManager.disableAlpha();
+                                GlStateManager.disableBlend();
+                            }
+                        }
+                    }
+                }
+                GlStateManager.popMatrix();
             }
         }
     }
