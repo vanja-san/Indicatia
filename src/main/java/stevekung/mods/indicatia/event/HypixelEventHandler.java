@@ -364,7 +364,7 @@ public class HypixelEventHandler
     @SubscribeEvent
     public void onItemTooltip(ItemTooltipEvent event)
     {
-        if ((GameProfileUtils.isSteveKunG() || GameProfileUtils.getUUID().equals(UUID.fromString("84b5eb0f-11d8-464b-881d-4bba203cc77b"))) && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) // used for debugging
+        if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
         {
             return;
         }
@@ -384,6 +384,8 @@ public class HypixelEventHandler
 
                 HypixelEventHandler.replaceBankInterestTime(lore, calendar, event.toolTip, dates, "Interest in: ", tooltipSize - 3);
                 HypixelEventHandler.replaceBankInterestTime(lore, calendar, event.toolTip, dates, "Until interest: ", tooltipSize - 3);
+
+                HypixelEventHandler.replaceAuctionTime(lore, calendar, event.toolTip, dates, "Ends in: ", tooltipSize - 3);
             }
         }
         catch (Exception e) {}
@@ -581,6 +583,61 @@ public class HypixelEventHandler
 
             String date2 = new SimpleDateFormat("d MMMMM yyyy").format(calendar.getTime());
             dates.add("Interest receive at: ");
+            dates.add(EnumChatFormatting.YELLOW + date1);
+            dates.add(EnumChatFormatting.YELLOW + date2);
+            tooltip.remove(indexToRemove);
+            tooltip.addAll(indexToRemove, dates);
+        }
+    }
+
+    private static void replaceAuctionTime(String lore, Calendar calendar, List<String> tooltip, List<String> dates, String replacedText, int indexToRemove)
+    {
+        if (lore.startsWith(replacedText))
+        {
+            boolean isDay = lore.endsWith("d");
+            lore = lore.replace(replacedText, "").replaceAll("[^0-9]+", " ");
+            String[] timeEstimate = Arrays.stream(lore.split(" ")).map(time -> time.replaceAll("[^0-9]+", "")).toArray(size -> new String[size]);
+            int dayF = 0;
+            int hourF = 0;
+            int minuteF = 0;
+            int secondF = 0;
+
+            if (timeEstimate.length == 1)
+            {
+                if (isDay)
+                {
+                    dayF = Integer.valueOf(timeEstimate[0]);
+                }
+                else
+                {
+                    hourF = Integer.valueOf(timeEstimate[0]);
+                }
+            }
+            else if (timeEstimate.length == 2)
+            {
+                minuteF = Integer.valueOf(timeEstimate[0]);
+                secondF = Integer.valueOf(timeEstimate[1]);
+            }
+            else
+            {
+                hourF = Integer.valueOf(timeEstimate[0]);
+                minuteF = Integer.valueOf(timeEstimate[1]);
+                secondF = Integer.valueOf(timeEstimate[2]);
+            }
+
+            calendar.add(Calendar.DATE, dayF);
+            calendar.add(Calendar.HOUR, hourF);
+            calendar.add(Calendar.MINUTE, minuteF);
+            calendar.add(Calendar.SECOND, secondF);
+            String date1 = new SimpleDateFormat("EEEE h:mm:ss a").format(calendar.getTime());
+
+            if (timeEstimate.length == 1)
+            {
+                date1 = new SimpleDateFormat("EEEE h:00 a").format(calendar.getTime());
+            }
+
+            String date2 = new SimpleDateFormat("d MMMMM yyyy").format(calendar.getTime());
+            dates.add("Ends at: ");
             dates.add(EnumChatFormatting.YELLOW + date1);
             dates.add(EnumChatFormatting.YELLOW + date2);
             tooltip.remove(indexToRemove);
