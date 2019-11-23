@@ -8,8 +8,11 @@ import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagString;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -86,7 +89,12 @@ public class GuiButtonItem extends GuiButton
 
             if (this.item == Items.nether_star)
             {
-                itemStack.setStackDisplayName("SkyBlock Menu");
+                ItemStack skyBlockMenu = itemStack.copy();
+                NBTTagList list = new NBTTagList();
+                skyBlockMenu.setStackDisplayName("SkyBlock Menu");
+                list.appendTag(new NBTTagString(EnumChatFormatting.GRAY + "View all of your SkyBlock"));
+                skyBlockMenu.getTagCompound().getCompoundTag("display").setTag("Lore", list);
+                itemStack = skyBlockMenu;
             }
 
             boolean flag = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
