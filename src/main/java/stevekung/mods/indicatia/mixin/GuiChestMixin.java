@@ -55,7 +55,7 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
     private GuiTextField textFieldMatch = null;
     private GuiTextField textFieldExclusions = null;
     private GuiNumberField priceSearch = null;
-    private static final List<String> INVENTORY_LIST = new ArrayList<>(Arrays.asList("You                  Other", "Ender Chest", "Craft Item", "Auctions Browser", "Trades", "Shop Trading Options", "Runic Pedestal", "Your Bids", "Bank", "Bank Deposit", "Bank Withdrawal"));
+    private static final List<String> INVENTORY_LIST = new ArrayList<>(Arrays.asList("You                  Other", "Ender Chest", "Craft Item", "Trades", "Shop Trading Options", "Runic Pedestal", "Your Bids", "Bank", "Bank Deposit", "Bank Withdrawal"));
 
     @Shadow
     private IInventory lowerChestInventory;
@@ -325,11 +325,6 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
     @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
-        if (this.isAuctionBrowser())
-        {
-            this.priceSearch.textboxKeyTyped(typedChar, keyCode);
-        }
-
         if (this.isWhitelistGUI())
         {
             if ((keyCode == 1 || keyCode == this.mc.gameSettings.keyBindInventory.getKeyCode()) && !this.inputField.isFocused())
@@ -383,6 +378,7 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
                 {
                     this.sendChatMessage(text);
                 }
+                this.sentHistoryCursor = this.mc.ingameGUI.getChatGUI().getSentMessages().size();
                 this.inputField.setText("");
                 this.mc.ingameGUI.getChatGUI().resetScroll();
             }
@@ -397,6 +393,37 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
             {
                 this.playerNamesFound = false;
             }
+        }
+        else if (this.isAuctionBrowser())
+        {
+            if ((keyCode == 1 || keyCode == this.mc.gameSettings.keyBindInventory.getKeyCode()) && !this.priceSearch.isFocused())
+            {
+                this.mc.thePlayer.closeScreen();
+            }
+            if (this.priceSearch.isFocused())
+            {
+                if (keyCode == 1)
+                {
+                    this.priceSearch.setFocused(false);
+                }
+            }
+            else
+            {
+                this.checkHotbarKeys(keyCode);
+
+                if (this.theSlot != null && this.theSlot.getHasStack())
+                {
+                    if (keyCode == this.mc.gameSettings.keyBindPickBlock.getKeyCode())
+                    {
+                        this.handleMouseClick(this.theSlot, this.theSlot.slotNumber, 0, 3);
+                    }
+                    else if (keyCode == this.mc.gameSettings.keyBindDrop.getKeyCode())
+                    {
+                        this.handleMouseClick(this.theSlot, this.theSlot.slotNumber, isCtrlKeyDown() ? 1 : 0, 4);
+                    }
+                }
+            }
+            this.priceSearch.textboxKeyTyped(typedChar, keyCode);
         }
         else
         {
