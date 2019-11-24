@@ -385,7 +385,7 @@ public class HypixelEventHandler
                 HypixelEventHandler.replaceBankInterestTime(lore, calendar, event.toolTip, dates, "Interest in: ", tooltipSize - 3);
                 HypixelEventHandler.replaceBankInterestTime(lore, calendar, event.toolTip, dates, "Until interest: ", tooltipSize - 3);
 
-                HypixelEventHandler.replaceAuctionTime(lore, calendar, event.toolTip, dates, "Ends in: ", tooltipSize - 3);
+                //HypixelEventHandler.replaceAuctionTime(lore, calendar, event.toolTip, dates, "Ends in: ", tooltipSize - 3);TODO Temporary disabled
             }
         }
         catch (Exception e) {}
