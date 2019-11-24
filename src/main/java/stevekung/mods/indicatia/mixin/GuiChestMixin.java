@@ -42,6 +42,7 @@ import stevekung.mods.indicatia.integration.SkyBlockAddonsBackpack;
 import stevekung.mods.indicatia.integration.SkyblockAddonsGuiChest;
 import stevekung.mods.indicatia.utils.ColorUtils;
 import stevekung.mods.indicatia.utils.ITradeGUI;
+import stevekung.mods.indicatia.utils.SearchMode;
 
 @Mixin(GuiChest.class)
 public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
@@ -57,6 +58,7 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
     private GuiTextField textFieldMatch = null;
     private GuiTextField textFieldExclusions = null;
     private GuiNumberField priceSearch = null;
+    private SearchMode mode = SearchMode.SIMPLE;
 
     @Shadow
     private IInventory lowerChestInventory;
@@ -654,46 +656,61 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
 
                         if (this.priceSearch.getText().isEmpty())
                         {
-                            if (lore.contains("Starting bid:"))
+                            if (lore.startsWith("Starting bid:"))
                             {
                                 this.drawGradientRect(slotLeft, slotTop, slotRight, slotBottom, green, green);
                             }
-                            else if (lore.contains("Bidder:"))
+                            else if (lore.startsWith("Bidder:"))
                             {
                                 this.drawGradientRect(slotLeft, slotTop, slotRight, slotBottom, red, red);
                             }
                         }
                         else
                         {
-                            int moneyFromText = Integer.parseInt(IndicatiaEventHandler.auctionPrice);
-
-                            if (matcher.matches())
+                            try
                             {
-                                int moneyFromAh = Integer.parseInt(matcher.group("coin").replaceAll("[^\\d.]+", ""));
+                                int priceMin = 0;
+                                int priceMax = 0;
+                                int moneyFromText = 0;
 
-                                if (lore.startsWith("Top bid:"))
+                                if (matcher.matches())
                                 {
-                                    if (moneyFromText == moneyFromAh)
+                                    String[] priceSplit = IndicatiaEventHandler.auctionPrice.split("\\.\\.");
+                                    int moneyFromAh = Integer.parseInt(matcher.group("coin").replaceAll("[^\\d.]+", ""));
+
+                                    if (IndicatiaEventHandler.auctionPrice.matches("[\\d]+\\.\\.[\\d]+"))
                                     {
-                                        this.drawGradientRect(slotLeft, slotTop, slotRight, slotBottom, yellow, yellow);
+                                        priceMin = Integer.parseInt(priceSplit[0]);
+                                        priceMax = Integer.parseInt(priceSplit[1]);
+                                        this.mode = SearchMode.RANGED;
+                                    }
+                                    else if (IndicatiaEventHandler.auctionPrice.matches("[\\d]+\\.\\."))
+                                    {
+                                        priceMin = Integer.parseInt(IndicatiaEventHandler.auctionPrice.replaceAll("\\.\\.", ""));
+                                        this.mode = SearchMode.MIN;
+                                    }
+                                    else if (IndicatiaEventHandler.auctionPrice.matches("\\.\\.[\\d]+"))
+                                    {
+                                        priceMax = Integer.parseInt(IndicatiaEventHandler.auctionPrice.replaceAll("\\.\\.", ""));
+                                        this.mode = SearchMode.MAX;
                                     }
                                     else
                                     {
-                                        this.drawGradientRect(slotLeft, slotTop, slotRight, slotBottom, red, red);
+                                        moneyFromText = Integer.parseInt(IndicatiaEventHandler.auctionPrice);
+                                        this.mode = SearchMode.SIMPLE;
                                     }
-                                }
-                                else if (lore.contains("Starting bid:"))
-                                {
-                                    if (moneyFromText == moneyFromAh)
+
+                                    if (lore.startsWith("Top bid:"))
                                     {
-                                        this.drawGradientRect(slotLeft, slotTop, slotRight, slotBottom, green, green);
+                                        this.checkCondition(moneyFromText, moneyFromAh, priceMin, priceMax, slotLeft, slotTop, slotRight, slotBottom, yellow, red);
                                     }
-                                    else
+                                    else if (lore.startsWith("Starting bid:"))
                                     {
-                                        this.drawGradientRect(slotLeft, slotTop, slotRight, slotBottom, red, red);
+                                        this.checkCondition(moneyFromText, moneyFromAh, priceMin, priceMax, slotLeft, slotTop, slotRight, slotBottom, green, red);
                                     }
                                 }
                             }
+                            catch (Exception e) {}
                         }
                     }
                 }
@@ -749,6 +766,54 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
                 }
                 GlStateManager.popMatrix();
             }
+        }
+    }
+
+    private void checkCondition(int moneyFromText, int moneyFromAh, int priceMin, int priceMax, int slotLeft, int slotTop, int slotRight, int slotBottom, int color1, int color2)
+    {
+        switch (this.mode)
+        {
+        default:
+        case SIMPLE:
+            if (moneyFromText == moneyFromAh)
+            {
+                this.drawGradientRect(slotLeft, slotTop, slotRight, slotBottom, color1, color1);
+            }
+            else
+            {
+                this.drawGradientRect(slotLeft, slotTop, slotRight, slotBottom, color2, color2);
+            }
+            break;
+        case MIN:
+            if (moneyFromAh >= priceMin)
+            {
+                this.drawGradientRect(slotLeft, slotTop, slotRight, slotBottom, color1, color1);
+            }
+            else
+            {
+                this.drawGradientRect(slotLeft, slotTop, slotRight, slotBottom, color2, color2);
+            }
+            break;
+        case MAX:
+            if (moneyFromAh <= priceMax)
+            {
+                this.drawGradientRect(slotLeft, slotTop, slotRight, slotBottom, color1, color1);
+            }
+            else
+            {
+                this.drawGradientRect(slotLeft, slotTop, slotRight, slotBottom, color2, color2);
+            }
+            break;
+        case RANGED:
+            if (moneyFromAh >= priceMin && moneyFromAh <= priceMax)
+            {
+                this.drawGradientRect(slotLeft, slotTop, slotRight, slotBottom, color1, color1);
+            }
+            else
+            {
+                this.drawGradientRect(slotLeft, slotTop, slotRight, slotBottom, color2, color2);
+            }
+            break;
         }
     }
 }
