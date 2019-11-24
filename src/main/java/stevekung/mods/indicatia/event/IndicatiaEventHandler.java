@@ -47,6 +47,7 @@ import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import stevekung.mods.indicatia.config.ConfigManagerIN;
 import stevekung.mods.indicatia.config.ExtendedConfig;
+import stevekung.mods.indicatia.core.IndicatiaMod;
 import stevekung.mods.indicatia.gui.GuiButtonItem;
 import stevekung.mods.indicatia.gui.GuiButtonMojangStatus;
 import stevekung.mods.indicatia.gui.GuiConfirmDisconnect;
@@ -234,7 +235,7 @@ public class IndicatiaEventHandler
         if (event.gui instanceof GuiMainMenu)
         {
             height = event.gui.height / 4 + 48;
-            event.buttonList.add(new GuiButtonMojangStatus(200, width + 104, height + 84));
+            event.buttonList.add(new GuiButtonMojangStatus(200, width + 104, height + (IndicatiaMod.isIngameAccountSwitcherLoaded ? 63 : 84)));
         }
         if (HypixelEventHandler.isSkyBlock)
         {

@@ -52,6 +52,7 @@ public class IndicatiaMod
     public static final File profile = new File(ExtendedConfig.userDir, "profile.txt");
     private static final Splitter COLON_SPLITTER = Splitter.on(':');
     public static boolean isSkyblockAddonsLoaded = Loader.isModLoaded("skyblockaddons");
+    public static boolean isIngameAccountSwitcherLoaded = Loader.isModLoaded("IngameAccountSwitcher");
 
     static
     {
