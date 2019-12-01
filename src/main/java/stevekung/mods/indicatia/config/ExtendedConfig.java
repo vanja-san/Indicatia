@@ -133,6 +133,8 @@ public class ExtendedConfig
     public int itemDropMode = 1;
     public int chatMode = 0;
     public boolean placedSummoningEyeTracker = false;
+    public boolean showItemRarity = true;
+    public int itemRarityOpacity = 75;
 
     private ExtendedConfig() {}
 
@@ -247,11 +249,13 @@ public class ExtendedConfig
             this.jungleAxeDelay = ExtendedConfig.getInteger(nbt, "JungleAxeDelay", this.jungleAxeDelay);
             this.grapplingHookDelay = ExtendedConfig.getInteger(nbt, "GrapplingHookDelay", this.grapplingHookDelay);
             this.zealotRespawnDelay = ExtendedConfig.getInteger(nbt, "ZealotRespawnDelay", this.zealotRespawnDelay);
+            this.itemRarityOpacity = ExtendedConfig.getInteger(nbt, "ItemRarityOpacity", this.itemRarityOpacity);
             this.jungleAxeOverlay = ExtendedConfig.getBoolean(nbt, "JungleAxeOverlay", this.jungleAxeOverlay);
             this.grapplingHookOverlay = ExtendedConfig.getBoolean(nbt, "GrapplingHookOverlay", this.grapplingHookOverlay);
             this.zealotRespawnOverlay = ExtendedConfig.getBoolean(nbt, "ZealotRespawnOverlay", this.zealotRespawnOverlay);
             this.glowingDragonArmor = ExtendedConfig.getBoolean(nbt, "GlowingDragonArmor", this.glowingDragonArmor);
             this.placedSummoningEyeTracker = ExtendedConfig.getBoolean(nbt, "PlacedSummoningEyeTracker", this.placedSummoningEyeTracker);
+            this.showItemRarity = ExtendedConfig.getBoolean(nbt, "ShowItemRarity", this.showItemRarity);
 
             LoggerIN.info("Loading extended config {}", ExtendedConfig.file.getPath());
         }
@@ -362,12 +366,14 @@ public class ExtendedConfig
             nbt.setBoolean("ZealotRespawnOverlay", this.zealotRespawnOverlay);
             nbt.setBoolean("GlowingDragonArmor", this.glowingDragonArmor);
             nbt.setBoolean("PlacedSummoningEyeTracker", this.placedSummoningEyeTracker);
+            nbt.setBoolean("ShowItemRarity", this.showItemRarity);
             nbt.setString("HypixelNickName", this.hypixelNickName);
             nbt.setInteger("SelectedHypixelMinigame", this.selectedHypixelMinigame);
             nbt.setInteger("HypixelMinigameScrollPos", this.hypixelMinigameScrollPos);
             nbt.setInteger("JungleAxeDelay", this.jungleAxeDelay);
             nbt.setInteger("GrapplingHookDelay", this.grapplingHookDelay);
             nbt.setInteger("ZealotRespawnDelay", this.zealotRespawnDelay);
+            nbt.setInteger("ItemRarityOpacity", this.itemRarityOpacity);
 
             CompressedStreamTools.safeWrite(nbt, !profileName.equalsIgnoreCase("default") ? new File(userDir, profileName + ".dat") : ExtendedConfig.file);
         }
@@ -640,6 +646,10 @@ public class ExtendedConfig
         {
             this.placedSummoningEyeTracker = !this.placedSummoningEyeTracker;
         }
+        else if (options == ExtendedConfig.Options.SHOW_ITEM_RARITY)
+        {
+            this.showItemRarity = !this.showItemRarity;
+        }
     }
 
     public void setOptionFloatValue(ExtendedConfig.Options options, float value)
@@ -676,6 +686,10 @@ public class ExtendedConfig
         else if (options == ExtendedConfig.Options.ZEALOT_RESPAWN_DELAY)
         {
             this.zealotRespawnDelay = (int) value;
+        }
+        else if (options == ExtendedConfig.Options.ITEM_RARITY_OPACITY)
+        {
+            this.itemRarityOpacity = (int) value;
         }
     }
 
@@ -855,6 +869,10 @@ public class ExtendedConfig
         {
             return this.zealotRespawnDelay;
         }
+        else if (settingOption == ExtendedConfig.Options.ITEM_RARITY_OPACITY)
+        {
+            return this.itemRarityOpacity;
+        }
         return 0.0F;
     }
 
@@ -913,6 +931,8 @@ public class ExtendedConfig
             return this.glowingDragonArmor;
         case PLACED_SUMMONING_EYE_TRACKER:
             return this.placedSummoningEyeTracker;
+        case SHOW_ITEM_RARITY:
+            return this.showItemRarity;
         default:
             return false;
         }
@@ -1088,9 +1108,11 @@ public class ExtendedConfig
         ZEALOT_RESPAWN_OVERLAY(false, true),
         GLOWING_DRAGON_ARMOR(false, true),
         PLACED_SUMMONING_EYE_TRACKER(false, true),
+        SHOW_ITEM_RARITY(false, true),
         JUNGLE_AXE_DELAY(true, false, 1500.0F, 2000.0F, 50.0F),
         GRAPPLING_HOOK_DELAY(true, false, 1500.0F, 2000.0F, 50.0F),
         ZEALOT_RESPAWN_DELAY(true, false, 10000.0F, 15000.0F, 50.0F),
+        ITEM_RARITY_OPACITY(true, false, 1.0F, 100.0F, 1.0F),
         ;
 
         private final boolean isFloat;

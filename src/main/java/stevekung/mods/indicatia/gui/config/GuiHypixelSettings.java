@@ -32,6 +32,8 @@ public class GuiHypixelSettings extends GuiScreen
         OPTIONS.add(ExtendedConfig.Options.RARE_DROP_MODE);
         OPTIONS.add(ExtendedConfig.Options.GLOWING_DRAGON_ARMOR);
         OPTIONS.add(ExtendedConfig.Options.PLACED_SUMMONING_EYE_TRACKER);
+        OPTIONS.add(ExtendedConfig.Options.SHOW_ITEM_RARITY);
+        OPTIONS.add(ExtendedConfig.Options.ITEM_RARITY_OPACITY);
     }
 
     public GuiHypixelSettings(GuiScreen parent)

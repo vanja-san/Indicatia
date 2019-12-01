@@ -154,6 +154,8 @@ visit_island_mode.extended_config=Visit Island Mode
 rare_drop_mode.extended_config=Rare Drop Mode
 glowing_dragon_armor.extended_config=Glowing Dragon Armor
 placed_summoning_eye_tracker.extended_config=Placed Summoning Eye Tracker
+show_item_rarity.extended_config=Show Item Rarity
+item_rarity_opacity.extended_config=Item Rarity Opacity
 
 # MESSAGE
 message.toggle_sprint_enabled=Enabled Toggle Sprint

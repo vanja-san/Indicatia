@@ -3,8 +3,6 @@ package stevekung.mods.indicatia.mixin;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.input.Keyboard;
@@ -29,8 +27,6 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.play.client.C14PacketTabComplete;
 import net.minecraft.util.*;
 import net.minecraftforge.client.ClientCommandHandler;
@@ -40,9 +36,7 @@ import stevekung.mods.indicatia.event.IndicatiaEventHandler;
 import stevekung.mods.indicatia.gui.GuiNumberField;
 import stevekung.mods.indicatia.integration.SkyBlockAddonsBackpack;
 import stevekung.mods.indicatia.integration.SkyblockAddonsGuiChest;
-import stevekung.mods.indicatia.utils.ColorUtils;
 import stevekung.mods.indicatia.utils.ITradeGUI;
-import stevekung.mods.indicatia.utils.SearchMode;
 
 @Mixin(GuiChest.class)
 public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
@@ -58,8 +52,6 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
     private GuiTextField textFieldMatch = null;
     private GuiTextField textFieldExclusions = null;
     private GuiNumberField priceSearch = null;
-    private SearchMode mode = SearchMode.SIMPLE;
-
     @Shadow
     private IInventory lowerChestInventory;
 
@@ -174,10 +166,6 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
             if (this.isOnSkyBlockOrModLoaded())
             {
                 this.chest.drawSBASlot(this.mc, this, slot);
-            }
-            if (this.isAuctionBrowser())
-            {
-                this.drawBids(slot);
             }
 
             if (this.isMouseOverSlot(slot, mouseX, mouseY) && slot.canBeHovered())
@@ -529,6 +517,12 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
         }
     }
 
+    @Override
+    public GuiNumberField getNumberField()
+    {
+        return this.priceSearch;
+    }
+
     private void getSentHistory(int msgPos)
     {
         int i = this.sentHistoryCursor + msgPos;
@@ -630,94 +624,6 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
         return IndicatiaMod.isSkyblockAddonsLoaded && HypixelEventHandler.isSkyBlock;
     }
 
-    private void drawBids(Slot slot)
-    {
-        if (slot.getStack() != null && slot.getStack().hasTagCompound())
-        {
-            NBTTagCompound compound = slot.getStack().getTagCompound().getCompoundTag("display");
-
-            if (compound.getTagId("Lore") == 9)
-            {
-                NBTTagList list = compound.getTagList("Lore", 8);
-
-                if (list.tagCount() > 0)
-                {
-                    for (int j1 = 0; j1 < list.tagCount(); ++j1)
-                    {
-                        int slotLeft = slot.xDisplayPosition;
-                        int slotTop = slot.yDisplayPosition;
-                        int slotRight = slotLeft + 16;
-                        int slotBottom = slotTop + 16;
-                        String lore = EnumChatFormatting.getTextWithoutFormattingCodes(list.getStringTagAt(j1));
-                        Matcher matcher = Pattern.compile("(?:Top|Starting) bid: (?<coin>[0-9,]+) coins").matcher(lore);
-                        int red = ColorUtils.to32BitColor(128, 255, 85, 85);
-                        int green = ColorUtils.to32BitColor(128, 85, 255, 85);
-                        int yellow = ColorUtils.to32BitColor(128, 255, 255, 85);
-
-                        if (this.priceSearch.getText().isEmpty())
-                        {
-                            if (lore.startsWith("Starting bid:"))
-                            {
-                                this.drawGradientRect(slotLeft, slotTop, slotRight, slotBottom, green, green);
-                            }
-                            else if (lore.startsWith("Bidder:"))
-                            {
-                                this.drawGradientRect(slotLeft, slotTop, slotRight, slotBottom, red, red);
-                            }
-                        }
-                        else
-                        {
-                            try
-                            {
-                                int priceMin = 0;
-                                int priceMax = 0;
-                                int moneyFromText = 0;
-
-                                if (matcher.matches())
-                                {
-                                    String[] priceSplit = IndicatiaEventHandler.auctionPrice.split("\\.\\.");
-                                    int moneyFromAh = Integer.parseInt(matcher.group("coin").replaceAll("[^\\d.]+", ""));
-
-                                    if (IndicatiaEventHandler.auctionPrice.matches("[\\d]+\\.\\.[\\d]+"))
-                                    {
-                                        priceMin = Integer.parseInt(priceSplit[0]);
-                                        priceMax = Integer.parseInt(priceSplit[1]);
-                                        this.mode = SearchMode.RANGED;
-                                    }
-                                    else if (IndicatiaEventHandler.auctionPrice.matches("[\\d]+\\.\\."))
-                                    {
-                                        priceMin = Integer.parseInt(IndicatiaEventHandler.auctionPrice.replaceAll("\\.\\.", ""));
-                                        this.mode = SearchMode.MIN;
-                                    }
-                                    else if (IndicatiaEventHandler.auctionPrice.matches("\\.\\.[\\d]+"))
-                                    {
-                                        priceMax = Integer.parseInt(IndicatiaEventHandler.auctionPrice.replaceAll("\\.\\.", ""));
-                                        this.mode = SearchMode.MAX;
-                                    }
-                                    else
-                                    {
-                                        moneyFromText = Integer.parseInt(IndicatiaEventHandler.auctionPrice);
-                                        this.mode = SearchMode.SIMPLE;
-                                    }
-
-                                    if (lore.startsWith("Top bid:"))
-                                    {
-                                        this.checkCondition(moneyFromText, moneyFromAh, priceMin, priceMax, slotLeft, slotTop, slotRight, slotBottom, yellow, red);
-                                    }
-                                    else if (lore.startsWith("Starting bid:"))
-                                    {
-                                        this.checkCondition(moneyFromText, moneyFromAh, priceMin, priceMax, slotLeft, slotTop, slotRight, slotBottom, green, red);
-                                    }
-                                }
-                            }
-                            catch (Exception e) {}
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     private void drawChat()
     {
         if (this.mc.gameSettings.chatVisibility != EntityPlayer.EnumChatVisibility.HIDDEN)
@@ -766,54 +672,6 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
                 }
                 GlStateManager.popMatrix();
             }
-        }
-    }
-
-    private void checkCondition(int moneyFromText, int moneyFromAh, int priceMin, int priceMax, int slotLeft, int slotTop, int slotRight, int slotBottom, int color1, int color2)
-    {
-        switch (this.mode)
-        {
-        default:
-        case SIMPLE:
-            if (moneyFromText == moneyFromAh)
-            {
-                this.drawGradientRect(slotLeft, slotTop, slotRight, slotBottom, color1, color1);
-            }
-            else
-            {
-                this.drawGradientRect(slotLeft, slotTop, slotRight, slotBottom, color2, color2);
-            }
-            break;
-        case MIN:
-            if (moneyFromAh >= priceMin)
-            {
-                this.drawGradientRect(slotLeft, slotTop, slotRight, slotBottom, color1, color1);
-            }
-            else
-            {
-                this.drawGradientRect(slotLeft, slotTop, slotRight, slotBottom, color2, color2);
-            }
-            break;
-        case MAX:
-            if (moneyFromAh <= priceMax)
-            {
-                this.drawGradientRect(slotLeft, slotTop, slotRight, slotBottom, color1, color1);
-            }
-            else
-            {
-                this.drawGradientRect(slotLeft, slotTop, slotRight, slotBottom, color2, color2);
-            }
-            break;
-        case RANGED:
-            if (moneyFromAh >= priceMin && moneyFromAh <= priceMax)
-            {
-                this.drawGradientRect(slotLeft, slotTop, slotRight, slotBottom, color1, color1);
-            }
-            else
-            {
-                this.drawGradientRect(slotLeft, slotTop, slotRight, slotBottom, color2, color2);
-            }
-            break;
         }
     }
 }
