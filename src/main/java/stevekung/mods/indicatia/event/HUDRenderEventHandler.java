@@ -382,6 +382,11 @@ public class HUDRenderEventHandler
         if (event.entity instanceof EntityDragon)
         {
             this.foundDragon = true;
+
+            if (ExtendedConfig.instance.showHitboxWhenDragonSpawned)
+            {
+                this.mc.getRenderManager().setDebugBoundingBox(true);
+            }
         }
     }
 
@@ -391,6 +396,11 @@ public class HUDRenderEventHandler
         if (event.entity instanceof EntityDragon)
         {
             this.foundDragon = false;
+
+            if (ExtendedConfig.instance.showHitboxWhenDragonSpawned)
+            {
+                this.mc.getRenderManager().setDebugBoundingBox(false);
+            }
         }
     }
 

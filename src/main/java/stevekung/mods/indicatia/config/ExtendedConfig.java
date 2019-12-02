@@ -134,6 +134,8 @@ public class ExtendedConfig
     public int chatMode = 0;
     public boolean placedSummoningEyeTracker = false;
     public boolean showItemRarity = true;
+    public boolean showDragonHitboxOnly = false;
+    public boolean showHitboxWhenDragonSpawned = false;
     public int itemRarityOpacity = 75;
 
     private ExtendedConfig() {}
@@ -256,6 +258,8 @@ public class ExtendedConfig
             this.glowingDragonArmor = ExtendedConfig.getBoolean(nbt, "GlowingDragonArmor", this.glowingDragonArmor);
             this.placedSummoningEyeTracker = ExtendedConfig.getBoolean(nbt, "PlacedSummoningEyeTracker", this.placedSummoningEyeTracker);
             this.showItemRarity = ExtendedConfig.getBoolean(nbt, "ShowItemRarity", this.showItemRarity);
+            this.showDragonHitboxOnly = ExtendedConfig.getBoolean(nbt, "ShowDragonHitboxOnly", this.showDragonHitboxOnly);
+            this.showHitboxWhenDragonSpawned = ExtendedConfig.getBoolean(nbt, "ShowHitboxWhenDragonSpawned", this.showHitboxWhenDragonSpawned);
 
             LoggerIN.info("Loading extended config {}", ExtendedConfig.file.getPath());
         }
@@ -367,6 +371,8 @@ public class ExtendedConfig
             nbt.setBoolean("GlowingDragonArmor", this.glowingDragonArmor);
             nbt.setBoolean("PlacedSummoningEyeTracker", this.placedSummoningEyeTracker);
             nbt.setBoolean("ShowItemRarity", this.showItemRarity);
+            nbt.setBoolean("ShowDragonHitboxOnly", this.showDragonHitboxOnly);
+            nbt.setBoolean("ShowHitboxWhenDragonSpawned", this.showHitboxWhenDragonSpawned);
             nbt.setString("HypixelNickName", this.hypixelNickName);
             nbt.setInteger("SelectedHypixelMinigame", this.selectedHypixelMinigame);
             nbt.setInteger("HypixelMinigameScrollPos", this.hypixelMinigameScrollPos);
@@ -649,6 +655,14 @@ public class ExtendedConfig
         else if (options == ExtendedConfig.Options.SHOW_ITEM_RARITY)
         {
             this.showItemRarity = !this.showItemRarity;
+        }
+        else if (options == ExtendedConfig.Options.SHOW_DRAGON_HITBOX_ONLY)
+        {
+            this.showDragonHitboxOnly = !this.showDragonHitboxOnly;
+        }
+        else if (options == ExtendedConfig.Options.SHOW_HITBOX_WHEN_DRAGON_SPAWNED)
+        {
+            this.showHitboxWhenDragonSpawned = !this.showHitboxWhenDragonSpawned;
         }
     }
 
@@ -933,6 +947,10 @@ public class ExtendedConfig
             return this.placedSummoningEyeTracker;
         case SHOW_ITEM_RARITY:
             return this.showItemRarity;
+        case SHOW_DRAGON_HITBOX_ONLY:
+            return this.showDragonHitboxOnly;
+        case SHOW_HITBOX_WHEN_DRAGON_SPAWNED:
+            return this.showHitboxWhenDragonSpawned;
         default:
             return false;
         }
@@ -1109,6 +1127,8 @@ public class ExtendedConfig
         GLOWING_DRAGON_ARMOR(false, true),
         PLACED_SUMMONING_EYE_TRACKER(false, true),
         SHOW_ITEM_RARITY(false, true),
+        SHOW_DRAGON_HITBOX_ONLY(false, true),
+        SHOW_HITBOX_WHEN_DRAGON_SPAWNED(false, true),
         JUNGLE_AXE_DELAY(true, false, 1500.0F, 2000.0F, 50.0F),
         GRAPPLING_HOOK_DELAY(true, false, 1500.0F, 2000.0F, 50.0F),
         ZEALOT_RESPAWN_DELAY(true, false, 10000.0F, 15000.0F, 50.0F),

@@ -34,6 +34,8 @@ public class GuiHypixelSettings extends GuiScreen
         OPTIONS.add(ExtendedConfig.Options.PLACED_SUMMONING_EYE_TRACKER);
         OPTIONS.add(ExtendedConfig.Options.SHOW_ITEM_RARITY);
         OPTIONS.add(ExtendedConfig.Options.ITEM_RARITY_OPACITY);
+        OPTIONS.add(ExtendedConfig.Options.SHOW_HITBOX_WHEN_DRAGON_SPAWNED);
+        OPTIONS.add(ExtendedConfig.Options.SHOW_DRAGON_HITBOX_ONLY);
     }
 
     public GuiHypixelSettings(GuiScreen parent)
