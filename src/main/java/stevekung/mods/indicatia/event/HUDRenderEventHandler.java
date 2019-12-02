@@ -29,10 +29,10 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import stevekung.mods.indicatia.config.ConfigManagerIN;
 import stevekung.mods.indicatia.config.EnumEquipment;
 import stevekung.mods.indicatia.config.ExtendedConfig;
@@ -62,25 +62,6 @@ public class HUDRenderEventHandler
     {
         this.mc = Minecraft.getMinecraft();
         this.toastGui = new GuiToast(this.mc);
-    }
-
-    @SubscribeEvent
-    public void onClientTick(ClientTickEvent event)
-    {
-        if (this.mc.thePlayer != null)
-        {
-            for (Entity entity : this.mc.theWorld.loadedEntityList)
-            {
-                if (entity instanceof EntityDragon)
-                {
-                    this.foundDragon = true;
-                }
-                else
-                {
-                    this.foundDragon = false;
-                }
-            }
-        }
     }
 
     @SubscribeEvent
@@ -398,12 +379,25 @@ public class HUDRenderEventHandler
         {
             this.recentlyLoadedChunks.clear();
         }
+        if (event.entity instanceof EntityDragon)
+        {
+            this.foundDragon = true;
+        }
+    }
+
+    @SubscribeEvent
+    public void onLivingDeath(LivingDeathEvent event)
+    {
+        if (event.entity instanceof EntityDragon)
+        {
+            this.foundDragon = false;
+        }
     }
 
     @SubscribeEvent
     public void onChunkLoad(ChunkEvent.Load event)
     {
-        if (HypixelEventHandler.isSkyBlock)
+        if (HypixelEventHandler.isSkyBlock && HypixelEventHandler.SKY_BLOCK_LOCATION == SkyBlockLocation.DRAGON_NEST)
         {
             CoordsPair coords = new CoordsPair(event.getChunk().xPosition, event.getChunk().zPosition);
             this.recentlyLoadedChunks.add(coords);
