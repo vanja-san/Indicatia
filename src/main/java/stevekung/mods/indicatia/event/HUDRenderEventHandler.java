@@ -229,7 +229,7 @@ public class HUDRenderEventHandler
                     rightInfo.add(InfoUtils.INSTANCE.getMoonPhase(this.mc));
                 }
 
-                if (ExtendedConfig.instance.placedSummoningEyeTracker && (HypixelEventHandler.SKY_BLOCK_LOCATION == SkyBlockLocation.THE_END || HypixelEventHandler.SKY_BLOCK_LOCATION == SkyBlockLocation.DRAGON_NEST))
+                if (ExtendedConfig.instance.placedSummoningEyeTracker && HypixelEventHandler.SKY_BLOCK_LOCATION.isTheEnd())
                 {
                     int summoningEyeCount = 0;
 

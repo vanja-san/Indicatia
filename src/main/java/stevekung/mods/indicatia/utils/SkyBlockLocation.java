@@ -46,13 +46,18 @@ public enum SkyBlockLocation
         return this.location;
     }
 
-    public boolean isPublicIsland()
+    public boolean isHub()
     {
-        return this == VILLAGE || this == FARM || this == COAL_MINE || this == FOREST || this == RUINS || this == MOUNTAIN || this == HIGH_LEVEL || this == WILDERNESS || this == FISHERMAN_HUT || this == COLOSSEUM || this == GRAVEYARD || this.isInsideBuildingOnPublicIsland();
+        return this == VILLAGE || this == FARM || this == COAL_MINE || this == FOREST || this == RUINS || this == MOUNTAIN || this == HIGH_LEVEL || this == WILDERNESS || this == FISHERMAN_HUT || this == COLOSSEUM || this == GRAVEYARD || this.isInsideBuildingOnHub();
     }
 
-    public boolean isInsideBuildingOnPublicIsland()
+    public boolean isInsideBuildingOnHub()
     {
         return this == FLOWER_HOUSE || this == LIBRARY || this == BANK || this == AUCTION_HOUSE || this == TAVERN || this == FASHION_SHOP;
+    }
+
+    public boolean isTheEnd()
+    {
+        return this == THE_END || this == DRAGON_NEST;
     }
 }

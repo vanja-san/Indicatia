@@ -242,7 +242,7 @@ public class IndicatiaEventHandler
             if (event.gui instanceof GuiInventory)
             {
                 GuiButton craftingButton = new GuiButtonItem(1000, width + 10, height + 86, width + 70, Item.getItemFromBlock(Blocks.crafting_table));
-                craftingButton.visible = HypixelEventHandler.SKY_BLOCK_LOCATION.isPublicIsland();
+                craftingButton.visible = HypixelEventHandler.SKY_BLOCK_LOCATION.isHub();
                 event.buttonList.add(craftingButton);
                 event.buttonList.add(new GuiButtonItem(999, width - 9, height + 86, width + 51, Item.getItemFromBlock(Blocks.ender_chest)));
             }
@@ -250,7 +250,7 @@ public class IndicatiaEventHandler
             {
                 GuiChest chest = (GuiChest)event.gui;
                 IInventory lowerChestInventory = chest.lowerChestInventory;
-                GuiButton craftingButton = new GuiButtonItem(1000, width + 88, height + 65, Item.getItemFromBlock(Blocks.crafting_table), HypixelEventHandler.SKY_BLOCK_LOCATION.isPublicIsland());
+                GuiButton craftingButton = new GuiButtonItem(1000, width + 88, height + 65, Item.getItemFromBlock(Blocks.crafting_table), HypixelEventHandler.SKY_BLOCK_LOCATION.isHub());
 
                 if (IndicatiaEventHandler.isSuitableForGUI(IndicatiaEventHandler.CHATABLE_LIST, lowerChestInventory))
                 {
@@ -269,9 +269,9 @@ public class IndicatiaEventHandler
                 }
                 else if (lowerChestInventory.getDisplayName().getUnformattedText().equals("Ender Chest"))
                 {
-                    craftingButton = new GuiButtonItem(1000, width + 88, height + 47, Item.getItemFromBlock(Blocks.crafting_table), HypixelEventHandler.SKY_BLOCK_LOCATION.isPublicIsland());
+                    craftingButton = new GuiButtonItem(1000, width + 88, height + 47, Item.getItemFromBlock(Blocks.crafting_table), HypixelEventHandler.SKY_BLOCK_LOCATION.isHub());
                     event.buttonList.add(craftingButton);
-                    event.buttonList.add(new GuiButtonItem(1001, width + 88, height + (HypixelEventHandler.SKY_BLOCK_LOCATION.isPublicIsland() ? 65 : 47), Items.nether_star, "SkyBlock Menu"));
+                    event.buttonList.add(new GuiButtonItem(1001, width + 88, height + (HypixelEventHandler.SKY_BLOCK_LOCATION.isHub() ? 65 : 47), Items.nether_star, "SkyBlock Menu"));
                 }
             }
         }
