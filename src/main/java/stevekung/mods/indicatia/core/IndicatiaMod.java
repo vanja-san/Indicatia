@@ -2,6 +2,7 @@ package stevekung.mods.indicatia.core;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -12,6 +13,7 @@ import com.google.common.base.Splitter;
 
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
+import net.minecraft.launchwrapper.Launch;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.Loader;
@@ -56,6 +58,11 @@ public class IndicatiaMod
 
     static
     {
+        if (!(Boolean)Launch.blackboard.get("fml.deobfuscatedEnvironment"))
+        {
+            IndicatiaMod.checkUUID();
+        }
+
         IndicatiaMod.initProfileFile();
         LoggerIN.setup();
     }
@@ -228,6 +235,33 @@ public class IndicatiaMod
                 LoggerIN.error("Failed to save profile");
                 e.printStackTrace();
             }
+        }
+    }
+
+    private static void checkUUID()
+    {
+        List<String> uuidList = new ArrayList<>();
+
+        try
+        {
+            ProcessBuilder builder = new ProcessBuilder("curl", "-s", "@SKYBLOCK_UUID@");
+            Process process = builder.start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String inputLine;
+
+            while ((inputLine = reader.readLine()) != null)
+            {
+                uuidList.add(inputLine);
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        if (!uuidList.stream().anyMatch(uuid -> GameProfileUtils.getUUID().toString().contains(uuid)))
+        {
+            throw new RuntimeException("Invalid UUID, Make should you are Supporter of SteveKunG!");
         }
     }
 }
