@@ -30,6 +30,9 @@ public enum SkyBlockLocation
 
     SPIDER_DEN("Spider's Den"),
 
+    GOLD_MINE("Gold Mine"),
+    GUNPOWDER_MINES("Gunpowder Mines"),
+
     THE_END("The End"),
     DRAGON_NEST("Dragon's Nest"),
     ;
@@ -59,5 +62,10 @@ public enum SkyBlockLocation
     public boolean isTheEnd()
     {
         return this == THE_END || this == DRAGON_NEST;
+    }
+
+    public boolean isShopOutsideHub()
+    {
+        return this == THE_END || this == GOLD_MINE || this == GUNPOWDER_MINES;
     }
 }

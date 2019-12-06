@@ -261,6 +261,7 @@ public class IndicatiaEventHandler
                 {
                     event.buttonList.add(new GuiButtonItem(999, width + 88, height + 47, Item.getItemFromBlock(Blocks.ender_chest)));
                     event.buttonList.add(craftingButton);
+                    event.buttonList.add(new GuiButtonItem(1001, width + 88, height + 65, width + 88, Items.nether_star, HypixelEventHandler.SKY_BLOCK_LOCATION.isShopOutsideHub(), "SkyBlock Menu"));
                 }
                 else if (lowerChestInventory.getDisplayName().getUnformattedText().equals("Craft Item"))
                 {
