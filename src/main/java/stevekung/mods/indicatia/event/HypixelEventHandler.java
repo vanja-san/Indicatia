@@ -9,6 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.input.Keyboard;
 
 import com.google.common.collect.Iterables;
@@ -218,6 +219,24 @@ public class HypixelEventHandler
                 {
                     ExtendedConfig.instance.hypixelNickName = "";
                     ExtendedConfig.instance.save();
+                }
+                else if (message.startsWith("Sending to server"))
+                {
+                    InfoUtils.INSTANCE.schedule(() ->
+                    {
+                        long day = this.mc.theWorld.getWorldTime() / 24000L;
+                        EnumChatFormatting dayColor = day >= 29 ? EnumChatFormatting.RED : EnumChatFormatting.GREEN;
+
+                        if (HypixelEventHandler.isSkyBlock)
+                        {
+                            ClientUtils.printClientMessage(JsonUtils.create("Current server day: ").setChatStyle(JsonUtils.yellow().setBold(true)).appendSibling(JsonUtils.create(String.valueOf(day)).setChatStyle(JsonUtils.style().setBold(false).setColor(dayColor))));
+                        }
+                    }, 3000);
+                }
+
+                if (StringUtils.isBlank(message))
+                {
+                    event.message = null;
                 }
 
                 if (HypixelEventHandler.LEFT_PARTY_MESSAGE.stream().anyMatch(pmess -> message.equals(pmess)))
