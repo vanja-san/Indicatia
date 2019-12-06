@@ -34,9 +34,11 @@ import stevekung.mods.indicatia.core.IndicatiaMod;
 import stevekung.mods.indicatia.event.HypixelEventHandler;
 import stevekung.mods.indicatia.event.IndicatiaEventHandler;
 import stevekung.mods.indicatia.gui.GuiNumberField;
+import stevekung.mods.indicatia.handler.KeyBindingHandler;
 import stevekung.mods.indicatia.integration.SkyBlockAddonsBackpack;
 import stevekung.mods.indicatia.integration.SkyblockAddonsGuiChest;
 import stevekung.mods.indicatia.utils.ITradeGUI;
+import stevekung.mods.indicatia.utils.SkyBlockRecipeViewer;
 
 @Mixin(GuiChest.class)
 public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
@@ -328,6 +330,12 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
     @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
+        if (this.theSlot != null && keyCode == KeyBindingHandler.KEY_SB_VIEW_RECIPE.getKeyCode())
+        {
+            SkyBlockRecipeViewer.viewRecipe(this.mc.thePlayer, this.theSlot, keyCode);
+            return;
+        }
+
         if (this.isChatableGui())
         {
             if ((keyCode == 1 || keyCode == this.mc.gameSettings.keyBindInventory.getKeyCode()) && !this.inputField.isFocused())

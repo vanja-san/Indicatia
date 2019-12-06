@@ -25,10 +25,12 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
 import stevekung.mods.indicatia.config.ExtendedConfig;
 import stevekung.mods.indicatia.event.IndicatiaEventHandler;
+import stevekung.mods.indicatia.handler.KeyBindingHandler;
 import stevekung.mods.indicatia.utils.ColorUtils;
 import stevekung.mods.indicatia.utils.ColorUtils.RGB;
 import stevekung.mods.indicatia.utils.ITradeGUI;
 import stevekung.mods.indicatia.utils.SearchMode;
+import stevekung.mods.indicatia.utils.SkyBlockRecipeViewer;
 
 @Mixin(GuiContainer.class)
 public abstract class GuiContainerMixin extends GuiScreen
@@ -38,6 +40,16 @@ public abstract class GuiContainerMixin extends GuiScreen
     private static final List<String> IGNORE_TOOLTIPS = new ArrayList<>(Arrays.asList(" "));
     private static final ResourceLocation RARITY = new ResourceLocation("indicatia:textures/gui/rarity.png");
     private SearchMode mode = SearchMode.SIMPLE;
+
+    @Inject(method = "keyTyped(CI)V", cancellable = true, at = @At("HEAD"))
+    private void keyTyped(char typedChar, int keyCode, CallbackInfo info)
+    {
+        if (this.that.theSlot != null && keyCode == KeyBindingHandler.KEY_SB_VIEW_RECIPE.getKeyCode())
+        {
+            SkyBlockRecipeViewer.viewRecipe(this.that.mc.thePlayer, this.that.theSlot, keyCode);
+            info.cancel();
+        }
+    }
 
     @Inject(method = "handleMouseClick(Lnet/minecraft/inventory/Slot;III)V", cancellable = true, at = @At("HEAD"))
     private void handleMouseClick(Slot slot, int slotId, int clickedButton, int clickType, CallbackInfo info)
