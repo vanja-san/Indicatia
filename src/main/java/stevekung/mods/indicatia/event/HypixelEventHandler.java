@@ -43,6 +43,7 @@ import stevekung.mods.indicatia.config.ExtendedConfig;
 import stevekung.mods.indicatia.config.RareDropMode;
 import stevekung.mods.indicatia.config.VisitIslandMode;
 import stevekung.mods.indicatia.gui.AuctionPriceSelectionList;
+import stevekung.mods.indicatia.gui.AuctionQuerySelectionList;
 import stevekung.mods.indicatia.gui.toasts.ItemDropsToast;
 import stevekung.mods.indicatia.gui.toasts.VisitIslandToast;
 import stevekung.mods.indicatia.handler.KeyBindingHandler;
@@ -303,7 +304,7 @@ public class HypixelEventHandler
                     {
                         String type = coinsCatchPattern.group("type");
                         String coin = coinsCatchPattern.group("coin");
-                        HUDRenderEventHandler.INSTANCE.getToastGui().add(new ItemDropsToast(HypixelEventHandler.getCoinItemStack(coin), type.equals("GOOD") ? ItemDropsToast.Type.GOOD_CATCH_COINS : ItemDropsToast.Type.GREAT_CATCH_COINS));
+                        HUDRenderEventHandler.INSTANCE.getToastGui().add(new ItemDropsToast(HypixelEventHandler.getCoinItemStack(coin, type.equals("GOOD") ? CoinType.TYPE_1 : CoinType.TYPE_2), type.equals("GOOD") ? ItemDropsToast.Type.GOOD_CATCH_COINS : ItemDropsToast.Type.GREAT_CATCH_COINS));
                         LoggerIN.logToast(message);
                         event.message = null;
                     }
@@ -372,6 +373,7 @@ public class HypixelEventHandler
     public void onDisconnectedFromServerEvent(FMLNetworkEvent.ClientDisconnectionFromServerEvent event)
     {
         AuctionPriceSelectionList.getAuctionPrice().clear();
+        AuctionQuerySelectionList.getAuctionQuery().clear();
     }
 
     @SubscribeEvent
@@ -474,16 +476,16 @@ public class HypixelEventHandler
         this.previousInventory = newInventory;
     }
 
-    private static ItemStack getCoinItemStack(String coin)
+    private static ItemStack getCoinItemStack(String coin, CoinType type)
     {
         ItemStack itemStack = new ItemStack(Items.skull, 1, 3);
         NBTTagCompound compound = new NBTTagCompound();
         NBTTagCompound properties = new NBTTagCompound();
-        properties.setString("Id", "2070f6cb-f5db-367a-acd0-64d39a7e5d1b");
+        properties.setString("Id", type.getId());
         NBTTagCompound texture = new NBTTagCompound();
         NBTTagList list = new NBTTagList();
         NBTTagCompound value = new NBTTagCompound();
-        value.setString("Value", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNTM4MDcxNzIxY2M1YjRjZDQwNmNlNDMxYTEzZjg2MDgzYTg5NzNlMTA2NGQyZjg4OTc4Njk5MzBlZTZlNTIzNyJ9fX0=");
+        value.setString("Value", type.getValue());
         list.appendTag(value);
         texture.setTag("textures", list);
         properties.setTag("Properties", texture);
@@ -655,6 +657,31 @@ public class HypixelEventHandler
             dates.add(EnumChatFormatting.YELLOW + date2);
             tooltip.remove(indexToRemove);
             tooltip.addAll(indexToRemove, dates);
+        }
+    }
+
+    private enum CoinType
+    {
+        TYPE_1("2070f6cb-f5db-367a-acd0-64d39a7e5d1b", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNTM4MDcxNzIxY2M1YjRjZDQwNmNlNDMxYTEzZjg2MDgzYTg5NzNlMTA2NGQyZjg4OTc4Njk5MzBlZTZlNTIzNyJ9fX0="),
+        TYPE_2("8ce61ae1-7cb4-3bdd-b1be-448c6fabb355", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZGZhMDg3ZWI3NmU3Njg3YTgxZTRlZjgxYTdlNjc3MjY0OTk5MGY2MTY3Y2ViMGY3NTBhNGM1ZGViNmM0ZmJhZCJ9fX0=");
+
+        private final String id;
+        private final String value;
+
+        private CoinType(String id, String value)
+        {
+            this.id = id;
+            this.value = value;
+        }
+
+        public String getId()
+        {
+            return this.id;
+        }
+
+        public String getValue()
+        {
+            return this.value;
         }
     }
 
