@@ -27,6 +27,8 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.play.client.C14PacketTabComplete;
 import net.minecraft.util.*;
 import net.minecraftforge.client.ClientCommandHandler;
@@ -54,6 +56,7 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
     private GuiTextField textFieldMatch = null;
     private GuiTextField textFieldExclusions = null;
     private GuiNumberField priceSearch = null;
+
     @Shadow
     private IInventory lowerChestInventory;
 
@@ -512,6 +515,33 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
     @Override
     protected void handleMouseClick(Slot slot, int slotId, int clickedButton, int clickType)
     {
+        if (slot != null && clickedButton == 2 && clickType == 3 && this.isAuctionBrowser())
+        {
+            if (slot.getStack() != null && slot.getStack().hasTagCompound())
+            {
+                NBTTagCompound compound = slot.getStack().getTagCompound().getCompoundTag("display");
+
+                if (compound.getTagId("Lore") == 9)
+                {
+                    NBTTagList list = compound.getTagList("Lore", 8);
+
+                    if (list.tagCount() > 0)
+                    {
+                        for (int j1 = 0; j1 < list.tagCount(); ++j1)
+                        {
+                            String lore = EnumChatFormatting.getTextWithoutFormattingCodes(list.getStringTagAt(j1));
+
+                            if (lore.startsWith("Seller: "))
+                            {
+                                this.mc.thePlayer.sendChatMessage("/ah " + lore.replaceAll("Seller: ?(?:\\[VIP?\\u002B{0,1}\\]|\\[MVP?\\u002B{0,2}\\]|\\[YOUTUBE\\]){0,1} ", ""));
+                            }
+                        }
+                    }
+                }
+            }
+            return;
+        }
+
         if (this.isOnSkyBlockOrModLoaded())
         {
             if (this.chest.handleMouseClick(slot, this.mc, this.inventorySlots, this.lowerChestInventory, clickType))
