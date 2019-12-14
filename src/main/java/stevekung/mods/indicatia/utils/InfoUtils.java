@@ -16,6 +16,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItemFrame;
 import net.minecraft.util.*;
 import stevekung.mods.indicatia.config.ExtendedConfig;
+import stevekung.mods.indicatia.event.HypixelEventHandler;
 import stevekung.mods.indicatia.event.IndicatiaEventHandler;
 
 public class InfoUtils
@@ -29,6 +30,10 @@ public class InfoUtils
     {
         NetworkPlayerInfo info = Minecraft.getMinecraft().getNetHandler().getPlayerInfo(Minecraft.getMinecraft().thePlayer.getUniqueID());
 
+        if (HypixelEventHandler.isSkyBlock)
+        {
+            return IndicatiaEventHandler.currentServerPing;
+        }
         if (info != null)
         {
             if (info.getResponseTime() > 0)
