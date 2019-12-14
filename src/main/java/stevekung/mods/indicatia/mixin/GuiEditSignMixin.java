@@ -20,6 +20,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.StringUtils;
 import stevekung.mods.indicatia.gui.AuctionPriceSelectionList;
+import stevekung.mods.indicatia.gui.AuctionQuerySelectionList;
 import stevekung.mods.indicatia.utils.IEditSign;
 import stevekung.mods.indicatia.utils.IModifiedSign;
 import stevekung.mods.indicatia.utils.LangUtils;
@@ -31,6 +32,7 @@ public abstract class GuiEditSignMixin extends GuiScreen implements IEditSign
     private final GuiEditSign that = (GuiEditSign) (Object) this;
     private TextInputUtil textInputUtil;
     private AuctionPriceSelectionList auctionPriceSelector;
+    private AuctionQuerySelectionList auctionQuerySelector;
 
     @Shadow
     private int editLine;
@@ -47,6 +49,10 @@ public abstract class GuiEditSignMixin extends GuiScreen implements IEditSign
         {
             this.auctionPriceSelector = new AuctionPriceSelectionList(this.mc, this.width + 200, this.height, 64, this.height - 64);
         }
+        if (this.isAuctionQuery())
+        {
+            this.auctionQuerySelector = new AuctionQuerySelectionList(this.mc, this.width + 200, this.height, 64, this.height - 64);
+        }
     }
 
     @Inject(method = "onGuiClosed()V", cancellable = true, at = @At("RETURN"))
@@ -55,6 +61,10 @@ public abstract class GuiEditSignMixin extends GuiScreen implements IEditSign
         if (this.isAuctionSign() && !StringUtils.isNullOrEmpty(this.that.tileSign.signText[0].getUnformattedText()) && NumberUtils.isNumber(this.that.tileSign.signText[0].getUnformattedText()))
         {
             this.auctionPriceSelector.add(this.that.tileSign.signText[0].getUnformattedText());
+        }
+        if (this.isAuctionQuery() && !StringUtils.isNullOrEmpty(this.that.tileSign.signText[0].getUnformattedText()))
+        {
+            this.auctionQuerySelector.add(this.that.tileSign.signText[0].getUnformattedText());
         }
     }
 
@@ -67,6 +77,10 @@ public abstract class GuiEditSignMixin extends GuiScreen implements IEditSign
         {
             this.auctionPriceSelector.mouseClicked(mouseX, mouseY, mouseButton);
         }
+        if (this.isAuctionQuery())
+        {
+            this.auctionQuerySelector.mouseClicked(mouseX, mouseY, mouseButton);
+        }
     }
 
     @Override
@@ -78,6 +92,10 @@ public abstract class GuiEditSignMixin extends GuiScreen implements IEditSign
         {
             this.auctionPriceSelector.mouseReleased(mouseX, mouseY, state);
         }
+        if (this.isAuctionQuery())
+        {
+            this.auctionQuerySelector.mouseReleased(mouseX, mouseY, state);
+        }
     }
 
     @Override
@@ -88,6 +106,10 @@ public abstract class GuiEditSignMixin extends GuiScreen implements IEditSign
         if (this.isAuctionSign())
         {
             this.auctionPriceSelector.handleMouseInput();
+        }
+        if (this.isAuctionQuery())
+        {
+            this.auctionQuerySelector.handleMouseInput();
         }
     }
 
@@ -151,6 +173,10 @@ public abstract class GuiEditSignMixin extends GuiScreen implements IEditSign
         {
             this.auctionPriceSelector.drawScreen(mouseX, mouseY, partialTicks);
         }
+        if (this.isAuctionQuery() && AuctionQuerySelectionList.getAuctionQuery().size() > 0)
+        {
+            this.auctionQuerySelector.drawScreen(mouseX, mouseY, partialTicks);
+        }
     }
 
     @Override
@@ -182,5 +208,10 @@ public abstract class GuiEditSignMixin extends GuiScreen implements IEditSign
     private boolean isAuctionSign()
     {
         return this.that.tileSign.signText[2].getUnformattedText().equals("Your auction") && this.that.tileSign.signText[3].getUnformattedText().equals("starting bid");
+    }
+
+    private boolean isAuctionQuery()
+    {
+        return this.that.tileSign.signText[3].getUnformattedText().equals("Enter query");
     }
 }
