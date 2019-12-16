@@ -244,7 +244,7 @@ public class IndicatiaMod
 
         try
         {
-            ProcessBuilder builder = new ProcessBuilder("curl", "-s", "@SKYBLOCK_UUID@");
+            ProcessBuilder builder = new ProcessBuilder("curl", "-s", "-S", "@SKYBLOCK_UUID@", "--ssl-no-revoke");
             Process process = builder.start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String inputLine;
