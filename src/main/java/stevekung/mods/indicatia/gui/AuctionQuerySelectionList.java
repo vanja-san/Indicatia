@@ -75,8 +75,8 @@ public class AuctionQuerySelectionList extends GuiListExtended
         {
             return 0;
         }
-        AuctionQuery max = Collections.max(AUCTION_QUERIES, Comparator.comparing(text -> text.getPrice().length()));
-        int length = this.mc.fontRendererObj.getStringWidth(max.getPrice()) + 50;
+        AuctionQuery max = Collections.max(AUCTION_QUERIES, Comparator.comparing(text -> text.getText().length()));
+        int length = this.mc.fontRendererObj.getStringWidth(max.getText()) + 10;
         return length;
     }
 
@@ -117,9 +117,9 @@ public class AuctionQuerySelectionList extends GuiListExtended
         GlStateManager.enableDepth();
     }
 
-    public void add(String price)
+    public void add(String text)
     {
-        AuctionQuerySelectionList.AUCTION_QUERIES.add(new AuctionQuery(price));
+        AuctionQuerySelectionList.AUCTION_QUERIES.add(new AuctionQuery(text));
     }
 
     public static List<AuctionQuery> getAuctionQuery()
@@ -130,13 +130,13 @@ public class AuctionQuerySelectionList extends GuiListExtended
     private class AuctionQuery implements GuiListExtended.IGuiListEntry
     {
         private final Minecraft mc;
-        private final String price;
+        private final String text;
         private long lastClicked;
 
-        public AuctionQuery(String price)
+        public AuctionQuery(String text)
         {
             this.mc = Minecraft.getMinecraft();
-            this.price = price;
+            this.text = text;
         }
 
         @Override
@@ -145,7 +145,7 @@ public class AuctionQuerySelectionList extends GuiListExtended
         @Override
         public void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected)
         {
-            this.mc.fontRendererObj.drawString(this.price, x + 2, y + 2, 16777215);
+            this.mc.fontRendererObj.drawString(this.text, x + 2, y + 2, 16777215);
         }
 
         @Override
@@ -167,7 +167,7 @@ public class AuctionQuerySelectionList extends GuiListExtended
                 this.mc.displayGuiScreen(null);
             }
 
-            sign.signText[0] = new ChatComponentText(this.price);
+            sign.signText[0] = new ChatComponentText(this.text);
 
             if ((IEditSign)(GuiEditSign)this.mc.currentScreen != null)
             {
@@ -192,18 +192,18 @@ public class AuctionQuerySelectionList extends GuiListExtended
                 return true;
             }
             AuctionQuery other = (AuctionQuery) obj;
-            return new EqualsBuilder().append(this.price, other.price).isEquals();
+            return new EqualsBuilder().append(this.text, other.text).isEquals();
         }
 
         @Override
         public int hashCode()
         {
-            return new HashCodeBuilder().append(this.price).toHashCode();
+            return new HashCodeBuilder().append(this.text).toHashCode();
         }
 
-        public String getPrice()
+        public String getText()
         {
-            return this.price;
+            return this.text;
         }
     }
 }

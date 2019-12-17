@@ -76,7 +76,7 @@ public class AuctionPriceSelectionList extends GuiListExtended
             return 0;
         }
         AuctionPrice max = Collections.max(AUCTION_PRICES, Comparator.comparing(text -> text.getPrice().length()));
-        int length = this.mc.fontRendererObj.getStringWidth(max.getPrice()) + 50;
+        int length = this.mc.fontRendererObj.getStringWidth(max.getPrice()) + 12;
         return length;
     }
 
