@@ -55,7 +55,7 @@ public class ItemDropsToast implements IToast
         private final ItemStack itemStack;
         private final Type type;
 
-        private ItemDrop(ItemStack itemStack, Type type)
+        public ItemDrop(ItemStack itemStack, Type type)
         {
             this.itemStack = itemStack;
             this.type = type;
@@ -83,7 +83,11 @@ public class ItemDropsToast implements IToast
         GREAT_CATCH_COINS("GREAT CATCH!", "170,0,170"),
         SLAYER_RARE_DROP("RARE DROP!", "85,255,255"),
         SLAYER_VERY_RARE_DROP("VERY RARE DROP!", "85,85,255"),
-        SLAYER_CRAZY_RARE_DROP("CRAZY RARE DROP!", "255,85,255");
+        SLAYER_CRAZY_RARE_DROP("CRAZY RARE DROP!", "255,85,255"),
+        COMMON_GIFT("COMMON GIFT!", "255,255,255"),
+        SWEET_GIFT("SWEET GIFT!", "255,255,85"),
+        RARE_GIFT("RARE GIFT!", "85,85,255"),
+        SANTA_GIFT("SANTA GIFT!", "255,85,85");
 
         private final String name;
         private final String color;
