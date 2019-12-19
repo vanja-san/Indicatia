@@ -22,10 +22,10 @@ public class GiftToast implements IToast
     private long firstDrawTime;
     private boolean hasNewStacks;
 
-    public GiftToast(ItemStack itemStack, ItemDropsToast.Type rarity)
+    public GiftToast(ItemStack itemStack, ItemDropsToast.Type rarity, boolean santaGift)
     {
         this.rareDropOutput = new ItemDrop(itemStack, rarity);
-        this.texture = new ResourceLocation("indicatia:textures/gui/gift_toasts_" + Integer.valueOf(1 + this.rand.nextInt(2)) + ".png");
+        this.texture = new ResourceLocation("indicatia:textures/gui/gift_toasts_" + (santaGift ? "1" : Integer.valueOf(1 + this.rand.nextInt(2))) + ".png");
     }
 
     @Override
@@ -51,7 +51,7 @@ public class GiftToast implements IToast
             toastGui.mc.fontRendererObj.drawString(drop.getType().getColor() + JsonUtils.create(drop.getType().getName()).setChatStyle(JsonUtils.style().setBold(true)).getFormattedText(), 30, 7, 16777215);
             toastGui.mc.fontRendererObj.drawString(itemStack.getDisplayName(), 30, 18, ColorUtils.rgbToDecimal(255, 255, 255));
             HUDInfo.renderItem(itemStack, 8, 8);
-            return delta - this.firstDrawTime >= 15000L ? IToast.Visibility.HIDE : IToast.Visibility.SHOW;
+            return delta - this.firstDrawTime >= 10000L ? IToast.Visibility.HIDE : IToast.Visibility.SHOW;
         }
     }
 }

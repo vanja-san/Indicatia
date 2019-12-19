@@ -336,7 +336,7 @@ public class HypixelEventHandler
                         String type = coinsGiftPattern.group("type");
                         String coin = coinsGiftPattern.group("coin");
                         ItemDropsToast.Type rarity = type.equals("RARE") ? ItemDropsToast.Type.RARE_GIFT : type.equals("SWEET") ? ItemDropsToast.Type.SWEET_GIFT : ItemDropsToast.Type.COMMON_GIFT;
-                        HUDRenderEventHandler.INSTANCE.getToastGui().add(new GiftToast(HypixelEventHandler.getCoinItemStack(coin, CoinType.TYPE_1), rarity));
+                        HUDRenderEventHandler.INSTANCE.getToastGui().add(new GiftToast(HypixelEventHandler.getCoinItemStack(coin, CoinType.TYPE_1), rarity, false));
                         LoggerIN.logToast(message);
                         event.message = null;
                     }
@@ -346,7 +346,7 @@ public class HypixelEventHandler
                         String exp = skillExpGiftPattern.group("exp");
                         String skill = skillExpGiftPattern.group("skill");
                         ItemDropsToast.Type rarity = type.equals("RARE") ? ItemDropsToast.Type.RARE_GIFT : type.equals("SWEET") ? ItemDropsToast.Type.SWEET_GIFT : ItemDropsToast.Type.COMMON_GIFT;
-                        HUDRenderEventHandler.INSTANCE.getToastGui().add(new GiftToast(HypixelEventHandler.getExpItemStack(exp, skill), rarity));
+                        HUDRenderEventHandler.INSTANCE.getToastGui().add(new GiftToast(HypixelEventHandler.getExpItemStack(exp, skill), rarity, false));
                         LoggerIN.logToast(message);
                         event.message = null;
                     }
@@ -513,7 +513,7 @@ public class HypixelEventHandler
 
                         if (drop.getName().equals(newItemName))
                         {
-                            if (drop.getToastType() == ToastType.DROP ? HUDRenderEventHandler.INSTANCE.getToastGui().add(new ItemDropsToast(newItem, drop.getType())) : HUDRenderEventHandler.INSTANCE.getToastGui().add(new GiftToast(newItem, drop.getType())))
+                            if (drop.getToastType() == ToastType.DROP ? HUDRenderEventHandler.INSTANCE.getToastGui().add(new ItemDropsToast(newItem, drop.getType())) : HUDRenderEventHandler.INSTANCE.getToastGui().add(new GiftToast(newItem, drop.getType(), true)))
                             {
                                 iterator.remove();
                             }
