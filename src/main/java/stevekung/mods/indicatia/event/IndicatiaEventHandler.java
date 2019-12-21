@@ -48,10 +48,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import stevekung.mods.indicatia.config.ConfigManagerIN;
 import stevekung.mods.indicatia.config.ExtendedConfig;
 import stevekung.mods.indicatia.core.IndicatiaMod;
-import stevekung.mods.indicatia.gui.GuiButtonItem;
-import stevekung.mods.indicatia.gui.GuiButtonMojangStatus;
-import stevekung.mods.indicatia.gui.GuiConfirmDisconnect;
-import stevekung.mods.indicatia.gui.GuiMojangStatusChecker;
+import stevekung.mods.indicatia.gui.*;
 import stevekung.mods.indicatia.gui.config.GuiExtendedConfig;
 import stevekung.mods.indicatia.gui.config.GuiRenderPreview;
 import stevekung.mods.indicatia.handler.KeyBindingHandler;
@@ -195,9 +192,13 @@ public class IndicatiaEventHandler
     {
         if (KeyBindingHandler.KEY_QUICK_CONFIG.isKeyDown())
         {
-            GuiExtendedConfig config = new GuiExtendedConfig();
-            this.mc.displayGuiScreen(config);
+            this.mc.displayGuiScreen(new GuiExtendedConfig());
         }
+        else if (KeyBindingHandler.KEY_SB_API_VIEWER.isKeyDown())
+        {
+            this.mc.displayGuiScreen(new GuiSkyBlockAPIViewer());
+        }
+
         if (ExtendedConfig.instance.toggleSprintUseMode.equals("key_binding"))
         {
             String[] keyTS = ConfigManagerIN.keyToggleSprint.split(",");
