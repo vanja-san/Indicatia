@@ -1,6 +1,7 @@
 package stevekung.mods.indicatia.core;
 
 import java.io.*;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -244,9 +245,8 @@ public class IndicatiaMod
 
         try
         {
-            ProcessBuilder builder = new ProcessBuilder("curl", "-s", "-S", "@SKYBLOCK_UUID@", "--ssl-no-revoke");
-            Process process = builder.start();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            InputStream input = new URL("https://raw.githubusercontent.com/SteveKunG/SupporterData/master/skyblock_uuid").openStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(input));
             String inputLine;
 
             while ((inputLine = reader.readLine()) != null)
