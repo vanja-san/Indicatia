@@ -25,6 +25,7 @@ public enum SkyBlockLocation
     AUCTION_HOUSE("Auction House"),
     TAVERN("Tavern"),
     FASHION_SHOP("Fashion Shop"),
+    WIZARD_TOWER("Wizard Tower"),
 
     BLAZING_FORTRESS("Blazing Fortress"),
 
@@ -56,7 +57,7 @@ public enum SkyBlockLocation
 
     public boolean isInsideBuildingOnHub()
     {
-        return this == FLOWER_HOUSE || this == LIBRARY || this == BANK || this == AUCTION_HOUSE || this == TAVERN || this == FASHION_SHOP;
+        return this == FLOWER_HOUSE || this == LIBRARY || this == BANK || this == AUCTION_HOUSE || this == TAVERN || this == FASHION_SHOP || this == WIZARD_TOWER;
     }
 
     public boolean isTheEnd()

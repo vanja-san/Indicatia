@@ -76,7 +76,7 @@ public class AuctionQuerySelectionList extends GuiListExtended
             return 0;
         }
         AuctionQuery max = Collections.max(AUCTION_QUERIES, Comparator.comparing(text -> text.getText().length()));
-        int length = this.mc.fontRendererObj.getStringWidth(max.getText()) + 10;
+        int length = this.mc.fontRendererObj.getStringWidth(max.getText()) + 16;
         return length;
     }
 

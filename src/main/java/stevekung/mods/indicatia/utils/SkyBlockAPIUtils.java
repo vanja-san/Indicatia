@@ -15,6 +15,10 @@ import net.minecraft.nbt.NBTTagList;
 
 public class SkyBlockAPIUtils
 {
+    private static final String API_KEY = "cf1a95f9-82e5-4770-9e66-f9b9f1a613c5";
+    public static final String PLAYER_NAME = "https://api.hypixel.net/player?key=" + API_KEY + "&name=";
+    public static final String SKYBLOCK_PROFILE = "https://api.hypixel.net/skyblock/profile?key=" + API_KEY + "&profile=";
+
     public static List<ItemStack> decodeItem(JsonObject currentProfile, String invName)
     {
         if (currentProfile.has(invName))
@@ -25,11 +29,11 @@ public class SkyBlockAPIUtils
             try
             {
                 NBTTagCompound compound = CompressedStreamTools.readCompressed(new ByteArrayInputStream(decode));
-                NBTTagList nbttaglist = compound.getTagList("i", 10);
+                NBTTagList list = compound.getTagList("i", 10);
 
-                for (int i = 0; i < nbttaglist.tagCount(); ++i)
+                for (int i = 0; i < list.tagCount(); ++i)
                 {
-                    itemStack.add(ItemStack.loadItemStackFromNBT(nbttaglist.getCompoundTagAt(i)));
+                    itemStack.add(ItemStack.loadItemStackFromNBT(list.getCompoundTagAt(i)));
                 }
             }
             catch (IOException e)
@@ -40,6 +44,7 @@ public class SkyBlockAPIUtils
         }
         else
         {
+            System.out.println(invName + " API Not Enabled!");
             return new ArrayList<>();
         }
     }
