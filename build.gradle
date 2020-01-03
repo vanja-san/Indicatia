@@ -36,9 +36,6 @@ minecraft {
     runDir = "run"
     mappings = "${mcp_mapping}"
     makeObfSourceJar = false
-
-    replace "@SKYBLOCK_UUID@", project.skyblock_uuid
-    replaceIn "IndicatiaMod.java"
 }
 
 configurations {
