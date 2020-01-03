@@ -8,9 +8,9 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
-
+import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
+import com.google.common.io.Files;
 
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
@@ -186,17 +186,22 @@ public class IndicatiaMod
 
         NBTTagCompound nbt = new NBTTagCompound();
 
-        try
+        try (BufferedReader reader = Files.newReader(profile, Charsets.UTF_8))
         {
-            List<String> list = IOUtils.readLines(new FileInputStream(profile), StandardCharsets.UTF_8);
-
-            for (String option : list)
+            reader.lines().forEach(option ->
             {
-                Iterator<String> iterator = IndicatiaMod.COLON_SPLITTER.omitEmptyStrings().limit(2).split(option).iterator();
-                nbt.setString(iterator.next(), iterator.next());
-            }
+                try
+                {
+                    Iterator<String> iterator = IndicatiaMod.COLON_SPLITTER.omitEmptyStrings().limit(2).split(option).iterator();
+                    nbt.setString(iterator.next(), iterator.next());
+                }
+                catch (Exception e) {}
+            });
         }
-        catch (Exception e) {}
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
 
         for (String property : nbt.getKeySet())
         {
