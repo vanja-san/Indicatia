@@ -6,9 +6,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
 
 import com.google.gson.*;
 
@@ -21,6 +23,7 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumChatFormatting;
 import stevekung.mods.indicatia.utils.CommonUtils;
 import stevekung.mods.indicatia.utils.LangUtils;
 import stevekung.mods.indicatia.utils.LoggerIN;
@@ -34,13 +37,17 @@ public class GuiSkyBlockData extends GuiContainer
     private GuiButton doneButton;
     private GuiButton backButton;
     private final String sbProfileId;
+    private final String sbProfileName;
     private final String uuid;
     private String username;
+    private final List<SkyBlockInfo> infoList = new CopyOnWriteArrayList<>();
+    private static final int MAX_FAIRY_SOULS = 190;
 
-    public GuiSkyBlockData(String sbProfileId, String uuid)
+    public GuiSkyBlockData(String sbProfileId, String sbProfileName, String uuid)
     {
         super(new GuiSkyBlockData.ContainerSkyBlock());
         this.sbProfileId = sbProfileId;
+        this.sbProfileName = sbProfileName;
         this.uuid = uuid;
     }
 
@@ -48,6 +55,7 @@ public class GuiSkyBlockData extends GuiContainer
     public void initGui()
     {
         this.buttonList.clear();
+        this.infoList.clear();
 
         CommonUtils.POOL.execute(() ->
         {
@@ -76,6 +84,7 @@ public class GuiSkyBlockData extends GuiContainer
         LoggerIN.info("SkyBlockData: {}", element);
 
         JsonObject profiles = obj.get("profile").getAsJsonObject().get("members").getAsJsonObject();
+        JsonElement banking = obj.get("profile").getAsJsonObject().get("banking");
 
         for (Map.Entry<String, JsonElement> entry : profiles.entrySet())
         {
@@ -85,6 +94,7 @@ public class GuiSkyBlockData extends GuiContainer
             {
                 System.out.println("equalll");
                 String rawName = "";
+                DecimalFormat format = new DecimalFormat("#,###,###,###,###");
 
                 try (InputStream input = new URL("https://api.mojang.com/user/profiles/" + userUUID + "/names").openStream();)
                 {
@@ -101,6 +111,57 @@ public class GuiSkyBlockData extends GuiContainer
                 LoggerIN.info("Name: {}, UserInProfileUUID: {}", rawName, userUUID);
 
                 JsonObject currentUserProfile = profiles.get(userUUID).getAsJsonObject();
+                JsonElement fairySouls = currentUserProfile.get("fairy_souls_collected");
+                int collectedSouls = 0;
+
+                if (fairySouls != null)
+                {
+                    collectedSouls = fairySouls.getAsInt();
+                }
+
+                this.infoList.add(new SkyBlockInfo("Fairy Souls Collected", collectedSouls + "/" + GuiSkyBlockData.MAX_FAIRY_SOULS));
+
+                long lastSave = currentUserProfile.get("last_save").getAsLong();
+
+                new SimpleDateFormat("dd/MM/yyyy");
+                Date past = new Date(lastSave);
+                Date now = new Date();
+
+                String startDate = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(new Date(lastSave));
+
+                long minutes = TimeUnit.MILLISECONDS.toMinutes(now.getTime() - past.getTime());
+                long hours = TimeUnit.MILLISECONDS.toHours(now.getTime() - past.getTime());
+                long days = TimeUnit.MILLISECONDS.toDays(now.getTime() - past.getTime());
+
+                if (minutes <= 60)
+                {
+                    this.infoList.add(new SkyBlockInfo("Last Updated", minutes + " minutes ago"));
+                }
+                else if (hours <= 24)
+                {
+                    this.infoList.add(new SkyBlockInfo("Last Updated", hours + " hours ago"));
+                }
+                else if (days <= 30)
+                {
+                    this.infoList.add(new SkyBlockInfo("Last Updated", days + " days ago"));
+                }
+
+                this.infoList.add(new SkyBlockInfo("Last Updated", startDate));
+
+                if (banking != null)
+                {
+                    double balance = banking.getAsJsonObject().get("balance").getAsDouble();
+                    this.infoList.add(new SkyBlockInfo("Banking Account", format.format(balance)));
+                }
+                else
+                {
+                    this.infoList.add(new SkyBlockInfo("Banking Account", "API is not enabled!"));
+                }
+
+                JsonElement slayerBosses = currentUserProfile.get("slayer_bosses");
+                this.infoList.addAll(this.getSlayer(slayerBosses, format, "Zombie"));
+                this.infoList.addAll(this.getSlayer(slayerBosses, format, "Spider"));
+                this.infoList.addAll(this.getSlayer(slayerBosses, format, "Wolf"));
 
                 ContainerSkyBlock container = (ContainerSkyBlock)this.inventorySlots;
                 container.itemList.clear();
@@ -131,6 +192,37 @@ public class GuiSkyBlockData extends GuiContainer
             }
         }
         this.loadingApi = false;
+    }
+
+    private List<SkyBlockInfo> getSlayer(JsonElement element, DecimalFormat format, String name)
+    {
+        List<SkyBlockInfo> list = new ArrayList<>();
+        JsonElement slayer = element.getAsJsonObject().get(name.toLowerCase());
+        JsonElement xp = slayer.getAsJsonObject().get("xp");
+
+        if (xp != null)
+        {
+            list.add(new SkyBlockInfo(EnumChatFormatting.GOLD, EnumChatFormatting.RED, name + " Slayer", format.format(xp.getAsInt())));
+
+            for (int i = 1; i <= 4; i++)
+            {
+                JsonElement kills = slayer.getAsJsonObject().get("boss_kills_tier_" + (i - 1));
+
+                if (kills != null)
+                {
+                    list.add(new SkyBlockInfo(EnumChatFormatting.GOLD, EnumChatFormatting.RED, name + " Tier " + i, kills.getAsInt() + " kills"));
+                }
+                else
+                {
+                    list.add(new SkyBlockInfo(EnumChatFormatting.GOLD, EnumChatFormatting.DARK_RED, name + " Tier " + i, "Not started yet!"));
+                }
+            }
+            return list;
+        }
+        else
+        {
+            return Collections.singletonList(new SkyBlockInfo(EnumChatFormatting.GOLD, EnumChatFormatting.DARK_RED, "Slayer Info", "This player doesn't start " + name.toLowerCase() + " slayer yet!"));
+        }
     }
 
     @Override
@@ -226,6 +318,18 @@ public class GuiSkyBlockData extends GuiContainer
     protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY)
     {
         this.drawCenteredString(this.fontRendererObj, "SkyBlock API Viewer", this.width / 2, 20, 16777215);
+        this.drawCenteredString(this.fontRendererObj, EnumChatFormatting.GOLD + this.username + "'s Profile: " + this.sbProfileName, this.width / 2, 30, 16777215);
+
+        int i = 0;
+
+        for (SkyBlockInfo info : this.infoList)
+        {
+            String textInfo = info.toString();
+            int fontHeight = this.mc.fontRendererObj.FONT_HEIGHT + 1;
+            int yOffset = 50 + fontHeight * i;
+            this.drawCenteredString(this.fontRendererObj, textInfo, this.width / 2, yOffset, 16777215);
+            ++i;
+        }
     }
 
     static class ContainerSkyBlock extends Container
@@ -268,6 +372,39 @@ public class GuiSkyBlockData extends GuiContainer
         public boolean canDragIntoSlot(Slot p_94531_1_)
         {
             return false;
+        }
+    }
+
+    class SkyBlockInfo
+    {
+        private EnumChatFormatting headColor;
+        private EnumChatFormatting valueColor;
+        private final String head;
+        private final String value;
+
+        public SkyBlockInfo(String head, String value)
+        {
+            this(EnumChatFormatting.AQUA, EnumChatFormatting.BLUE, head, value);
+        }
+
+        public SkyBlockInfo(EnumChatFormatting headColor, EnumChatFormatting valueColor, String head, String value)
+        {
+            this.headColor = headColor;
+            this.valueColor = valueColor;
+            this.head = head;
+            this.value = value;
+        }
+
+        @Override
+        public String toString()
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.append(this.headColor);
+            builder.append(this.head);
+            builder.append(": ");
+            builder.append(this.valueColor);
+            builder.append(this.value);
+            return builder.toString();
         }
     }
 }

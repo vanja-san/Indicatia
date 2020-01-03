@@ -27,7 +27,7 @@ public class GuiSkyBlockProfileSelection extends GuiScreen
     private String errorMessage;
     private GuiButton doneButton;
     private GuiButton backButton;
-    private final String username;
+    private String username;
 
     public GuiSkyBlockProfileSelection(String username)
     {
@@ -93,6 +93,7 @@ public class GuiSkyBlockProfileSelection extends GuiScreen
         else
         {
             this.drawCenteredString(this.fontRendererObj, "SkyBlock API Viewer", this.width / 2, 20, 16777215);
+            this.drawCenteredString(this.fontRendererObj, EnumChatFormatting.GOLD + this.username + "'s Profile(s)", this.width / 2, 30, 16777215);
 
             if (this.error)
             {
@@ -104,6 +105,12 @@ public class GuiSkyBlockProfileSelection extends GuiScreen
 
     private void checkAPI() throws IOException
     {
+        if (!this.username.matches("\\w+"))
+        {
+            this.setErrorMessage("Invalid Username Pattern!");
+            return;
+        }
+
         URL url = new URL(SkyBlockAPIUtils.PLAYER_NAME + this.username);
         BufferedReader reader = new BufferedReader(new InputStreamReader(url.openConnection().getInputStream(), StandardCharsets.UTF_8));
         JsonElement element = new JsonParser().parse(reader);
@@ -118,6 +125,7 @@ public class GuiSkyBlockProfileSelection extends GuiScreen
             return;
         }
 
+        this.username = jsonPlayer.getAsJsonObject().get("displayname").getAsString();
         JsonElement jsonSkyBlock = jsonPlayer.getAsJsonObject().get("stats").getAsJsonObject().get("SkyBlock");
 
         if (jsonSkyBlock == null)
@@ -128,6 +136,12 @@ public class GuiSkyBlockProfileSelection extends GuiScreen
 
         JsonObject profiles = jsonSkyBlock.getAsJsonObject().get("profiles").getAsJsonObject();
         int i = 0;
+
+        if (profiles.entrySet().isEmpty())
+        {
+            this.setErrorMessage("Empty profiles data! Please check to this website instead\nhttps://sky.lea.moe/");//TODO Split string + click handler
+            return;
+        }
 
         for (Map.Entry<String, JsonElement> entry : profiles.entrySet())
         {

@@ -7,6 +7,7 @@ import stevekung.mods.indicatia.gui.api.GuiSkyBlockData;
 public class GuiSBProfileButton extends GuiButton
 {
     private final String sbProfileId;
+    private final String sbProfileName;
     private final String uuid;
     private final Minecraft mc;
 
@@ -15,6 +16,7 @@ public class GuiSBProfileButton extends GuiButton
         super(id, x, y, width, height, text);
         this.mc = Minecraft.getMinecraft();
         this.sbProfileId = sbProfileId;
+        this.sbProfileName = text;
         this.uuid = uuid;
     }
 
@@ -23,7 +25,7 @@ public class GuiSBProfileButton extends GuiButton
     {
         if (this.enabled && this.visible && mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height)
         {
-            this.mc.displayGuiScreen(new GuiSkyBlockData(this.sbProfileId, this.uuid));
+            this.mc.displayGuiScreen(new GuiSkyBlockData(this.sbProfileId, this.sbProfileName, this.uuid));
             return true;
         }
         return false;
