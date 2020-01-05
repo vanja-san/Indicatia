@@ -1,6 +1,9 @@
 package stevekung.mods.indicatia.mixin;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -91,6 +94,9 @@ public abstract class MinecraftMixin
     protected abstract void sendClickBlockToController(boolean leftClick);
 
     private boolean actionKeyF3;
+
+    private static final List<String> SKYBLOCK_PACK_16 = new ArrayList<>(Arrays.asList("v8F1.8 Hypixel Skyblock Pack (16x)", "v8O1.8 Hypixel Skyblock Pack(16x)", "v9F1.8 Hypixel Skyblock Pack (16x)", "v9O1.8 Hypixel Skyblock Pack (16x)"));
+    private static final List<String> SKYBLOCK_PACK_32 = new ArrayList<>(Arrays.asList("v8F1.8 Hypixel Skyblock Pack (x32)", "v8O1.8 Hypixel Skyblock Pack (32x)", "v9F1.8 Hypixel Skyblock Pack (32x)", "v9.1O1.8 Hypixel Skyblock Pack (32x)"));
 
     @Overwrite
     public void runTick() throws IOException
@@ -419,11 +425,11 @@ public abstract class MinecraftMixin
             String packName = entry.getResourcePack().getPackName();
             String packDesc = entry.getTexturePackDescription();
 
-            if (packName.contains("v8F1.8 Hypixel Skyblock Pack (16x)") || packName.contains("v8O1.8 Hypixel Skyblock Pack(16x)"))
+            if (SKYBLOCK_PACK_16.stream().anyMatch(name -> packName.contains(name)))
             {
                 HypixelEventHandler.skyBlockPackResolution = "16";
             }
-            else if (packName.contains("v8F1.8 Hypixel Skyblock Pack (x32)") || packName.contains("v8O1.8 Hypixel Skyblock Pack (32x)"))
+            if (SKYBLOCK_PACK_32.stream().anyMatch(name -> packName.contains(name)))
             {
                 HypixelEventHandler.skyBlockPackResolution = "32";
             }
