@@ -29,7 +29,7 @@ public abstract class RenderManagerMixin
     @Shadow
     private double renderPosZ;
 
-    @Inject(method = "renderDebugBoundingBox(Lnet/minecraft/entity/Entity;DDDFF)V", cancellable = true, at = @At(value = "INVOKE", target = "net/minecraft/client/renderer/RenderGlobal.drawOutlinedBoundingBox(Lnet/minecraft/util/AxisAlignedBB;IIII)V", ordinal = 0))
+    @Inject(method = "renderDebugBoundingBox(Lnet/minecraft/entity/Entity;DDDFF)V", at = @At(value = "INVOKE", target = "net/minecraft/client/renderer/RenderGlobal.drawOutlinedBoundingBox(Lnet/minecraft/util/AxisAlignedBB;IIII)V", ordinal = 0))
     private void renderDebugBoundingBoxMultipart(Entity entity, double x, double y, double z, float f1, float partialTicks, CallbackInfo info)
     {
         Entity[] aentity = entity.getParts();

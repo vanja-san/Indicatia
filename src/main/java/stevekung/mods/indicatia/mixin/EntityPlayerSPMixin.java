@@ -28,8 +28,8 @@ public abstract class EntityPlayerSPMixin extends AbstractClientPlayer
         super(world, profile);
     }
 
-    @Inject(method = "onLivingUpdate()V", cancellable = true, at = @At(value = "INVOKE", target = "net/minecraft/util/MovementInput.updatePlayerMoveState()V", shift = At.Shift.AFTER))
-    private void updateMovementInput(CallbackInfo ci)
+    @Inject(method = "onLivingUpdate()V", at = @At(value = "INVOKE", target = "net/minecraft/util/MovementInput.updatePlayerMoveState()V", shift = At.Shift.AFTER))
+    private void updateMovementInput(CallbackInfo info)
     {
         CommonUtils.onInputUpdate(this.that, this.that.movementInput);
     }

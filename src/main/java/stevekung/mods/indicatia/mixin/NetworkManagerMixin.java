@@ -13,7 +13,7 @@ import net.minecraft.network.NetworkManager;
 @Mixin(NetworkManager.class)
 public abstract class NetworkManagerMixin
 {
-    @Inject(method = "func_181124_a(Ljava/net/InetAddress;IZ)Lnet/minecraft/network/NetworkManager;", cancellable = true, at = @At("HEAD"))
+    @Inject(method = "func_181124_a(Ljava/net/InetAddress;IZ)Lnet/minecraft/network/NetworkManager;", at = @At("HEAD"))
     private static void createNetworkManagerAndConnect(InetAddress address, int serverPort, boolean useNativeTransport, CallbackInfoReturnable<NetworkManager> info)
     {
         if (address instanceof Inet6Address)

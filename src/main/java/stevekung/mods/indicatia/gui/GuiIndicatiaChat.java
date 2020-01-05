@@ -82,15 +82,6 @@ public class GuiIndicatiaChat implements IGuiChat, IDropboxCallback
     }
 
     @Override
-    public void mouseClicked(int mouseX, int mouseY, int mouseButton) {}
-
-    @Override
-    public void mouseReleased(int mouseX, int mouseY, int state) {}
-
-    @Override
-    public void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {}
-
-    @Override
     public void actionPerformed(GuiButton button)
     {
         Minecraft mc = Minecraft.getMinecraft();
@@ -183,15 +174,6 @@ public class GuiIndicatiaChat implements IGuiChat, IDropboxCallback
             }
         }
     }
-
-    @Override
-    public void pageUp() {}
-
-    @Override
-    public void pageDown() {}
-
-    @Override
-    public void getSentHistory(int msgPos) {}
 
     @Override
     public void onSelectionChanged(GuiDropdownMinigames dropdown, int selection)

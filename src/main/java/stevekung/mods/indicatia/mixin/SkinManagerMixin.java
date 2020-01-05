@@ -3,10 +3,7 @@ package stevekung.mods.indicatia.mixin;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.*;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.InsecureTextureException;
@@ -21,11 +18,12 @@ import stevekung.mods.indicatia.utils.CommonUtils;
 @Mixin(SkinManager.class)
 public abstract class SkinManagerMixin
 {
+    private final SkinManager that = (SkinManager) (Object) this;
+
     @Shadow
     @Final
+    @Mutable
     private MinecraftSessionService sessionService;
-
-    private final SkinManager that = (SkinManager) (Object) this;
 
     @Overwrite
     public void loadProfileTextures(final GameProfile profile, final SkinManager.SkinAvailableCallback skinAvailableCallback, final boolean requireSecure)

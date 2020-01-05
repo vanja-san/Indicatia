@@ -33,30 +33,6 @@ public abstract class GuiChatMixin extends GuiScreen
         GuiChatRegistry.getGuiChatList().forEach(gui -> gui.updateScreen(this.buttonList, this.width, this.height));
     }
 
-    @Inject(method = "keyTyped(CI)V", cancellable = true, at = @At(value = "INVOKE", target = "net/minecraft/client/gui/GuiNewChat.scroll(I)V", shift = At.Shift.AFTER, ordinal = 0))
-    private void keyTypedPageUp(char typedChar, int keyCode, CallbackInfo ci)
-    {
-        GuiChatRegistry.getGuiChatList().forEach(IGuiChat::pageUp);
-    }
-
-    @Inject(method = "keyTyped(CI)V", cancellable = true, at = @At(value = "INVOKE", target = "net/minecraft/client/gui/GuiNewChat.scroll(I)V", shift = At.Shift.AFTER, ordinal = 1))
-    private void keyTypedPageDown(char typedChar, int keyCode, CallbackInfo ci)
-    {
-        GuiChatRegistry.getGuiChatList().forEach(IGuiChat::pageDown);
-    }
-
-    @Inject(method = "getSentHistory(I)V", at = @At("RETURN"))
-    private void getSentHistory(int msgPos, CallbackInfo info)
-    {
-        GuiChatRegistry.getGuiChatList().forEach(gui -> gui.getSentHistory(msgPos));
-    }
-
-    @Inject(method = "mouseClicked(III)V", at = @At("RETURN"))
-    private void mouseClicked(int mouseX, int mouseY, int mouseButton, CallbackInfo info)
-    {
-        GuiChatRegistry.getGuiChatList().forEach(gui -> gui.mouseClicked(mouseX, mouseY, mouseButton));
-    }
-
     @Inject(method = "onGuiClosed()V", at = @At("RETURN"))
     private void onGuiClosed(CallbackInfo info)
     {

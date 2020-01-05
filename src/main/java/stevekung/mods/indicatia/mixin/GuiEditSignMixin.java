@@ -40,7 +40,7 @@ public abstract class GuiEditSignMixin extends GuiScreen implements IEditSign
     @Shadow
     private int updateCounter;
 
-    @Inject(method = "initGui()V", cancellable = true, at = @At("RETURN"))
+    @Inject(method = "initGui()V", at = @At("RETURN"))
     private void initGui(CallbackInfo info)
     {
         this.textInputUtil = new TextInputUtil(this.fontRendererObj, () -> ((IModifiedSign)this.that.tileSign).getText(this.editLine).getUnformattedText(), text -> ((IModifiedSign)this.that.tileSign).setText(this.editLine, new ChatComponentText(text)), 90);
@@ -55,7 +55,7 @@ public abstract class GuiEditSignMixin extends GuiScreen implements IEditSign
         }
     }
 
-    @Inject(method = "onGuiClosed()V", cancellable = true, at = @At("RETURN"))
+    @Inject(method = "onGuiClosed()V", at = @At("RETURN"))
     private void onGuiClosed(CallbackInfo info)
     {
         if (this.isAuctionSign() && !StringUtils.isNullOrEmpty(this.that.tileSign.signText[0].getUnformattedText()) && NumberUtils.isNumber(this.that.tileSign.signText[0].getUnformattedText()))

@@ -39,13 +39,25 @@ public abstract class ColoredFontRendererMixin
     @Shadow
     protected abstract void loadGlyphTexture(int page);
 
-    @Inject(method = "renderString(Ljava/lang/String;FFIZ)I", cancellable = true, at = @At("HEAD"))
+    @Shadow
+    private static boolean isFormatColor(char colorChar)
+    {
+        throw new Error();
+    }
+
+    @Shadow
+    private static boolean isFormatSpecial(char formatChar)
+    {
+        throw new Error();
+    }
+
+    @Inject(method = "renderString(Ljava/lang/String;FFIZ)I", at = @At("HEAD"))
     private void renderString(String text, float x, float y, int color, boolean dropShadow, CallbackInfoReturnable info)
     {
         this.dropShadow = dropShadow;
     }
 
-    @Inject(method = "renderDefaultChar(IZ)F", cancellable = true, at = @At("HEAD"))
+    @Inject(method = "renderDefaultChar(IZ)F", at = @At("HEAD"))
     private void renderDefaultChar(int ch, boolean italic, CallbackInfoReturnable info)
     {
         if (ch >= MARKER && ch <= MARKER + 255)
@@ -227,15 +239,5 @@ public abstract class ColoredFontRendererMixin
             }
         }
         return s;
-    }
-
-    private static boolean isFormatColor(char colorChar)
-    {
-        return colorChar >= '0' && colorChar <= '9' || colorChar >= 'a' && colorChar <= 'f' || colorChar >= 'A' && colorChar <= 'F';
-    }
-
-    private static boolean isFormatSpecial(char formatChar)
-    {
-        return formatChar >= 'k' && formatChar <= 'o' || formatChar >= 'K' && formatChar <= 'O' || formatChar == 'r' || formatChar == 'R';
     }
 }

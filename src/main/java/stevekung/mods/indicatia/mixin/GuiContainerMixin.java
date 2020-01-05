@@ -327,4 +327,21 @@ public abstract class GuiContainerMixin extends GuiScreen
         GlStateManager.enableLighting();
         GlStateManager.enableDepth();
     }
+
+    /*private final GuiContainer that = (GuiContainer) (Object) this; TODO for future skyblock addons
+
+    @Inject(method = "drawScreen(IIF)V", at = @At(value = "INVOKE", target = "net/minecraft/client/gui/GuiScreen.drawScreen(IIF)V", shift = Shift.BEFORE))
+    private void drawScreen(int mouseX, int mouseY, float partialTicks, CallbackInfo info)
+    {
+        if (that instanceof GuiChest)
+        {
+            GuiChest chest = (GuiChest)that;
+            System.out.println(this.isAuctionBrowser(chest.lowerChestInventory));
+        }
+    }
+
+    private boolean isAuctionBrowser(IInventory lowerChestInventory)
+    {
+        return lowerChestInventory.getDisplayName().getUnformattedText().equals("Auctions Browser");
+    }*/
 }

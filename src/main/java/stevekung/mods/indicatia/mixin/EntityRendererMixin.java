@@ -16,8 +16,8 @@ import stevekung.mods.indicatia.config.ConfigManagerIN;
 @Mixin(EntityRenderer.class)
 public abstract class EntityRendererMixin
 {
-    @Inject(method = "renderHand(FI)V", cancellable = true, at = @At("HEAD"))
-    private void renderPre(float partialTicks, int xOffset, CallbackInfo ci)
+    @Inject(method = "renderHand(FI)V", at = @At("HEAD"))
+    private void renderPre(float partialTicks, int xOffset, CallbackInfo info)
     {
         if (ConfigManagerIN.enableAlternatePlayerModel)
         {
@@ -26,8 +26,8 @@ public abstract class EntityRendererMixin
         }
     }
 
-    @Inject(method = "renderHand(FI)V", cancellable = true, at = @At("RETURN"))
-    private void renderPost(float partialTicks, int xOffset, CallbackInfo ci)
+    @Inject(method = "renderHand(FI)V", at = @At("RETURN"))
+    private void renderPost(float partialTicks, int xOffset, CallbackInfo info)
     {
         if (ConfigManagerIN.enableAlternatePlayerModel)
         {
@@ -35,7 +35,7 @@ public abstract class EntityRendererMixin
         }
     }
 
-    @Redirect(method = "orientCamera(F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/WorldClient;rayTraceBlocks(Lnet/minecraft/util/Vec3;Lnet/minecraft/util/Vec3;)Lnet/minecraft/util/MovingObjectPosition;"), expect = 0)
+    @Redirect(method = "orientCamera(F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/WorldClient;rayTraceBlocks(Lnet/minecraft/util/Vec3;Lnet/minecraft/util/Vec3;)Lnet/minecraft/util/MovingObjectPosition;"))
     private MovingObjectPosition rayTraceBlocks(WorldClient world, Vec3 from, Vec3 to)
     {
         return world.rayTraceBlocks(from, to, false, true, true);

@@ -22,14 +22,14 @@ public abstract class RenderPlayerMixin
     @Shadow
     public abstract ModelPlayer getMainModel();
 
-    @Inject(method = "<init>(Lnet/minecraft/client/renderer/entity/RenderManager;Z)V", cancellable = true, at = @At("RETURN"))
-    private void init(RenderManager renderManager, boolean useSmallArms, CallbackInfo ci)
+    @Inject(method = "<init>(Lnet/minecraft/client/renderer/entity/RenderManager;Z)V", at = @At("RETURN"))
+    private void init(RenderManager renderManager, boolean useSmallArms, CallbackInfo info)
     {
         this.that.addLayer(new LayerGlowingTexture(this.getMainModel().bipedHead));
     }
 
-    @Inject(method = "doRender(Lnet/minecraft/client/entity/AbstractClientPlayer;DDDFF)V", cancellable = true, at = @At(value = "INVOKE", target = "net/minecraft/client/renderer/entity/RenderPlayer.setModelVisibilities(Lnet/minecraft/client/entity/AbstractClientPlayer;)V", shift = At.Shift.AFTER))
-    private void renderPre(AbstractClientPlayer entity, double x, double y, double z, float entityYaw, float partialTicks, CallbackInfo ci)
+    @Inject(method = "doRender(Lnet/minecraft/client/entity/AbstractClientPlayer;DDDFF)V", at = @At(value = "INVOKE", target = "net/minecraft/client/renderer/entity/RenderPlayer.setModelVisibilities(Lnet/minecraft/client/entity/AbstractClientPlayer;)V", shift = At.Shift.AFTER))
+    private void renderPre(AbstractClientPlayer entity, double x, double y, double z, float entityYaw, float partialTicks, CallbackInfo info)
     {
         if (ConfigManagerIN.enableAlternatePlayerModel)
         {
@@ -38,8 +38,8 @@ public abstract class RenderPlayerMixin
         }
     }
 
-    @Inject(method = "doRender(Lnet/minecraft/client/entity/AbstractClientPlayer;DDDFF)V", cancellable = true, at = @At(value = "INVOKE", target = "net/minecraft/client/renderer/entity/RendererLivingEntity.doRender(Lnet/minecraft/entity/EntityLivingBase;DDDFF)V", shift = At.Shift.AFTER))
-    private void renderPost(AbstractClientPlayer entity, double x, double y, double z, float entityYaw, float partialTicks, CallbackInfo ci)
+    @Inject(method = "doRender(Lnet/minecraft/client/entity/AbstractClientPlayer;DDDFF)V", at = @At(value = "INVOKE", target = "net/minecraft/client/renderer/entity/RendererLivingEntity.doRender(Lnet/minecraft/entity/EntityLivingBase;DDDFF)V", shift = At.Shift.AFTER))
+    private void renderPost(AbstractClientPlayer entity, double x, double y, double z, float entityYaw, float partialTicks, CallbackInfo info)
     {
         if (ConfigManagerIN.enableAlternatePlayerModel)
         {

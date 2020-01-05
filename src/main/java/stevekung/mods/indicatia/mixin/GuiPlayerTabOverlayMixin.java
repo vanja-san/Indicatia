@@ -5,10 +5,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.*;
 
 import com.google.common.collect.Ordering;
 import com.mojang.authlib.GameProfile;
@@ -38,10 +35,12 @@ public abstract class GuiPlayerTabOverlayMixin extends Gui
 {
     @Shadow
     @Final
+    @Mutable
     private Minecraft mc;
 
     @Shadow
     @Final
+    @Mutable
     private static Ordering<NetworkPlayerInfo> field_175252_a;
 
     @Shadow

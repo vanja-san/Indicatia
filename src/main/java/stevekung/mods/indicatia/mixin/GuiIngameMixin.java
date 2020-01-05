@@ -3,6 +3,7 @@ package stevekung.mods.indicatia.mixin;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -27,8 +28,11 @@ import stevekung.mods.indicatia.utils.ColorUtils.RGB;
 @Mixin(GuiIngame.class)
 public abstract class GuiIngameMixin
 {
+    private static final ResourceLocation RARITY = new ResourceLocation("indicatia:textures/gui/rarity.png");
+
     @Shadow
     @Final
+    @Mutable
     protected Minecraft mc;
 
     @Inject(method = "func_181029_i()V", at = @At("RETURN"))
@@ -70,27 +74,27 @@ public abstract class GuiIngameMixin
 
                         if (lore.startsWith(EnumChatFormatting.WHITE + "" + EnumChatFormatting.BOLD + "COMMON"))
                         {
-                            this.renderRarity(xPos, yPos, common);
+                            GuiIngameMixin.renderRarity(xPos, yPos, common);
                         }
                         else if (lore.startsWith(EnumChatFormatting.GREEN + "" + EnumChatFormatting.BOLD + "UNCOMMON"))
                         {
-                            this.renderRarity(xPos, yPos, uncommon);
+                            GuiIngameMixin.renderRarity(xPos, yPos, uncommon);
                         }
                         else if (lore.startsWith(EnumChatFormatting.BLUE + "" + EnumChatFormatting.BOLD + "RARE"))
                         {
-                            this.renderRarity(xPos, yPos, rare);
+                            GuiIngameMixin.renderRarity(xPos, yPos, rare);
                         }
                         else if (lore.startsWith(EnumChatFormatting.DARK_PURPLE + "" + EnumChatFormatting.BOLD + "EPIC"))
                         {
-                            this.renderRarity(xPos, yPos, epic);
+                            GuiIngameMixin.renderRarity(xPos, yPos, epic);
                         }
                         else if (lore.startsWith(EnumChatFormatting.GOLD + "" + EnumChatFormatting.BOLD + "LEGENDARY"))
                         {
-                            this.renderRarity(xPos, yPos, legendary);
+                            GuiIngameMixin.renderRarity(xPos, yPos, legendary);
                         }
                         else if (lore.startsWith(EnumChatFormatting.LIGHT_PURPLE + "" + EnumChatFormatting.BOLD + "SPECIAL"))
                         {
-                            this.renderRarity(xPos, yPos, special);
+                            GuiIngameMixin.renderRarity(xPos, yPos, special);
                         }
                     }
                 }
@@ -98,13 +102,13 @@ public abstract class GuiIngameMixin
         }
     }
 
-    private void renderRarity(int xPos, int yPos, RGB color)
+    private static void renderRarity(int xPos, int yPos, RGB color)
     {
         float alpha = ExtendedConfig.instance.itemRarityOpacity / 100.0F;
         GlStateManager.disableLighting();
         GlStateManager.disableDepth();
         GlStateManager.enableBlend();
-        this.mc.getTextureManager().bindTexture(new ResourceLocation("indicatia:textures/gui/rarity.png"));
+        Minecraft.getMinecraft().getTextureManager().bindTexture(GuiIngameMixin.RARITY);
         GlStateManager.color(color.floatRed(), color.floatGreen(), color.floatBlue(), alpha);
         GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
         Gui.drawModalRectWithCustomSizedTexture(xPos, yPos, 0, 0, 16, 16, 16, 16);

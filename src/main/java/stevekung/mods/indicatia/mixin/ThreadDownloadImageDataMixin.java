@@ -9,10 +9,7 @@ import javax.imageio.ImageIO;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.Logger;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.*;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IImageBuffer;
@@ -23,23 +20,27 @@ import stevekung.mods.indicatia.utils.CommonUtils;
 @Mixin(ThreadDownloadImageData.class)
 public abstract class ThreadDownloadImageDataMixin
 {
+    private final ThreadDownloadImageData that = (ThreadDownloadImageData) (Object) this;
+
     @Shadow
     @Final
+    @Mutable
     private File cacheFile;
 
     @Shadow
     @Final
+    @Mutable
     private String imageUrl;
 
     @Shadow
     @Final
+    @Mutable
     private IImageBuffer imageBuffer;
 
     @Shadow
     @Final
+    @Mutable
     private static Logger logger;
-
-    private final ThreadDownloadImageData that = (ThreadDownloadImageData) (Object) this;
 
     @Overwrite
     protected void loadTextureFromServer()

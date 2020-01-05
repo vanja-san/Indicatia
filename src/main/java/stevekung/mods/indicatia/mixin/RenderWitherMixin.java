@@ -12,7 +12,7 @@ import stevekung.mods.indicatia.event.HypixelEventHandler;
 @Mixin(RenderWither.class)
 public abstract class RenderWitherMixin
 {
-    @Redirect(method = "doRender(Lnet/minecraft/entity/boss/EntityWither;DDDFF)V", at = @At(value = "INVOKE", target = "net/minecraft/entity/boss/BossStatus.setBossStatus(Lnet/minecraft/entity/boss/IBossDisplayData;Z)V"), expect = 0)
+    @Redirect(method = "doRender(Lnet/minecraft/entity/boss/EntityWither;DDDFF)V", at = @At(value = "INVOKE", target = "net/minecraft/entity/boss/BossStatus.setBossStatus(Lnet/minecraft/entity/boss/IBossDisplayData;Z)V"))
     private void setBossStatus(IBossDisplayData displayData, boolean hasColorModifier)
     {
         BossStatus.setBossStatus(displayData, !HypixelEventHandler.isSkyBlock);

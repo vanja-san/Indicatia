@@ -4,10 +4,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import org.apache.logging.log4j.Logger;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.*;
 
 import net.minecraft.client.gui.GuiDisconnected;
 import net.minecraft.client.gui.GuiScreen;
@@ -25,10 +22,12 @@ public abstract class GuiConnectingMixin extends GuiScreen
 {
     @Shadow
     @Final
+    @Mutable
     private static Logger logger;
 
     @Shadow
     @Final
+    @Mutable
     private GuiScreen previousGuiScreen;
 
     @Shadow

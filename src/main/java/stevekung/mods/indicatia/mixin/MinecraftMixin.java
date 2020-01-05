@@ -403,13 +403,13 @@ public abstract class MinecraftMixin
         }
     }
 
-    @Inject(method = "runGameLoop()V", cancellable = true, at = @At(value = "INVOKE", target = "net/minecraft/client/renderer/EntityRenderer.updateCameraAndRender(FJ)V", shift = At.Shift.AFTER))
+    @Inject(method = "runGameLoop()V", at = @At(value = "INVOKE", target = "net/minecraft/client/renderer/EntityRenderer.updateCameraAndRender(FJ)V", shift = At.Shift.AFTER))
     private void runGameLoop(CallbackInfo info)
     {
         HUDRenderEventHandler.INSTANCE.getToastGui().drawToast(new ScaledResolution(this.that));
     }
 
-    @Inject(method = "refreshResources()V", cancellable = true, at = @At("HEAD"))
+    @Inject(method = "refreshResources()V", at = @At("HEAD"))
     private void refreshResources(CallbackInfo info)
     {
         boolean found = false;

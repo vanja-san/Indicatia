@@ -15,7 +15,7 @@ import stevekung.mods.indicatia.handler.GrapplingHookEvent;
 @Mixin(ItemFishingRod.class)
 public class ItemFishingRodMixin
 {
-    @Inject(method = "onItemRightClick(Lnet/minecraft/item/ItemStack;Lnet/minecraft/world/World;Lnet/minecraft/entity/player/EntityPlayer;)Lnet/minecraft/item/ItemStack;", at = @At(value = "INVOKE", target = "net/minecraft/entity/projectile/EntityFishHook.handleHookRetraction()I"), cancellable = true)
+    @Inject(method = "onItemRightClick(Lnet/minecraft/item/ItemStack;Lnet/minecraft/world/World;Lnet/minecraft/entity/player/EntityPlayer;)Lnet/minecraft/item/ItemStack;", at = @At(value = "INVOKE", target = "net/minecraft/entity/projectile/EntityFishHook.handleHookRetraction()I"))
     private void onItemRightClick(ItemStack itemStack, World world, EntityPlayer player, CallbackInfoReturnable<ItemStack> info)
     {
         MinecraftForge.EVENT_BUS.post(new GrapplingHookEvent(itemStack));

@@ -2,6 +2,7 @@ package stevekung.mods.indicatia.mixin;
 
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 
 import net.minecraft.client.model.ModelBase;
@@ -22,8 +23,11 @@ import stevekung.mods.indicatia.event.HypixelEventHandler;
 @Mixin(LayerArmorBase.class)
 public abstract class LayerArmorBaseMixin implements LayerRenderer<EntityLivingBase>
 {
+    private final LayerArmorBase that = (LayerArmorBase) (Object) this;
+
     @Shadow
     @Final
+    @Mutable
     private RendererLivingEntity<?> renderer;
 
     @Shadow
@@ -34,8 +38,6 @@ public abstract class LayerArmorBaseMixin implements LayerRenderer<EntityLivingB
 
     @Shadow
     protected abstract void renderLayer(EntityLivingBase entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale, int armorSlot);
-
-    private final LayerArmorBase that = (LayerArmorBase) (Object) this;
 
     @Override
     public void doRenderLayer(EntityLivingBase entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale)
