@@ -46,6 +46,8 @@ public class ExtendedConfig
     public boolean serverIP = false;
     public boolean serverIPMCVersion = false;
     public boolean equipmentHUD = false;
+    public boolean equipmentArmorItems = true;
+    public boolean equipmentHandItems = true;
     public boolean potionHUD = false;
     public boolean realTime = true;
     public boolean gameTime = true;
@@ -167,6 +169,8 @@ public class ExtendedConfig
             this.serverIP = ExtendedConfig.getBoolean(nbt, "ServerIP", this.serverIP);
             this.serverIPMCVersion = ExtendedConfig.getBoolean(nbt, "ServerIPMCVersion", this.serverIPMCVersion);
             this.equipmentHUD = ExtendedConfig.getBoolean(nbt, "EquipmentHUD", this.equipmentHUD);
+            this.equipmentArmorItems = ExtendedConfig.getBoolean(nbt, "EquipmentArmorItems", this.equipmentArmorItems);
+            this.equipmentHandItems = ExtendedConfig.getBoolean(nbt, "EquipmentHandItems", this.equipmentHandItems);
             this.potionHUD = ExtendedConfig.getBoolean(nbt, "PotionHUD", this.potionHUD);
             this.realTime = ExtendedConfig.getBoolean(nbt, "RealTime", this.realTime);
             this.gameTime = ExtendedConfig.getBoolean(nbt, "GameTime", this.gameTime);
@@ -287,6 +291,8 @@ public class ExtendedConfig
             nbt.setBoolean("ServerIP", this.serverIP);
             nbt.setBoolean("ServerIPMCVersion", this.serverIPMCVersion);
             nbt.setBoolean("EquipmentHUD", this.equipmentHUD);
+            nbt.setBoolean("EquipmentArmorItems", this.equipmentArmorItems);
+            nbt.setBoolean("EquipmentHandItems", this.equipmentHandItems);
             nbt.setBoolean("PotionHUD", this.potionHUD);
             nbt.setBoolean("RealTime", this.realTime);
             nbt.setBoolean("GameTime", this.gameTime);
@@ -594,6 +600,14 @@ public class ExtendedConfig
         else if (options == ExtendedConfig.Options.EQUIPMENT_HUD)
         {
             this.equipmentHUD = !this.equipmentHUD;
+        }
+        else if (options == ExtendedConfig.Options.EQUIPMENT_ARMOR_ITEMS)
+        {
+            this.equipmentArmorItems = !this.equipmentArmorItems;
+        }
+        else if (options == ExtendedConfig.Options.EQUIPMENT_HAND_ITEMS)
+        {
+            this.equipmentHandItems = !this.equipmentHandItems;
         }
         else if (options == ExtendedConfig.Options.POTION_HUD)
         {
@@ -916,6 +930,10 @@ public class ExtendedConfig
             return this.serverIPMCVersion;
         case EQUIPMENT_HUD:
             return this.equipmentHUD;
+        case EQUIPMENT_ARMOR_ITEMS:
+            return this.equipmentArmorItems;
+        case EQUIPMENT_HAND_ITEMS:
+            return this.equipmentHandItems;
         case POTION_HUD:
             return this.potionHUD;
         case REAL_TIME:
@@ -1069,6 +1087,8 @@ public class ExtendedConfig
         SERVER_IP(false, true),
         SERVER_IP_MC(false, true),
         EQUIPMENT_HUD(false, true),
+        EQUIPMENT_ARMOR_ITEMS(false, true),
+        EQUIPMENT_HAND_ITEMS(false, true),
         POTION_HUD(false, true),
         REAL_TIME(false, true),
         GAME_TIME(false, true),

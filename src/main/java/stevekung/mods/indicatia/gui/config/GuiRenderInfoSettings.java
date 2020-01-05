@@ -29,6 +29,8 @@ public class GuiRenderInfoSettings extends GuiScreen
         OPTIONS.add(ExtendedConfig.Options.SERVER_IP);
         OPTIONS.add(ExtendedConfig.Options.SERVER_IP_MC);
         OPTIONS.add(ExtendedConfig.Options.EQUIPMENT_HUD);
+        OPTIONS.add(ExtendedConfig.Options.EQUIPMENT_ARMOR_ITEMS);
+        OPTIONS.add(ExtendedConfig.Options.EQUIPMENT_HAND_ITEMS);
         OPTIONS.add(ExtendedConfig.Options.POTION_HUD);
         OPTIONS.add(ExtendedConfig.Options.REAL_TIME);
         OPTIONS.add(ExtendedConfig.Options.GAME_TIME);
