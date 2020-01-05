@@ -1,13 +1,12 @@
 package stevekung.mods.indicatia.gui;
 
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiTextField;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import stevekung.mods.indicatia.utils.NumberUtils;
 
 @SideOnly(Side.CLIENT)
-public class GuiNumberField extends GuiTextField
+public class GuiNumberField extends GuiRightClickTextField
 {
     public GuiNumberField(int id, FontRenderer font, int x, int y, int width, int height)
     {

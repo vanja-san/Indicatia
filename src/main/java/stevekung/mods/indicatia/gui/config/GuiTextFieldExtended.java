@@ -1,13 +1,13 @@
 package stevekung.mods.indicatia.gui.config;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiTextField;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import stevekung.mods.indicatia.config.ExtendedConfig;
+import stevekung.mods.indicatia.gui.GuiRightClickTextField;
 
 @SideOnly(Side.CLIENT)
-public class GuiTextFieldExtended extends GuiTextField
+public class GuiTextFieldExtended extends GuiRightClickTextField
 {
     private final ExtendedConfig.Options options;
 
