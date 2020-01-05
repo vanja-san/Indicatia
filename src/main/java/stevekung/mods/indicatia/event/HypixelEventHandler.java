@@ -72,7 +72,7 @@ public class HypixelEventHandler
     public static final Pattern COINS_GIFT_PATTERN = Pattern.compile("(?<type>COMMON|SWEET|RARE)! \\u002B(?<coin>[0-9,]+) coins gift with " + RANKED_PATTERN + "!");
     public static final Pattern SKILL_EXP_GIFT_PATTERN = Pattern.compile("(?<type>COMMON|SWEET|RARE)! \\u002B(?<exp>[0-9,]+) (?<skill>Farming|Mining|Combat|Foraging|Fishing|Enchanting|Alchemy)+ XP gift with " + RANKED_PATTERN + "!");
     public static final Pattern ITEM_DROP_GIFT_PATTERN = Pattern.compile("(?<type>COMMON|SWEET|RARE)! " + DROP_PATTERN + " gift with " + RANKED_PATTERN + "+!");
-    public static final Pattern SANTA_GIFT_PATTERN = Pattern.compile("SANTA GIFT! " + RANKED_PATTERN + " gifted " + DROP_PATTERN + " to " + RANKED_PATTERN + "!");
+    public static final Pattern SANTA_GIFT_PATTERN = Pattern.compile("SANTA TIER! " + DROP_PATTERN + " gifted with " + RANKED_PATTERN + "!");
 
     private static final List<String> LEFT_PARTY_MESSAGE = new ArrayList<>(Arrays.asList("You are not in a party and have been moved to the ALL channel!", "has disbanded the party!", "The party was disbanded because all invites have expired and all members have left."));
 
@@ -517,6 +517,10 @@ public class HypixelEventHandler
                             {
                                 iterator.remove();
                             }
+                        }
+                        else if (drop.getName().equals("Enchanted Book"))
+                        {
+                            System.out.println(newItem.getTagCompound());
                         }
                     }
                 }
