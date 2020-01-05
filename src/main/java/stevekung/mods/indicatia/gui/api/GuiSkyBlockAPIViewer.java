@@ -6,19 +6,21 @@ import org.lwjgl.input.Keyboard;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.GuiTextField;
+import stevekung.mods.indicatia.gui.GuiRightClickTextField;
 import stevekung.mods.indicatia.utils.LangUtils;
 
 public class GuiSkyBlockAPIViewer extends GuiScreen
 {
-    private GuiTextField usernameTextField;
+    private GuiRightClickTextField usernameTextField;
     private GuiButton checkButton;
     private GuiButton cancelButton;
+    private String username = "";
 
-    @Override
-    public void updateScreen()
+    public GuiSkyBlockAPIViewer() {}
+
+    public GuiSkyBlockAPIViewer(String username)
     {
-        this.usernameTextField.updateCursorCounter();
+        this.username = username;
     }
 
     @Override
@@ -28,9 +30,17 @@ public class GuiSkyBlockAPIViewer extends GuiScreen
         this.buttonList.clear();
         this.buttonList.add(this.checkButton = new GuiButton(0, this.width / 2 - 4 - 150, this.height / 4 + 120 + 12, 150, 20, "Check"));
         this.buttonList.add(this.cancelButton = new GuiButton(1, this.width / 2 + 4, this.height / 4 + 120 + 12, 150, 20, LangUtils.translate("gui.cancel")));
-        this.usernameTextField = new GuiTextField(2, this.fontRendererObj, this.width / 2 - 75, 70, 150, 20);
+        this.usernameTextField = new GuiRightClickTextField(2, this.fontRendererObj, this.width / 2 - 75, 70, 150, 20);
         this.usernameTextField.setMaxStringLength(32767);
         this.usernameTextField.setFocused(true);
+        this.usernameTextField.setText(this.username);
+        this.checkButton.enabled = this.usernameTextField.getText().trim().length() > 0;
+    }
+
+    @Override
+    public void updateScreen()
+    {
+        this.usernameTextField.updateCursorCounter();
         this.checkButton.enabled = this.usernameTextField.getText().trim().length() > 0;
     }
 
@@ -60,7 +70,6 @@ public class GuiSkyBlockAPIViewer extends GuiScreen
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
         this.usernameTextField.textboxKeyTyped(typedChar, keyCode);
-        this.checkButton.enabled = this.usernameTextField.getText().trim().length() > 0;
 
         if (keyCode != 28 && keyCode != 156)
         {

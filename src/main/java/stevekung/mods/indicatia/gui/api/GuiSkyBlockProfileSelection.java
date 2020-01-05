@@ -5,20 +5,21 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.lang3.time.StopWatch;
 
 import com.google.gson.*;
 
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.IProgressMeter;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.MathHelper;
 import stevekung.mods.indicatia.gui.GuiSBProfileButton;
-import stevekung.mods.indicatia.utils.CommonUtils;
-import stevekung.mods.indicatia.utils.LangUtils;
-import stevekung.mods.indicatia.utils.LoggerIN;
-import stevekung.mods.indicatia.utils.SkyBlockAPIUtils;
+import stevekung.mods.indicatia.utils.*;
 
 public class GuiSkyBlockProfileSelection extends GuiScreen
 {
@@ -28,10 +29,20 @@ public class GuiSkyBlockProfileSelection extends GuiScreen
     private GuiButton doneButton;
     private GuiButton backButton;
     private String username;
+    private List<SkyBlockFallbackData> profiles = new ArrayList<>();
+    private final StopWatch watch = new StopWatch();
+    private int percent;
 
     public GuiSkyBlockProfileSelection(String username)
     {
         this.username = username;
+    }
+
+    public GuiSkyBlockProfileSelection(String username, List<SkyBlockFallbackData> profiles)
+    {
+        this.username = username;
+        this.profiles = profiles;
+        this.loadingApi = false;
     }
 
     @Override
@@ -41,18 +52,59 @@ public class GuiSkyBlockProfileSelection extends GuiScreen
         this.buttonList.add(this.doneButton = new GuiButton(0, this.width / 2 - 4 - 150, this.height / 4 + 120 + 12, 150, 20, LangUtils.translate("gui.done")));
         this.buttonList.add(this.backButton = new GuiButton(1, this.width / 2 + 4, this.height / 4 + 120 + 12, 150, 20, LangUtils.translate("gui.back")));
 
-        CommonUtils.POOL.execute(() ->
+        if (!this.profiles.isEmpty())
         {
-            try
+            int i = 0;
+
+            for (SkyBlockFallbackData data : this.profiles)
             {
-                this.checkAPI();
+                String sbProfileId = data.getProfileId();
+                String profileName = data.getProfileName();
+                String uuid = data.getUUID();
+                GuiSBProfileButton button = new GuiSBProfileButton(i + 1000, this.width / 2 - 75, 50, 150, 20, profileName, sbProfileId, this.username, uuid);
+                button.yPosition += i * 22;
+                this.buttonList.add(button);
+                ++i;
             }
-            catch (IOException | JsonSyntaxException | JsonIOException e)
+            for (GuiButton button : this.buttonList)
             {
-                e.printStackTrace();
-                this.loadingApi = false;
+                if (button instanceof GuiSBProfileButton)
+                {
+                    ((GuiSBProfileButton)button).setProfileList(this.profiles);
+                }
             }
-        });
+        }
+        else
+        {
+            CommonUtils.POOL.execute(() ->
+            {
+                this.watch.start();
+
+                try
+                {
+                    this.checkAPI();
+                }
+                catch (IOException | JsonSyntaxException | JsonIOException e)
+                {
+                    e.printStackTrace();
+                    this.loadingApi = false;
+                }
+                this.watch.stop();
+            });
+        }
+    }
+
+    @Override
+    public void updateScreen()
+    {
+        if (!this.watch.isStopped() && this.percent < 100)
+        {
+            this.percent = (int)(this.watch.getTime() * 100 / 1500);
+        }
+        if (this.percent > 100)
+        {
+            this.percent = 100;
+        }
     }
 
     @Override
@@ -71,11 +123,11 @@ public class GuiSkyBlockProfileSelection extends GuiScreen
         {
             if (button.id == 0)
             {
-                this.mc.displayGuiScreen(this.error ? new GuiSkyBlockAPIViewer() : null);
+                this.mc.displayGuiScreen(this.error ? new GuiSkyBlockAPIViewer(this.username) : null);
             }
             else if (button.id == 1)
             {
-                this.mc.displayGuiScreen(new GuiSkyBlockAPIViewer());
+                this.mc.displayGuiScreen(new GuiSkyBlockAPIViewer(this.username));
             }
         }
     }
@@ -88,7 +140,15 @@ public class GuiSkyBlockProfileSelection extends GuiScreen
         if (this.loadingApi)
         {
             this.drawCenteredString(this.fontRendererObj, LangUtils.translate("Downloading SkyBlock stats"), this.width / 2, this.height / 2 - 20, 16777215);
-            this.drawCenteredString(this.fontRendererObj, IProgressMeter.lanSearchStates[(int)(Minecraft.getSystemTime() / 150L % IProgressMeter.lanSearchStates.length)], this.width / 2, this.height / 2 + this.fontRendererObj.FONT_HEIGHT * 2 - 20, 16777215);
+
+            int i = this.width / 2 - 150;
+            int j = this.width / 2 + 150;
+            int k = this.height / 4 + 100;
+            int l = k + 10;
+            int j1 = MathHelper.floor_float(this.percent / 100.0F * (j - i));
+            Gui.drawRect(i - 1, k - 1, j + 1, l + 1, -16777216);
+            Gui.drawRect(i, k, i + j1, l, ColorUtils.to32BitColor(128, 85, 255, 85));
+            this.drawCenteredString(this.fontRendererObj, this.percent + "%", this.width / 2, k + (l - k) / 2 - 9 / 2, 10526880);
         }
         else
         {
@@ -139,7 +199,7 @@ public class GuiSkyBlockProfileSelection extends GuiScreen
 
         if (profiles.entrySet().isEmpty())
         {
-            this.setErrorMessage("Empty profiles data! Please check to this website instead\nhttps://sky.lea.moe/");//TODO Split string + click handler
+            this.setErrorMessage("Empty profile data! Please check to this website instead\nhttps://sky.lea.moe/");//TODO Split string + click handler
             return;
         }
 
@@ -147,10 +207,19 @@ public class GuiSkyBlockProfileSelection extends GuiScreen
         {
             String sbProfileId = profiles.get(entry.getKey()).getAsJsonObject().get("profile_id").getAsString();
             String profileName = profiles.get(entry.getKey()).getAsJsonObject().get("cute_name").getAsString();
-            GuiSBProfileButton button = new GuiSBProfileButton(i + 1000, this.width / 2 - 75, 50, 150, 20, profileName, sbProfileId, jsonPlayer.getAsJsonObject().get("uuid").getAsString());
+            String uuid = jsonPlayer.getAsJsonObject().get("uuid").getAsString();
+            GuiSBProfileButton button = new GuiSBProfileButton(i + 1000, this.width / 2 - 75, 50, 150, 20, profileName, sbProfileId, this.username, uuid);
             button.yPosition += i * 22;
             this.buttonList.add(button);
+            this.profiles.add(new SkyBlockFallbackData(sbProfileId, profileName, uuid));
             ++i;
+        }
+        for (GuiButton button : this.buttonList)
+        {
+            if (button instanceof GuiSBProfileButton)
+            {
+                ((GuiSBProfileButton)button).setProfileList(this.profiles);
+            }
         }
         this.loadingApi = false;
     }

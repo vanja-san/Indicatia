@@ -2,7 +2,6 @@ package stevekung.mods.indicatia.gui.api;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -12,11 +11,12 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.time.StopWatch;
+
 import com.google.gson.*;
 
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.IProgressMeter;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
@@ -24,10 +24,8 @@ import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
-import stevekung.mods.indicatia.utils.CommonUtils;
-import stevekung.mods.indicatia.utils.LangUtils;
-import stevekung.mods.indicatia.utils.LoggerIN;
-import stevekung.mods.indicatia.utils.SkyBlockAPIUtils;
+import net.minecraft.util.MathHelper;
+import stevekung.mods.indicatia.utils.*;
 
 public class GuiSkyBlockData extends GuiContainer
 {
@@ -36,18 +34,23 @@ public class GuiSkyBlockData extends GuiContainer
     private static final int COLUMNS = 64;
     private GuiButton doneButton;
     private GuiButton backButton;
+    private final List<SkyBlockFallbackData> profiles;
     private final String sbProfileId;
     private final String sbProfileName;
     private final String uuid;
-    private String username;
+    private final String username;
     private final List<SkyBlockInfo> infoList = new CopyOnWriteArrayList<>();
     private static final int MAX_FAIRY_SOULS = 190;
+    private final StopWatch watch = new StopWatch();
+    private int percent;
 
-    public GuiSkyBlockData(String sbProfileId, String sbProfileName, String uuid)
+    public GuiSkyBlockData(List<SkyBlockFallbackData> profiles, String sbProfileId, String sbProfileName, String username, String uuid)
     {
         super(new GuiSkyBlockData.ContainerSkyBlock());
+        this.profiles = profiles;
         this.sbProfileId = sbProfileId;
         this.sbProfileName = sbProfileName;
+        this.username = username;
         this.uuid = uuid;
     }
 
@@ -59,6 +62,8 @@ public class GuiSkyBlockData extends GuiContainer
 
         CommonUtils.POOL.execute(() ->
         {
+            this.watch.start();
+
             try
             {
                 this.getProfileData();
@@ -68,9 +73,23 @@ public class GuiSkyBlockData extends GuiContainer
                 e.printStackTrace();
                 this.loadingApi = false;
             }
+            this.watch.stop();
         });
         this.buttonList.add(this.doneButton = new GuiButton(0, this.width / 2 - 4 - 150, this.height / 4 + 120 + 12, 150, 20, LangUtils.translate("gui.done")));
         this.buttonList.add(this.backButton = new GuiButton(1, this.width / 2 + 4, this.height / 4 + 120 + 12, 150, 20, LangUtils.translate("gui.back")));
+    }
+
+    @Override
+    public void updateScreen()
+    {
+        if (!this.watch.isStopped() && this.percent < 100)
+        {
+            this.percent = (int)(this.watch.getTime() * 100 / 2000);
+        }
+        if (this.percent > 100)
+        {
+            this.percent = 100;
+        }
     }
 
     private void getProfileData() throws IOException
@@ -88,27 +107,13 @@ public class GuiSkyBlockData extends GuiContainer
 
         for (Map.Entry<String, JsonElement> entry : profiles.entrySet())
         {
-            String userUUID = entry.getKey();// user uuid not skyblock profile uuid
+            String userUUID = entry.getKey();
 
             if (userUUID.equals(this.uuid))
             {
-                System.out.println("equalll");
-                String rawName = "";
                 DecimalFormat format = new DecimalFormat("#,###,###,###,###");
 
-                try (InputStream input = new URL("https://api.mojang.com/user/profiles/" + userUUID + "/names").openStream();)
-                {
-                    BufferedReader reader2 = new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8));
-                    JsonArray json = new JsonParser().parse(reader2).getAsJsonArray();
-                    rawName = json.get(json.size() - 1).getAsJsonObject().get("name").getAsString();
-                    this.username = rawName;
-                }
-                catch (IOException e)
-                {
-                    e.printStackTrace();
-                }
-
-                LoggerIN.info("Name: {}, UserInProfileUUID: {}", rawName, userUUID);
+                LoggerIN.info("Name: {}, UserInProfileUUID: {}", this.username, userUUID);
 
                 JsonObject currentUserProfile = profiles.get(userUUID).getAsJsonObject();
                 JsonElement fairySouls = currentUserProfile.get("fairy_souls_collected");
@@ -123,7 +128,6 @@ public class GuiSkyBlockData extends GuiContainer
 
                 long lastSave = currentUserProfile.get("last_save").getAsLong();
 
-                new SimpleDateFormat("dd/MM/yyyy");
                 Date past = new Date(lastSave);
                 Date now = new Date();
 
@@ -159,9 +163,17 @@ public class GuiSkyBlockData extends GuiContainer
                 }
 
                 JsonElement slayerBosses = currentUserProfile.get("slayer_bosses");
-                this.infoList.addAll(this.getSlayer(slayerBosses, format, "Zombie"));
-                this.infoList.addAll(this.getSlayer(slayerBosses, format, "Spider"));
-                this.infoList.addAll(this.getSlayer(slayerBosses, format, "Wolf"));
+
+                if (slayerBosses != null)
+                {
+                    this.infoList.addAll(this.getSlayer(slayerBosses, format, "Zombie"));
+                    this.infoList.addAll(this.getSlayer(slayerBosses, format, "Spider"));
+                    this.infoList.addAll(this.getSlayer(slayerBosses, format, "Wolf"));
+                }
+                else
+                {
+                    this.infoList.add(new SkyBlockInfo(EnumChatFormatting.RED, EnumChatFormatting.DARK_RED, "Slayer Info", "Slayer data not available!"));
+                }
 
                 ContainerSkyBlock container = (ContainerSkyBlock)this.inventorySlots;
                 container.itemList.clear();
@@ -226,11 +238,6 @@ public class GuiSkyBlockData extends GuiContainer
     }
 
     @Override
-    public void updateScreen()
-    {
-    }
-
-    @Override
     public void onGuiClosed()
     {
         TEMP_INVENTORY.clear();
@@ -247,7 +254,7 @@ public class GuiSkyBlockData extends GuiContainer
             }
             else if (button.id == 1)
             {
-                this.mc.displayGuiScreen(new GuiSkyBlockProfileSelection(this.username));
+                this.mc.displayGuiScreen(new GuiSkyBlockProfileSelection(this.username, this.profiles));
             }
         }
     }
@@ -306,7 +313,15 @@ public class GuiSkyBlockData extends GuiContainer
         {
             this.drawDefaultBackground();
             this.drawCenteredString(this.fontRendererObj, LangUtils.translate("Downloading SkyBlock stats"), this.width / 2, this.height / 2 - 20, 16777215);
-            this.drawCenteredString(this.fontRendererObj, IProgressMeter.lanSearchStates[(int)(Minecraft.getSystemTime() / 150L % IProgressMeter.lanSearchStates.length)], this.width / 2, this.height / 2 + this.fontRendererObj.FONT_HEIGHT * 2 - 20, 16777215);
+
+            int i = this.width / 2 - 150;
+            int j = this.width / 2 + 150;
+            int k = this.height / 4 + 100;
+            int l = k + 10;
+            int j1 = MathHelper.floor_float(this.percent / 100.0F * (j - i));
+            Gui.drawRect(i - 1, k - 1, j + 1, l + 1, -16777216);
+            Gui.drawRect(i, k, i + j1, l, ColorUtils.to32BitColor(128, 85, 255, 85));
+            this.drawCenteredString(this.fontRendererObj, this.percent + "%", this.width / 2, k + (l - k) / 2 - 9 / 2, 10526880);
         }
         else
         {
