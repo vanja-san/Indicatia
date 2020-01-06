@@ -8,14 +8,11 @@ import org.lwjgl.input.Keyboard;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import stevekung.mods.indicatia.config.ExtendedConfig;
 import stevekung.mods.indicatia.utils.ColorUtils;
 import stevekung.mods.indicatia.utils.ColorUtils.RGB;
 import stevekung.mods.indicatia.utils.LangUtils;
 
-@SideOnly(Side.CLIENT)
 public class GuiRenderInfoCustomColorSettings extends GuiScreen
 {
     private final GuiScreen parent;

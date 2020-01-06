@@ -8,8 +8,6 @@ import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import stevekung.mods.indicatia.gui.config.GuiExtendedConfig;
 import stevekung.mods.indicatia.utils.ClientUtils;
 import stevekung.mods.indicatia.utils.GameProfileUtils;
@@ -1061,7 +1059,6 @@ public class ExtendedConfig
         return LangUtils.translate(strArray[index]);
     }
 
-    @SideOnly(Side.CLIENT)
     public static enum Options
     {
         PREVIEW(false, true),

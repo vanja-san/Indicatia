@@ -7,12 +7,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import stevekung.mods.indicatia.utils.MojangServerStatus;
 import stevekung.mods.indicatia.utils.MojangStatusChecker;
 
-@SideOnly(Side.CLIENT)
 public class GuiMojangStatusChecker extends GuiScreen
 {
     private static List<String> statusList = new CopyOnWriteArrayList<>();

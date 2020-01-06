@@ -6,12 +6,9 @@ import java.util.List;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import stevekung.mods.indicatia.config.ExtendedConfig;
 import stevekung.mods.indicatia.utils.LangUtils;
 
-@SideOnly(Side.CLIENT)
 public class GuiHypixelSettings extends GuiScreen
 {
     private final GuiScreen parent;

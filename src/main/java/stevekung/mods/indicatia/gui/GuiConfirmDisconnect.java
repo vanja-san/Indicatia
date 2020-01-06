@@ -2,10 +2,7 @@ package stevekung.mods.indicatia.gui;
 
 import net.minecraft.client.gui.*;
 import net.minecraft.client.resources.I18n;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
-@SideOnly(Side.CLIENT)
 public class GuiConfirmDisconnect extends GuiScreen
 {
     @Override

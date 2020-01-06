@@ -6,11 +6,8 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiListExtended;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import stevekung.mods.indicatia.config.ExtendedConfig;
 
-@SideOnly(Side.CLIENT)
 public class GuiConfigButtonRowList extends GuiListExtended
 {
     private final List<GuiConfigButtonRowList.Row> options = new ArrayList<>();
@@ -67,7 +64,6 @@ public class GuiConfigButtonRowList extends GuiListExtended
         return super.getScrollBarX() + 40;
     }
 
-    @SideOnly(Side.CLIENT)
     public static class Row implements GuiListExtended.IGuiListEntry
     {
         private final Minecraft mc = Minecraft.getMinecraft();

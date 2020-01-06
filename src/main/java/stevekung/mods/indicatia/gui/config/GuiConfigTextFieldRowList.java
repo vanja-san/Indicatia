@@ -9,12 +9,9 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiListExtended;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import stevekung.mods.indicatia.config.ExtendedConfig;
 import stevekung.mods.indicatia.utils.ColorUtils;
 
-@SideOnly(Side.CLIENT)
 public class GuiConfigTextFieldRowList extends GuiListExtended
 {
     private final List<GuiConfigTextFieldRowList.Row> options = new ArrayList<>();
@@ -109,7 +106,6 @@ public class GuiConfigTextFieldRowList extends GuiListExtended
         this.options.forEach(row -> row.textboxKeyTyped(typedChar, keyCode));
     }
 
-    @SideOnly(Side.CLIENT)
     public static class Row implements GuiListExtended.IGuiListEntry
     {
         private final Minecraft mc = Minecraft.getMinecraft();

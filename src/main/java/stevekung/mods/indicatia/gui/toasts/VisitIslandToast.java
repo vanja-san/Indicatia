@@ -12,13 +12,10 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.tileentity.TileEntitySkull;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import stevekung.mods.indicatia.renderer.HUDInfo;
 import stevekung.mods.indicatia.utils.ColorUtils;
 import stevekung.mods.indicatia.utils.JsonUtils;
 
-@SideOnly(Side.CLIENT)
 public class VisitIslandToast implements IToast
 {
     private static final ResourceLocation TEXTURE = new ResourceLocation("indicatia:textures/gui/visit_island_toasts.png");

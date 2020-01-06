@@ -10,11 +10,8 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import stevekung.mods.indicatia.config.ExtendedConfig;
 
-@SideOnly(Side.CLIENT)
 public class LayerGlowingTexture implements LayerRenderer<EntityLivingBase>
 {
     private final ModelRenderer render;

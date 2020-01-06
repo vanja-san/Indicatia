@@ -4,15 +4,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.resources.IReloadableResourceManager;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import stevekung.mods.indicatia.event.ClientEventHandler;
 
 public class ColorUtils
 {
     public static FontRenderer unicodeFontRenderer;
 
-    @SideOnly(Side.CLIENT)
     public static void init()
     {
         Minecraft mc = Minecraft.getMinecraft();

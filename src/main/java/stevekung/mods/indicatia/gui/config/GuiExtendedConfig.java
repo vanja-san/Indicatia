@@ -11,14 +11,11 @@ import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import stevekung.mods.indicatia.config.ExtendedConfig;
 import stevekung.mods.indicatia.utils.ClientUtils;
 import stevekung.mods.indicatia.utils.CommonUtils;
 import stevekung.mods.indicatia.utils.LangUtils;
 
-@SideOnly(Side.CLIENT)
 public class GuiExtendedConfig extends GuiScreen
 {
     private static final List<ExtendedConfig.Options> OPTIONS = new ArrayList<>();

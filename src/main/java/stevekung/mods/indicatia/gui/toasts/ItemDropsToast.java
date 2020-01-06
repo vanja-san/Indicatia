@@ -10,14 +10,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StringUtils;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import stevekung.mods.indicatia.event.ClientEventHandler;
 import stevekung.mods.indicatia.renderer.HUDInfo;
 import stevekung.mods.indicatia.utils.ColorUtils;
 import stevekung.mods.indicatia.utils.JsonUtils;
 
-@SideOnly(Side.CLIENT)
 public class ItemDropsToast implements IToast
 {
     private static final ResourceLocation TEXTURE = new ResourceLocation("indicatia:textures/gui/drop_toasts.png");

@@ -3,12 +3,9 @@ package stevekung.mods.indicatia.gui.config;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import stevekung.mods.indicatia.config.ExtendedConfig;
 import stevekung.mods.indicatia.utils.ColorUtils;
 
-@SideOnly(Side.CLIENT)
 public class GuiConfigButton extends GuiButton
 {
     private final ExtendedConfig.Options options;

@@ -5,10 +5,7 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
-@SideOnly(Side.CLIENT)
 public class GuiButtonMojangStatus extends GuiButton
 {
     private static final ResourceLocation MOJANG_TEXTURES = new ResourceLocation("indicatia:textures/gui/mojang.png");
