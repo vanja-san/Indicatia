@@ -1,10 +1,13 @@
 package stevekung.mods.indicatia.gui.toasts;
 
+import java.nio.FloatBuffer;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Deque;
 
 import javax.annotation.Nullable;
+
+import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -12,10 +15,8 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.util.MathHelper;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.indicatia.utils.ColorUtils;
 
-@SideOnly(Side.CLIENT)
 public class GuiToast extends Gui
 {
     protected final Minecraft mc;
@@ -49,6 +50,35 @@ public class GuiToast extends Gui
         }
     }
 
+    public static void drawLongItemName(GuiToast toastGui, long delta, long firstDrawTime, FloatBuffer buffer, String itemName)
+    {
+        int x = 30;
+        int textWidth = toastGui.mc.fontRendererObj.getStringWidth(itemName);
+        int maxSize = textWidth - 135;
+        long timeElapsed = delta - firstDrawTime - 500L;
+        long textSpeed = 8000L;
+
+        if (timeElapsed > 0 && textWidth > maxSize && textWidth > 120)
+        {
+            x = Math.max((int) (-textWidth * timeElapsed / textSpeed + x), -maxSize + 16);
+        }
+
+        ScaledResolution res = new ScaledResolution(toastGui.mc);
+        double height = res.getScaledHeight();
+        double scale = res.getScaleFactor();
+        float[] trans = new float[16];
+
+        buffer.clear();
+        GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX, buffer);
+        buffer.get(trans);
+        float xpos = trans[12];
+
+        GL11.glEnable(GL11.GL_SCISSOR_TEST);
+        GL11.glScissor((int) ((xpos + 29) * scale), (int) ((height - 195) * scale), (int) (126 * scale), (int) (195 * scale));
+        toastGui.mc.fontRendererObj.drawString(itemName, x, 18, ColorUtils.rgbToDecimal(255, 255, 255));
+        GL11.glDisable(GL11.GL_SCISSOR_TEST);
+    }
+
     @Nullable
     public <T extends IToast> T getToast(Class<? extends T> clazz, Object obj)
     {
@@ -80,7 +110,6 @@ public class GuiToast extends Gui
         return this.toastsQueue.add(toast);
     }
 
-    @SideOnly(Side.CLIENT)
     class ToastInstance<T extends IToast>
     {
         private final T toast;
@@ -130,6 +159,7 @@ public class GuiToast extends Gui
             IToast.Visibility itoast$visibility = this.toast.draw(GuiToast.this, i - this.visibleTime);
             GlStateManager.disableBlend();
             GlStateManager.popMatrix();
+            GlStateManager.enableAlpha();
 
             if (itoast$visibility != this.visibility)
             {

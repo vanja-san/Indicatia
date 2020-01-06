@@ -36,7 +36,7 @@ public class GuiSBProfileButton extends GuiButton
         }
         return false;
     }
-    
+
     public void setProfileList(List<SkyBlockFallbackData> profiles)
     {
         this.profiles = profiles;

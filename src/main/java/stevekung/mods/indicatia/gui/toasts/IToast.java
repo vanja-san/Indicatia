@@ -4,10 +4,7 @@ import net.minecraft.client.audio.ISound;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
-@SideOnly(Side.CLIENT)
 public interface IToast
 {
     Object NO_TOKEN = new Object();
@@ -18,7 +15,6 @@ public interface IToast
         return NO_TOKEN;
     }
 
-    @SideOnly(Side.CLIENT)
     public static enum Visibility
     {
         SHOW("indicatia:ui.toast.in"),

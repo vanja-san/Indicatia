@@ -1,11 +1,18 @@
 package stevekung.mods.indicatia.gui.toasts;
 
+import java.nio.FloatBuffer;
+
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.StringUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.indicatia.event.ClientEventHandler;
 import stevekung.mods.indicatia.renderer.HUDInfo;
 import stevekung.mods.indicatia.utils.ColorUtils;
 import stevekung.mods.indicatia.utils.JsonUtils;
@@ -14,13 +21,22 @@ import stevekung.mods.indicatia.utils.JsonUtils;
 public class ItemDropsToast implements IToast
 {
     private static final ResourceLocation TEXTURE = new ResourceLocation("indicatia:textures/gui/drop_toasts.png");
-    private final ItemDrop rareDropOutput;
+    private static final ResourceLocation MAGIC_FIND_GLINT = new ResourceLocation("indicatia:textures/gui/magic_find_glint.png");
+    private final ToastUtils.ItemDrop rareDropOutput;
     private long firstDrawTime;
     private boolean hasNewStacks;
+    private final FloatBuffer buffer = GLAllocation.createDirectFloatBuffer(16);
+    private String magicFind;
 
-    public ItemDropsToast(ItemStack itemStack, Type type)
+    public ItemDropsToast(ItemStack itemStack, ToastUtils.DropType type)
     {
-        this.rareDropOutput = new ItemDrop(itemStack, type);
+        this(itemStack, type, null);
+    }
+
+    public ItemDropsToast(ItemStack itemStack, ToastUtils.DropType type, String magicFind)
+    {
+        this.rareDropOutput = new ToastUtils.ItemDrop(itemStack, type);
+        this.magicFind = magicFind != null ? EnumChatFormatting.AQUA + " (" + magicFind + "% Magic Find!)" : "";
     }
 
     @Override
@@ -38,74 +54,60 @@ public class ItemDropsToast implements IToast
         }
         else
         {
-            ItemDrop drop = this.rareDropOutput;
+            ToastUtils.ItemDrop drop = this.rareDropOutput;
             ItemStack itemStack = drop.getItemStack();
-            toastGui.mc.getTextureManager().bindTexture(TEXTURE);
-            GlStateManager.color(1.0F, 1.0F, 1.0F);
-            Gui.drawModalRectWithCustomSizedTexture(0, 0, 0, 0, 160, 32, 160, 32);
+            String itemName = itemStack.getDisplayName() + this.magicFind;
+            float partialTicks = ClientEventHandler.renderPartialTicks;
+
+            if (!StringUtils.isNullOrEmpty(this.magicFind))
+            {
+                toastGui.mc.getTextureManager().bindTexture(TEXTURE);
+                GlStateManager.color(1.0F, 1.0F, 1.0F);
+                Gui.drawModalRectWithCustomSizedTexture(0, 0, 0, 0, 160, 32, 160, 32);
+
+                GlStateManager.enableBlend();
+                GlStateManager.depthFunc(514);
+
+                for (int i = 0; i < 2; ++i)
+                {
+                    GlStateManager.disableLighting();
+                    GlStateManager.blendFunc(768, 1);
+                    ColorUtils.RGB rgb = ColorUtils.stringToRGB("85,255,255");
+                    GlStateManager.color(rgb.floatRed(), rgb.floatGreen(), rgb.floatBlue(), 0.25F);
+                    GlStateManager.matrixMode(5890);
+                    GlStateManager.loadIdentity();
+                    GlStateManager.scale(0.2F, 0.2F, 0.2F);
+                    GlStateManager.rotate(30.0F - i * 60.0F, 0.0F, 0.0F, 1.0F);
+                    GlStateManager.translate(0.0F, partialTicks * (0.001F + i * 0.003F) * 20.0F, 0.0F);
+                    GlStateManager.matrixMode(5888);
+
+                    toastGui.mc.getTextureManager().bindTexture(MAGIC_FIND_GLINT);
+                    GlStateManager.blendFunc(770, 771);
+                    GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+                    Gui.drawModalRectWithCustomSizedTexture(0, 0, 0, 0, 160, 32, 160, 32);
+                }
+
+                GlStateManager.matrixMode(5890);
+                GlStateManager.loadIdentity();
+                GlStateManager.matrixMode(5888);
+                GlStateManager.enableLighting();
+                GlStateManager.depthFunc(515);
+                GlStateManager.disableBlend();
+            }
+            else
+            {
+                toastGui.mc.getTextureManager().bindTexture(TEXTURE);
+                GlStateManager.color(1.0F, 1.0F, 1.0F);
+                Gui.drawModalRectWithCustomSizedTexture(0, 0, 0, 0, 160, 32, 160, 32);
+            }
+
+            RenderHelper.disableStandardItemLighting();
             toastGui.mc.fontRendererObj.drawString(drop.getType().getColor() + JsonUtils.create(drop.getType().getName()).setChatStyle(JsonUtils.style().setBold(true)).getFormattedText(), 30, 7, 16777215);
-            toastGui.mc.fontRendererObj.drawString(itemStack.getDisplayName(), 30, 18, ColorUtils.rgbToDecimal(255, 255, 255));
+            GuiToast.drawLongItemName(toastGui, delta, this.firstDrawTime, this.buffer, itemName);
+            RenderHelper.enableGUIStandardItemLighting();
+
             HUDInfo.renderItem(itemStack, 8, 8);
             return delta - this.firstDrawTime >= 15000L ? IToast.Visibility.HIDE : IToast.Visibility.SHOW;
-        }
-    }
-
-    public static class ItemDrop
-    {
-        private final ItemStack itemStack;
-        private final Type type;
-
-        public ItemDrop(ItemStack itemStack, Type type)
-        {
-            this.itemStack = itemStack;
-            this.type = type;
-        }
-
-        public ItemStack getItemStack()
-        {
-            return this.itemStack;
-        }
-
-        public Type getType()
-        {
-            return this.type;
-        }
-    }
-
-    public enum Type
-    {
-        RARE_DROP("RARE DROP!", "255,170,0"),
-        DRAGON_CRYSTAL_FRAGMENT("RARE DROP!", "170,0,170"),
-        DRAGON_DROP("DRAGON DROP!", "127,255,212"),
-        GOOD_CATCH("GOOD CATCH!", "255,170,0"),
-        GREAT_CATCH("GREAT CATCH!", "170,0,170"),
-        GOOD_CATCH_COINS("GOOD CATCH!", "255,170,0"),
-        GREAT_CATCH_COINS("GREAT CATCH!", "170,0,170"),
-        SLAYER_RARE_DROP("RARE DROP!", "85,255,255"),
-        SLAYER_VERY_RARE_DROP("VERY RARE DROP!", "85,85,255"),
-        SLAYER_CRAZY_RARE_DROP("CRAZY RARE DROP!", "255,85,255"),
-        COMMON_GIFT("COMMON GIFT!", "255,255,255"),
-        SWEET_GIFT("SWEET GIFT!", "255,255,85"),
-        RARE_GIFT("RARE GIFT!", "85,85,255"),
-        SANTA_GIFT("SANTA GIFT!", "255,85,85");
-
-        private final String name;
-        private final String color;
-
-        private Type(String name, String color)
-        {
-            this.name = name;
-            this.color = color;
-        }
-
-        public String getName()
-        {
-            return this.name;
-        }
-
-        public String getColor()
-        {
-            return ColorUtils.stringToRGB(this.color).toColoredFont();
         }
     }
 }

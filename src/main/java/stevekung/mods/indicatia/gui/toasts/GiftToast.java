@@ -1,16 +1,16 @@
 package stevekung.mods.indicatia.gui.toasts;
 
+import java.nio.FloatBuffer;
 import java.util.Random;
 
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import stevekung.mods.indicatia.gui.toasts.ItemDropsToast.ItemDrop;
 import stevekung.mods.indicatia.renderer.HUDInfo;
-import stevekung.mods.indicatia.utils.ColorUtils;
 import stevekung.mods.indicatia.utils.JsonUtils;
 
 @SideOnly(Side.CLIENT)
@@ -18,14 +18,15 @@ public class GiftToast implements IToast
 {
     private final Random rand = new Random();
     private final ResourceLocation texture;
-    private final ItemDrop rareDropOutput;
+    private final ToastUtils.ItemDrop rareDropOutput;
     private long firstDrawTime;
     private boolean hasNewStacks;
+    private final FloatBuffer buffer = GLAllocation.createDirectFloatBuffer(16);
 
-    public GiftToast(ItemStack itemStack, ItemDropsToast.Type rarity, boolean santaGift)
+    public GiftToast(ItemStack itemStack, ToastUtils.DropType rarity, boolean santaGift)
     {
-        this.rareDropOutput = new ItemDrop(itemStack, rarity);
-        this.texture = new ResourceLocation("indicatia:textures/gui/gift_toasts_" + (santaGift ? "1" : Integer.valueOf(1 + this.rand.nextInt(2))) + ".png");
+        this.rareDropOutput = new ToastUtils.ItemDrop(itemStack, rarity);
+        this.texture = new ResourceLocation("indicatia:textures/gui/gift_toasts_" + (santaGift ? 1 : Integer.valueOf(1 + this.rand.nextInt(2))) + ".png");
     }
 
     @Override
@@ -43,13 +44,14 @@ public class GiftToast implements IToast
         }
         else
         {
-            ItemDrop drop = this.rareDropOutput;
+            ToastUtils.ItemDrop drop = this.rareDropOutput;
             ItemStack itemStack = drop.getItemStack();
+            String itemName = itemStack.getDisplayName();
             toastGui.mc.getTextureManager().bindTexture(this.texture);
             GlStateManager.color(1.0F, 1.0F, 1.0F);
             Gui.drawModalRectWithCustomSizedTexture(0, 0, 0, 0, 160, 32, 160, 32);
             toastGui.mc.fontRendererObj.drawString(drop.getType().getColor() + JsonUtils.create(drop.getType().getName()).setChatStyle(JsonUtils.style().setBold(true)).getFormattedText(), 30, 7, 16777215);
-            toastGui.mc.fontRendererObj.drawString(itemStack.getDisplayName(), 30, 18, ColorUtils.rgbToDecimal(255, 255, 255));
+            GuiToast.drawLongItemName(toastGui, delta, this.firstDrawTime, this.buffer, itemName);
             HUDInfo.renderItem(itemStack, 8, 8);
             return delta - this.firstDrawTime >= 10000L ? IToast.Visibility.HIDE : IToast.Visibility.SHOW;
         }
