@@ -143,7 +143,7 @@ public class GuiSkyBlockProfileSelection extends GuiScreen
 
             int i = this.width / 2 - 150;
             int j = this.width / 2 + 150;
-            int k = this.height / 4 + 100;
+            int k = this.height / 2 + 10;
             int l = k + 10;
             int j1 = MathHelper.floor_float(this.percent / 100.0F * (j - i));
             Gui.drawRect(i - 1, k - 1, j + 1, l + 1, -16777216);
