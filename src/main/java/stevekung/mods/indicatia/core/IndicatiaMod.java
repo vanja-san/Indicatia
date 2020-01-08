@@ -35,6 +35,7 @@ import stevekung.mods.indicatia.event.HUDRenderEventHandler;
 import stevekung.mods.indicatia.event.HypixelEventHandler;
 import stevekung.mods.indicatia.event.IndicatiaEventHandler;
 import stevekung.mods.indicatia.gui.GuiIndicatiaChat;
+import stevekung.mods.indicatia.gui.api.SlayerSkill;
 import stevekung.mods.indicatia.handler.KeyBindingHandler;
 import stevekung.mods.indicatia.utils.*;
 
@@ -138,6 +139,17 @@ public class IndicatiaMod
     {
         GuiChatRegistry.register(new GuiIndicatiaChat());
         new ThreadMinigameData().run();
+        CommonUtils.POOL.execute(() ->
+        {
+            try
+            {
+                SlayerSkill.getSlayerXpFromRemote();
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        });
 
         if (ClientUtils.isEffectiveClient())
         {

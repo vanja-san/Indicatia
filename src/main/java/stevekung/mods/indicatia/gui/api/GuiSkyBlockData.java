@@ -49,6 +49,7 @@ public class GuiSkyBlockData extends GuiScreen
 {
     private static final String[] REVENANT_HORROR_HEAD = new String[] {"0862e0b0-a14f-3f93-894f-013502936b59", "eyJ0aW1lc3RhbXAiOjE1Njg0NTc0MjAxMzcsInByb2ZpbGVJZCI6IjQxZDNhYmMyZDc0OTQwMGM5MDkwZDU0MzRkMDM4MzFiIiwicHJvZmlsZU5hbWUiOiJNZWdha2xvb24iLCJzaWduYXR1cmVSZXF1aXJlZCI6dHJ1ZSwidGV4dHVyZXMiOnsiU0tJTiI6eyJ1cmwiOiJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlL2RiYWQ5OWVkM2M4MjBiNzk3ODE5MGFkMDhhOTM0YTY4ZGZhOTBkOTk4NjgyNWRhMWM5N2Y2ZjIxZjQ5YWQ2MjYifX19"};
     private static final ResourceLocation XP_BARS = new ResourceLocation("indicatia:textures/gui/skill_xp_bar.png");
+    private static final DecimalFormat FORMAT = new DecimalFormat("#,###,###,###,###");
     private boolean loadingApi = true;
     private static InventoryBasic TEMP_INVENTORY = new InventoryBasic("tmp", true, 512);
     private static final int COLUMNS = 64;
@@ -92,7 +93,7 @@ public class GuiSkyBlockData extends GuiScreen
         {
             CommonUtils.POOL.execute(() ->
             {
-                //            this.watch.start();
+                this.watch.start();
 
                 try
                 {
@@ -103,7 +104,7 @@ public class GuiSkyBlockData extends GuiScreen
                     e.printStackTrace();
                     this.loadingApi = false;
                 }
-                //            this.watch.stop();
+                this.watch.stop();
             });
         }
         this.buttonList.add(this.doneButton = new GuiButton(0, this.width / 2 - 154, this.height - 27, 150, 20, LangUtils.translate("gui.done")));
@@ -149,8 +150,12 @@ public class GuiSkyBlockData extends GuiScreen
     @Override
     public void onResize(Minecraft mc, int width, int height)
     {
-        //        this.watch.reset();
         this.resize = true;
+
+        if (!this.resize)
+        {
+            this.watch.reset();
+        }
 
         if (this.selectedView != -1)
         {
@@ -204,8 +209,6 @@ public class GuiSkyBlockData extends GuiScreen
 
             if (userUUID.equals(this.uuid))
             {
-                DecimalFormat format = new DecimalFormat("#,###,###,###,###");
-
                 LoggerIN.info("Name: {}, UserInProfileUUID: {}", this.username, userUUID);
 
                 JsonObject currentUserProfile = profiles.get(userUUID).getAsJsonObject();
@@ -248,7 +251,7 @@ public class GuiSkyBlockData extends GuiScreen
                 if (banking != null)
                 {
                     double balance = banking.getAsJsonObject().get("balance").getAsDouble();
-                    this.infoList.add(new SkyBlockInfo("Banking Account", format.format(balance)));
+                    this.infoList.add(new SkyBlockInfo("Banking Account", FORMAT.format(balance)));
                 }
                 else
                 {
@@ -341,14 +344,29 @@ public class GuiSkyBlockData extends GuiScreen
         if (xp != null)
         {
             list.add(new SkyBlockSlayerInfo(name + " Slayer"));
-
             list.add(SkyBlockSlayerInfo.createMob(name));
-            list.add(SkyBlockSlayerInfo.createXp(xp.getAsInt()));
+
+            int playerSlayerXp = xp.getAsInt();
+            int maxSlayerXp = 0;
+            int slayerLvl = 0;
+
+            for (SlayerSkill slayerSkills : SlayerSkill.SKILLS)
+            {
+                int slayerXp = slayerSkills.getXp();
+
+                if (slayerXp <= playerSlayerXp)
+                {
+                    maxSlayerXp = slayerXp;
+                    slayerLvl++;
+                }
+            }
+
+            list.add(SkyBlockSlayerInfo.createXp(slayerLvl + "," + playerSlayerXp + "," + maxSlayerXp));
 
             for (int i = 1; i <= 4; i++)
             {
                 JsonElement kills = slayer.getAsJsonObject().get("boss_kills_tier_" + (i - 1));
-                list.add(new SkyBlockSlayerInfo(name + " Tier " + i + ": " + (kills != null ? kills.getAsInt() : 0) + " kills"));
+                list.add(new SkyBlockSlayerInfo(name + " Tier " + i + ": " + (kills != null ? FORMAT.format(kills.getAsInt()) : 0) + " kills"));
             }
             for (int i = 0; i < 2; i++)
             {
@@ -358,7 +376,7 @@ public class GuiSkyBlockData extends GuiScreen
         }
         else
         {
-            return Collections.singletonList(new SkyBlockSlayerInfo("Slayer Info: This player doesn't start " + name.toLowerCase() + " slayer yet!"));
+            return Collections.singletonList(new SkyBlockSlayerInfo("Slayer Info: No " + name.toLowerCase() + " slayer data!"));
         }
     }
 
@@ -662,9 +680,9 @@ public class GuiSkyBlockData extends GuiScreen
             return new SkyBlockSlayerInfo(slayerType, Type.MOB);
         }
 
-        public static SkyBlockSlayerInfo createXp(int xp)
+        public static SkyBlockSlayerInfo createXp(String xp)
         {
-            return new SkyBlockSlayerInfo(String.valueOf(xp), Type.LEVEL);
+            return new SkyBlockSlayerInfo(xp, Type.LEVEL);
         }
 
         public static SkyBlockSlayerInfo empty()
@@ -756,23 +774,24 @@ public class GuiSkyBlockData extends GuiScreen
                 GlStateManager.color(0.0F, 1.0F, 1.0F, 1.0F);
                 GlStateManager.disableBlend();
 
-                int cap = this.parent.mc.thePlayer.xpBarCap();
-                int xp = Integer.valueOf(stat.getText());
+                String[] xpSplit = stat.getText().split(",");
+                int slayerLevel = Integer.valueOf(xpSplit[0]);
+                int playerSlayerXp = Integer.valueOf(xpSplit[1]);
+                int maxSlayerXp = Integer.valueOf(xpSplit[2]);
+                String text = "Level: " + slayerLevel + "/EXP: " + FORMAT.format(playerSlayerXp);
 
-                if (cap > 0)
+                short barWidth = 91;
+                int filled = Math.min((int)Math.floor(playerSlayerXp * (barWidth + 1) / maxSlayerXp / 4), 91);//TODO Correct way to calculate exp to lvl, lvl to exp
+                Gui.drawModalRectWithCustomSizedTexture(this.right - 150, top, 0, 0, barWidth, 5, barWidth, 10);
+
+                if (filled > 0)
                 {
-                    short barWidth = 91;
-                    int filled = (int)(xp * (float)(barWidth + 1));
-                    Gui.drawModalRectWithCustomSizedTexture(this.right - 150, top, 0, 0, barWidth, 5, barWidth, 10);
-
-                    if (filled > 0)
-                    {
-                        Gui.drawModalRectWithCustomSizedTexture(this.right - 150, top, 0, 5, filled, 5, barWidth, 10);
-                    }
+                    Gui.drawModalRectWithCustomSizedTexture(this.right - 150, top, 0, 5, filled, 5, barWidth, 10);
                 }
+
                 GlStateManager.enableBlend();
                 GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-                this.parent.drawString(this.parent.mc.fontRendererObj, stat.getText(), this.right - this.parent.mc.fontRendererObj.getStringWidth(stat.getText()) - 60, top - 16, 16777215);
+                this.parent.drawString(this.parent.mc.fontRendererObj, text, this.right - this.parent.mc.fontRendererObj.getStringWidth(text) - 60, top - 16, 16777215);
                 break;
             default:
                 if (this.getSize() <= 3)
