@@ -22,8 +22,6 @@ import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.client.gui.inventory.GuiEditSign;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraft.scoreboard.Score;
 import net.minecraft.scoreboard.ScoreObjective;
 import net.minecraft.scoreboard.ScorePlayerTeam;
@@ -317,7 +315,10 @@ public class HypixelEventHandler
                     {
                         String type = coinsCatchPattern.group("type");
                         String coin = coinsCatchPattern.group("coin");
-                        HUDRenderEventHandler.INSTANCE.getToastGui().add(new ItemDropsToast(HypixelEventHandler.getCoinItemStack(coin, type.equals("GOOD") ? CoinType.TYPE_1 : CoinType.TYPE_2), type.equals("GOOD") ? ToastUtils.DropType.GOOD_CATCH_COINS : ToastUtils.DropType.GREAT_CATCH_COINS));
+                        CoinType coinType = type.equals("GOOD") ? CoinType.TYPE_1 : CoinType.TYPE_2;
+                        ItemStack coinSkull = RenderUtils.getSkullItemStack(coinType.getId(), coinType.getValue());
+                        coinSkull.setStackDisplayName(ColorUtils.stringToRGB("255,223,0").toColoredFont() + coin + " Coins");
+                        HUDRenderEventHandler.INSTANCE.getToastGui().add(new ItemDropsToast(coinSkull, type.equals("GOOD") ? ToastUtils.DropType.GOOD_CATCH_COINS : ToastUtils.DropType.GREAT_CATCH_COINS));
                         LoggerIN.logToast(message);
                         cancelMessage = coinsCatchPattern.matches();
                     }
@@ -336,7 +337,9 @@ public class HypixelEventHandler
                         String type = coinsGiftPattern.group("type");
                         String coin = coinsGiftPattern.group("coin");
                         ToastUtils.DropType rarity = type.equals("RARE") ? ToastUtils.DropType.RARE_GIFT : type.equals("SWEET") ? ToastUtils.DropType.SWEET_GIFT : ToastUtils.DropType.COMMON_GIFT;
-                        HUDRenderEventHandler.INSTANCE.getToastGui().add(new GiftToast(HypixelEventHandler.getCoinItemStack(coin, CoinType.TYPE_1), rarity, false));
+                        ItemStack coinSkull = RenderUtils.getSkullItemStack(CoinType.TYPE_1.getId(), CoinType.TYPE_1.getValue());
+                        coinSkull.setStackDisplayName(ColorUtils.stringToRGB("255,223,0").toColoredFont() + coin + " Coins");
+                        HUDRenderEventHandler.INSTANCE.getToastGui().add(new GiftToast(coinSkull, rarity, false));
                         LoggerIN.logToast(message);
                         cancelMessage = coinsGiftPattern.matches();
                     }
@@ -541,25 +544,6 @@ public class HypixelEventHandler
             }
         }
         this.previousInventory = newInventory;
-    }
-
-    private static ItemStack getCoinItemStack(String coin, CoinType type)
-    {
-        ItemStack itemStack = new ItemStack(Items.skull, 1, 3);
-        NBTTagCompound compound = new NBTTagCompound();
-        NBTTagCompound properties = new NBTTagCompound();
-        properties.setString("Id", type.getId());
-        NBTTagCompound texture = new NBTTagCompound();
-        NBTTagList list = new NBTTagList();
-        NBTTagCompound value = new NBTTagCompound();
-        value.setString("Value", type.getValue());
-        list.appendTag(value);
-        texture.setTag("textures", list);
-        properties.setTag("Properties", texture);
-        compound.setTag("SkullOwner", properties);
-        itemStack.setTagCompound(compound);
-        itemStack.setStackDisplayName(ColorUtils.stringToRGB("255,223,0").toColoredFont() + coin + " Coins");
-        return itemStack;
     }
 
     private static ItemStack getExpItemStack(String exp, String skill)

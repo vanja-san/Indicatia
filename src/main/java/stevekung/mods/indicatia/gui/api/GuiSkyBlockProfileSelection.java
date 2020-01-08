@@ -13,6 +13,7 @@ import org.apache.commons.lang3.time.StopWatch;
 
 import com.google.gson.*;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -105,6 +106,13 @@ public class GuiSkyBlockProfileSelection extends GuiScreen
         {
             this.percent = 100;
         }
+    }
+
+    @Override
+    public void onResize(Minecraft mc, int width, int height)
+    {
+        this.watch.reset();
+        super.onResize(mc, width, height);
     }
 
     @Override

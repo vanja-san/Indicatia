@@ -189,3 +189,12 @@ message.example=Example
 message.preview=Preview
 message.reset_config_confirm=Are you want to restore default config?
 message.reset_config=Config '%s' has been reset to default setting!
+
+# GUI
+gui.sb_view_info=Info
+gui.sb_view_skills=Skills
+gui.sb_view_slayers=Slayers
+gui.sb_view_other_stats=Other Stats
+gui.sb_other_stats.kills=Kills
+gui.sb_other_stats.deaths=Deaths
+gui.sb_other_stats.others=Others

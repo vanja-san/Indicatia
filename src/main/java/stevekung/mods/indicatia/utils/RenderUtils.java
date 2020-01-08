@@ -9,6 +9,10 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
 
 public class RenderUtils
@@ -90,5 +94,23 @@ public class RenderUtils
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
             GlStateManager.popMatrix();
         }
+    }
+
+    public static ItemStack getSkullItemStack(String skullId, String skullValue)
+    {
+        ItemStack itemStack = new ItemStack(Items.skull, 1, 3);
+        NBTTagCompound compound = new NBTTagCompound();
+        NBTTagCompound properties = new NBTTagCompound();
+        properties.setString("Id", skullId);
+        NBTTagCompound texture = new NBTTagCompound();
+        NBTTagList list = new NBTTagList();
+        NBTTagCompound value = new NBTTagCompound();
+        value.setString("Value", skullValue);
+        list.appendTag(value);
+        texture.setTag("textures", list);
+        properties.setTag("Properties", texture);
+        compound.setTag("SkullOwner", properties);
+        itemStack.setTagCompound(compound);
+        return itemStack;
     }
 }
