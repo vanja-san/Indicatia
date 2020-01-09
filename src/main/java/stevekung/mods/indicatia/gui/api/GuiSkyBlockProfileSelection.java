@@ -8,15 +8,18 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.commons.lang3.time.StopWatch;
 
 import com.google.gson.*;
+import com.mojang.authlib.GameProfile;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.tileentity.TileEntitySkull;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
 import stevekung.mods.indicatia.gui.GuiSBProfileButton;
@@ -62,7 +65,8 @@ public class GuiSkyBlockProfileSelection extends GuiScreen
                 String sbProfileId = data.getProfileId();
                 String profileName = data.getProfileName();
                 String uuid = data.getUUID();
-                GuiSBProfileButton button = new GuiSBProfileButton(i + 1000, this.width / 2 - 75, 50, 150, 20, profileName, sbProfileId, this.username, uuid);
+                GameProfile gameProfile = data.getGameProfile();
+                GuiSBProfileButton button = new GuiSBProfileButton(i + 1000, this.width / 2 - 75, 50, 150, 20, profileName, sbProfileId, this.username, uuid, gameProfile);
                 button.yPosition += i * 22;
                 this.buttonList.add(button);
                 ++i;
@@ -216,10 +220,11 @@ public class GuiSkyBlockProfileSelection extends GuiScreen
             String sbProfileId = profiles.get(entry.getKey()).getAsJsonObject().get("profile_id").getAsString();
             String profileName = profiles.get(entry.getKey()).getAsJsonObject().get("cute_name").getAsString();
             String uuid = jsonPlayer.getAsJsonObject().get("uuid").getAsString();
-            GuiSBProfileButton button = new GuiSBProfileButton(i + 1000, this.width / 2 - 75, 50, 150, 20, profileName, sbProfileId, this.username, uuid);
+            GameProfile profile = TileEntitySkull.updateGameprofile(new GameProfile(UUID.fromString(uuid.replaceFirst("([0-9a-fA-F]{8})([0-9a-fA-F]{4})([0-9a-fA-F]{4})([0-9a-fA-F]{4})([0-9a-fA-F]+)", "$1-$2-$3-$4-$5")), this.username));
+            GuiSBProfileButton button = new GuiSBProfileButton(i + 1000, this.width / 2 - 75, 50, 150, 20, profileName, sbProfileId, this.username, uuid, profile);
             button.yPosition += i * 22;
             this.buttonList.add(button);
-            this.profiles.add(new SkyBlockFallbackData(sbProfileId, profileName, uuid));
+            this.profiles.add(new SkyBlockFallbackData(sbProfileId, profileName, uuid, profile));
             ++i;
         }
         for (GuiButton button : this.buttonList)

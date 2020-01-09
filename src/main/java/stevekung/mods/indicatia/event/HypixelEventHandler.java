@@ -571,8 +571,7 @@ public class HypixelEventHandler
             try (InputStream input = new URL("https://api.mojang.com/users/profiles/minecraft/" + name).openStream())
             {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(input, Charset.forName("UTF-8")));
-                String jsonText = readAll(reader);
-                JsonObject json = new JsonParser().parse(jsonText).getAsJsonObject();
+                JsonObject json = new JsonParser().parse(reader).getAsJsonObject();
                 String rawName = json.get("name").getAsString();
                 String rawUUID = json.get("id").getAsString();
                 String uuid = rawUUID.replaceFirst("([0-9a-fA-F]{8})([0-9a-fA-F]{4})([0-9a-fA-F]{4})([0-9a-fA-F]{4})([0-9a-fA-F]+)", "$1-$2-$3-$4-$5");
@@ -580,18 +579,6 @@ public class HypixelEventHandler
             }
             catch (Exception e) {}
         });
-    }
-
-    private static String readAll(Reader rd) throws IOException
-    {
-        StringBuilder builder = new StringBuilder();
-        int cp;
-
-        while ((cp = rd.read()) != -1)
-        {
-            builder.append((char) cp);
-        }
-        return builder.toString();
     }
 
     private static void replaceEventEstimateTime(String lore, Calendar calendar, List<String> tooltip, List<String> dates, String replacedText, int indexToRemove)
