@@ -56,7 +56,7 @@ public class SkyBlockAPIUtils
         {
             List<ItemStack> itemStack = new ArrayList<>();
             ItemStack barrier = new ItemStack(Blocks.barrier);
-            barrier.setStackDisplayName(EnumChatFormatting.RESET + "Inventory API is not enabled!");
+            barrier.setStackDisplayName(EnumChatFormatting.RESET + "" + EnumChatFormatting.RED + "Inventory API is not enabled!");
 
             for (int i = 0; i < 36; ++i)
             {

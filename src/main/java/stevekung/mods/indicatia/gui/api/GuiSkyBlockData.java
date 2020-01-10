@@ -9,7 +9,6 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.commons.lang3.text.WordUtils;
@@ -911,28 +910,39 @@ public class GuiSkyBlockData extends GuiScreen
     private void getBasicInfo(JsonObject currentProfile, JsonElement banking)
     {
         JsonElement fairySouls = currentProfile.get("fairy_souls_collected");
+        JsonElement deathCount = currentProfile.get("death_count");
+        JsonElement purse = currentProfile.get("coin_purse");
         int collectedSouls = 0;
+        int deathCounts = 0;
+        float coins = 0.0F;
 
         if (fairySouls != null)
         {
             collectedSouls = fairySouls.getAsInt();
         }
+        if (deathCount != null)
+        {
+            deathCounts = deathCount.getAsInt();
+        }
+        if (purse != null)
+        {
+            coins = purse.getAsFloat();
+        }
 
-        this.infoList.add(new SkyBlockInfo("Death Count", String.valueOf(currentProfile.get("death_count").getAsInt())));
+        this.infoList.add(new SkyBlockInfo("Death Count", String.valueOf(deathCounts)));
         this.infoList.add(new SkyBlockInfo("Fairy Souls Collected", collectedSouls + "/" + GuiSkyBlockData.MAX_FAIRY_SOULS));
 
         long lastSave = currentProfile.get("last_save").getAsLong();
         long firstJoin = currentProfile.get("first_join").getAsLong();
         Date firstJoinDate = new Date(firstJoin);
         Date past = new Date(lastSave);
-        Date now = new Date();
         String lastLogout = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(past);
         String firstJoinDateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(firstJoinDate);
 
-        this.infoList.add(new SkyBlockInfo("First Join", firstJoinDateFormat));
-        this.infoList.add(new SkyBlockInfo("Joined", this.convertMillisecondsToText(now.getTime() - firstJoinDate.getTime())));
-        this.infoList.add(new SkyBlockInfo("Last Updated", this.convertMillisecondsToText(now.getTime() - past.getTime())));
-        this.infoList.add(new SkyBlockInfo("Last Logout", lastLogout));
+        this.infoList.add(new SkyBlockInfo("Joined", this.getRelativeTime(firstJoinDate.getTime())));
+        this.infoList.add(new SkyBlockInfo("Joined (Date)", firstJoinDateFormat));
+        this.infoList.add(new SkyBlockInfo("Last Updated", this.getRelativeTime(past.getTime())));
+        this.infoList.add(new SkyBlockInfo("Last Updated (Date)", lastLogout));
 
         if (banking != null)
         {
@@ -941,9 +951,77 @@ public class GuiSkyBlockData extends GuiScreen
         }
         else
         {
-            this.infoList.add(new SkyBlockInfo("Banking Account", "API is not enabled!"));
+            this.infoList.add(new SkyBlockInfo("Banking Account", EnumChatFormatting.RED + "API is not enabled!"));
         }
-        this.infoList.add(new SkyBlockInfo("Purse", String.valueOf(FORMAT.format(currentProfile.get("coin_purse").getAsFloat()))));
+        this.infoList.add(new SkyBlockInfo("Purse", FORMAT.format(coins)));
+    }
+
+    private String convertCorrectTime(int time, String text, boolean an)
+    {
+        return (time == 1 ? an ? "an" : "a" : time) + " " + text + (time == 1 ? "" : "s") + " ago";
+    }
+
+    private String getRelativeTime(long timeDiff)
+    {
+        timeDiff = timeDiff / 1000;
+        long current = System.currentTimeMillis() / 1000;
+        long timeElapsed = current - timeDiff;
+        long seconds = timeElapsed;
+
+        if (seconds <= 60)
+        {
+            return this.convertCorrectTime((int)seconds, "second", false);
+        }
+        else
+        {
+            int minutes = Math.round(timeElapsed / 60);
+
+            if (minutes <= 60)
+            {
+                return this.convertCorrectTime(minutes, "minute", false);
+            }
+            else
+            {
+                int hours = Math.round(timeElapsed / 3600);
+
+                if (hours <= 24)
+                {
+                    return this.convertCorrectTime(hours, "hour", true);
+                }
+                else
+                {
+                    int days = Math.round(timeElapsed / 86400);
+
+                    if (days <= 7)
+                    {
+                        return this.convertCorrectTime(days, "day", false);
+                    }
+                    else
+                    {
+                        int weeks = Math.round(timeElapsed / 604800);
+
+                        if (weeks <= 4)
+                        {
+                            return this.convertCorrectTime(weeks, "week", false);
+                        }
+                        else
+                        {
+                            int months = Math.round(timeElapsed / 2600640);
+
+                            if (months <= 12)
+                            {
+                                return this.convertCorrectTime(months, "month", false);
+                            }
+                            else
+                            {
+                                int years = Math.round(timeElapsed / 31207680);
+                                return this.convertCorrectTime(years, "year", false);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private void getSkills(JsonObject currentProfile)
@@ -961,7 +1039,7 @@ public class GuiSkyBlockData extends GuiScreen
 
     private String checkSkill(JsonElement element)
     {
-        return element != null ? FORMAT.format(element.getAsFloat()) : "API is not enabled!";
+        return element != null ? FORMAT.format(element.getAsFloat()) : EnumChatFormatting.RED + "API is not enabled!";
     }
 
     private void getStats(JsonObject currentProfile)
@@ -1049,56 +1127,6 @@ public class GuiSkyBlockData extends GuiScreen
             }
             this.player.setCurrentItemOrArmor(index, armor);
         }
-    }
-
-    private String convertMillisecondsToText(long diff)//TODO Need new method for this -.-
-    {
-        String convTime = null;
-        int second = (int)TimeUnit.MILLISECONDS.toSeconds(diff);
-        int minute = (int)TimeUnit.MILLISECONDS.toMinutes(diff);
-        int hour = (int)TimeUnit.MILLISECONDS.toHours(diff);
-        int day = (int)TimeUnit.MILLISECONDS.toDays(diff);
-
-        if (second < 60)
-        {
-            convTime = this.convertCorrectTime(second, "second", false);
-        }
-        else if (minute < 60)
-        {
-            convTime = this.convertCorrectTime(minute, "minute", false);
-        }
-        else if (hour < 24)
-        {
-            convTime = this.convertCorrectTime(hour, "hour", true);
-        }
-        else if (day >= 7)
-        {
-            if (day > 360)
-            {
-                int year = day / 30;
-                convTime = this.convertCorrectTime(year, "year", false);
-            }
-            else if (day > 30)
-            {
-                int month = day / 360;
-                convTime = this.convertCorrectTime(month, "month", false);
-            }
-            else
-            {
-                int week = day / 7;
-                convTime = this.convertCorrectTime(week, "week", false);
-            }
-        }
-        else if (day < 7)
-        {
-            convTime = this.convertCorrectTime(day, "day", false);
-        }
-        return convTime;
-    }
-
-    private String convertCorrectTime(int time, String text, boolean an)
-    {
-        return (time <= 1 ? an ? "an" : "a" : time) + " " + text + (time <= 1 ? "" : "s") + " ago";
     }
 
     private static List<SkyBlockSlayerInfo> getSlayer(JsonElement element, String name)
