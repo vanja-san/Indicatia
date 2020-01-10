@@ -198,13 +198,14 @@ gui.sb_view_other_stats=Other Stats
 gui.sb_other_stats.kills=Kills
 gui.sb_other_stats.deaths=Deaths
 gui.sb_other_stats.others=Others
+gui.sb_basic_info=Basic Info
+gui.sb_inventory=Inventory
 
 # SKYBLOCK INVENTORY
-skyblock_tab.info=Player Info
 skyblock_tab.inventory=Inventory
 skyblock_tab.ender_chest=Ender Chest
-skyblock_tab.accessory=Accessory
-skyblock_tab.potion=Potion
-skyblock_tab.fishing=Fishing
+skyblock_tab.accessory=Accessory Bag
+skyblock_tab.potion=Potion Bag
+skyblock_tab.fishing=Fishing Bag
 skyblock_tab.quiver=Quiver
-skyblock_tab.candy=Candy
+skyblock_tab.candy=Candy Bag

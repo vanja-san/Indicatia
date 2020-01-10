@@ -8,10 +8,12 @@ import java.util.List;
 
 import com.google.gson.JsonObject;
 
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.EnumChatFormatting;
 
 public class SkyBlockAPIUtils
 {
@@ -32,9 +34,16 @@ public class SkyBlockAPIUtils
                 NBTTagCompound compound = CompressedStreamTools.readCompressed(new ByteArrayInputStream(decode));
                 NBTTagList list = compound.getTagList("i", 10);
 
-                for (int i = 0; i < list.tagCount(); ++i)
+                for (int i = invName.equals("inv_contents") ? 9 : 0; i < list.tagCount(); ++i)
                 {
                     itemStack.add(ItemStack.loadItemStackFromNBT(list.getCompoundTagAt(i)));
+                }
+                if (invName.equals("inv_contents"))
+                {
+                    for (int i = 0; i < 9; ++i)
+                    {
+                        itemStack.add(ItemStack.loadItemStackFromNBT(list.getCompoundTagAt(i)));
+                    }
                 }
             }
             catch (IOException e)
@@ -45,8 +54,15 @@ public class SkyBlockAPIUtils
         }
         else
         {
-            System.out.println(invName + " API Not Enabled!");
-            return new ArrayList<>();
+            List<ItemStack> itemStack = new ArrayList<>();
+            ItemStack barrier = new ItemStack(Blocks.barrier);
+            barrier.setStackDisplayName(EnumChatFormatting.RESET + "Inventory API is not enabled!");
+
+            for (int i = 0; i < 36; ++i)
+            {
+                itemStack.add(barrier);
+            }
+            return itemStack;
         }
     }
 }

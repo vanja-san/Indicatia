@@ -220,7 +220,7 @@ public class HUDInfo
             }
             catch (Exception e) {}
             String currentTime = ColorUtils.stringToRGB(ExtendedConfig.instance.realTimeDDMMYYValueColor).toColoredFont() + builder.toString();
-            return ColorUtils.stringToRGB(ExtendedConfig.instance.realTimeColor).toColoredFont() + "Skyblock Time: " + currentTime;
+            return ColorUtils.stringToRGB(ExtendedConfig.instance.realTimeColor).toColoredFont() + "SkyBlock Time: " + currentTime;
         }
         return InfoUtils.INSTANCE.getCurrentGameTime(mc.theWorld.getWorldTime() % 24000);
     }

@@ -23,7 +23,10 @@ import net.minecraft.tileentity.TileEntitySkull;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
 import stevekung.mods.indicatia.gui.GuiSBProfileButton;
-import stevekung.mods.indicatia.utils.*;
+import stevekung.mods.indicatia.utils.ColorUtils;
+import stevekung.mods.indicatia.utils.CommonUtils;
+import stevekung.mods.indicatia.utils.LangUtils;
+import stevekung.mods.indicatia.utils.SkyBlockAPIUtils;
 
 public class GuiSkyBlockProfileSelection extends GuiScreen
 {
@@ -188,8 +191,6 @@ public class GuiSkyBlockProfileSelection extends GuiScreen
         JsonElement element = new JsonParser().parse(reader);
         JsonObject obj = element.getAsJsonObject();
         JsonElement jsonPlayer = obj.get("player");
-
-        LoggerIN.info("API: {}", element);
 
         if (jsonPlayer.isJsonNull())
         {

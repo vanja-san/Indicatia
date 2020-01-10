@@ -9,18 +9,18 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import stevekung.mods.indicatia.gui.api.GuiSkyBlockData.SkyBlockInventory;
 import stevekung.mods.indicatia.utils.LangUtils;
+import stevekung.mods.indicatia.utils.RenderUtils;
 
 public class SkyBlockInventoryTabs
 {
-    public static SkyBlockInventoryTabs[] tabArray = new SkyBlockInventoryTabs[8];
-    public static final SkyBlockInventoryTabs INFO = new SkyBlockInventoryTabs(0, "info", Blocks.command_block).setBackgroundImageName("info");
-    public static final SkyBlockInventoryTabs INVENTORY = new SkyBlockInventoryTabs(1, "inventory", Blocks.chest);
-    public static final SkyBlockInventoryTabs ENDER_CHEST = new SkyBlockInventoryTabs(2, "ender_chest", Blocks.ender_chest);
-    public static final SkyBlockInventoryTabs ACCESSORY = new SkyBlockInventoryTabs(3, "accessory", Items.clock);
-    public static final SkyBlockInventoryTabs POTION = new SkyBlockInventoryTabs(4, "potion", Items.potionitem);
-    public static final SkyBlockInventoryTabs FISHING = new SkyBlockInventoryTabs(5, "fishing", Items.fishing_rod);
-    public static final SkyBlockInventoryTabs QUIVER = new SkyBlockInventoryTabs(6, "quiver", Items.arrow);
-    public static final SkyBlockInventoryTabs CANDY = new SkyBlockInventoryTabs(7, "candy", Items.cake);
+    public static SkyBlockInventoryTabs[] tabArray = new SkyBlockInventoryTabs[7];
+    public static final SkyBlockInventoryTabs INVENTORY = new SkyBlockInventoryTabs(0, "inventory", Blocks.chest).setBackgroundImageName("player_inventory");
+    public static final SkyBlockInventoryTabs ENDER_CHEST = new SkyBlockInventoryTabs(1, "ender_chest", Blocks.ender_chest);
+    public static final SkyBlockInventoryTabs ACCESSORY = new SkyBlockInventoryTabs(2, "accessory", Items.emerald);
+    public static final SkyBlockInventoryTabs POTION = new SkyBlockInventoryTabs(3, "potion", Items.potionitem);
+    public static final SkyBlockInventoryTabs FISHING = new SkyBlockInventoryTabs(4, "fishing", Items.fishing_rod);
+    public static final SkyBlockInventoryTabs QUIVER = new SkyBlockInventoryTabs(5, "quiver", Items.arrow);
+    public static final SkyBlockInventoryTabs CANDY = new SkyBlockInventoryTabs(6, "candy", RenderUtils.getSkullItemStack("906876f2-55d9-3965-9e57-f5732c765617", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTUwZjcxMmU4NzdkZmQ5MTBjOTdmMzgxOWEyMDBhMDVkNDllZTZiODNiNTkyNjg2ZTA5OWI5ZWNkNDQzZjIyOCJ9fX0="));
     private final int index;
     private final String label;
     private String texture = "items";
@@ -94,12 +94,12 @@ public class SkyBlockInventoryTabs
 
     public int getTabColumn()
     {
-        return this.index % 6;
+        return this.index % 7;
     }
 
     public boolean isTabInFirstRow()
     {
-        return this.index < 6;
+        return this.index < 7;
     }
 
     public void displayAllItems(List<ItemStack> items)
