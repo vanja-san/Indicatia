@@ -918,12 +918,19 @@ public class GuiSkyBlockData extends GuiScreen
             collectedSouls = fairySouls.getAsInt();
         }
 
+        this.infoList.add(new SkyBlockInfo("Death Count", String.valueOf(currentProfile.get("death_count").getAsInt())));
         this.infoList.add(new SkyBlockInfo("Fairy Souls Collected", collectedSouls + "/" + GuiSkyBlockData.MAX_FAIRY_SOULS));
 
         long lastSave = currentProfile.get("last_save").getAsLong();
+        long firstJoin = currentProfile.get("first_join").getAsLong();
+        Date firstJoinDate = new Date(firstJoin);
         Date past = new Date(lastSave);
         Date now = new Date();
         String lastLogout = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(past);
+        String firstJoinDateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(firstJoinDate);
+
+        this.infoList.add(new SkyBlockInfo("First Join", firstJoinDateFormat));
+        this.infoList.add(new SkyBlockInfo("Joined", this.convertMillisecondsToText(now.getTime() - firstJoinDate.getTime())));
         this.infoList.add(new SkyBlockInfo("Last Updated", this.convertMillisecondsToText(now.getTime() - past.getTime())));
         this.infoList.add(new SkyBlockInfo("Last Logout", lastLogout));
 
@@ -936,6 +943,7 @@ public class GuiSkyBlockData extends GuiScreen
         {
             this.infoList.add(new SkyBlockInfo("Banking Account", "API is not enabled!"));
         }
+        this.infoList.add(new SkyBlockInfo("Purse", String.valueOf(FORMAT.format(currentProfile.get("coin_purse").getAsFloat()))));
     }
 
     private void getSkills(JsonObject currentProfile)
@@ -1043,7 +1051,7 @@ public class GuiSkyBlockData extends GuiScreen
         }
     }
 
-    private String convertMillisecondsToText(long diff)
+    private String convertMillisecondsToText(long diff)//TODO Need new method for this -.-
     {
         String convTime = null;
         int second = (int)TimeUnit.MILLISECONDS.toSeconds(diff);
