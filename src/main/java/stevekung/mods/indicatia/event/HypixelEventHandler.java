@@ -1,6 +1,8 @@
 package stevekung.mods.indicatia.event;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
@@ -42,6 +44,7 @@ import stevekung.mods.indicatia.config.RareDropMode;
 import stevekung.mods.indicatia.config.VisitIslandMode;
 import stevekung.mods.indicatia.gui.AuctionPriceSelectionList;
 import stevekung.mods.indicatia.gui.AuctionQuerySelectionList;
+import stevekung.mods.indicatia.gui.api.GuiSkyBlockProfileSelection;
 import stevekung.mods.indicatia.gui.toasts.GiftToast;
 import stevekung.mods.indicatia.gui.toasts.ItemDropsToast;
 import stevekung.mods.indicatia.gui.toasts.ToastUtils;
@@ -167,18 +170,37 @@ public class HypixelEventHandler
     @SubscribeEvent
     public void onMouseClick(MouseEvent event)
     {
-        if (event.button == 1 && event.buttonstate && InfoUtils.INSTANCE.isHypixel())
+        if (InfoUtils.INSTANCE.isHypixel())
         {
-            if (this.mc.pointedEntity != null && this.mc.pointedEntity instanceof EntityOtherPlayerMP)
+            if (event.button == 1 && event.buttonstate)
             {
-                EntityOtherPlayerMP player = (EntityOtherPlayerMP)this.mc.pointedEntity;
-
-                if (!this.mc.thePlayer.isSneaking() && this.mc.thePlayer.getHeldItem() == null && ExtendedConfig.instance.rightClickToAddParty)
+                if (this.mc.pointedEntity != null && this.mc.pointedEntity instanceof EntityOtherPlayerMP)
                 {
-                    if (this.mc.thePlayer.sendQueue.getPlayerInfoMap().stream().anyMatch(info -> info.getGameProfile().getName().equals(player.getName())))
+                    EntityOtherPlayerMP player = (EntityOtherPlayerMP)this.mc.pointedEntity;
+
+                    if (!this.mc.thePlayer.isSneaking() && this.mc.thePlayer.getHeldItem() == null && ExtendedConfig.instance.rightClickToAddParty)
                     {
-                        this.mc.thePlayer.sendChatMessage("/p " + player.getName());
-                        event.setCanceled(true);
+                        if (this.mc.thePlayer.sendQueue.getPlayerInfoMap().stream().anyMatch(info -> info.getGameProfile().getName().equals(player.getName())))
+                        {
+                            this.mc.thePlayer.sendChatMessage("/p " + player.getName());
+                            event.setCanceled(true);
+                        }
+                    }
+                }
+            }
+            else if (event.button == 2 && event.buttonstate)
+            {
+                if (this.mc.pointedEntity != null && this.mc.pointedEntity instanceof EntityOtherPlayerMP)
+                {
+                    EntityOtherPlayerMP player = (EntityOtherPlayerMP)this.mc.pointedEntity;
+
+                    if (this.mc.thePlayer.getHeldItem() == null)
+                    {
+                        if (this.mc.thePlayer.sendQueue.getPlayerInfoMap().stream().anyMatch(info -> info.getGameProfile().getName().equals(player.getName())))
+                        {
+                            this.mc.displayGuiScreen(new GuiSkyBlockProfileSelection(player.getDisplayNameString()));
+                            event.setCanceled(true);
+                        }
                     }
                 }
             }

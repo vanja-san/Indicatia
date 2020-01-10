@@ -1016,7 +1016,7 @@ public class GuiSkyBlockData extends GuiScreen
 
         if (second < 60)
         {
-            convTime = "a moment ago";
+            convTime = this.convertCorrectTime(second, "second", false);
         }
         else if (minute < 60)
         {
