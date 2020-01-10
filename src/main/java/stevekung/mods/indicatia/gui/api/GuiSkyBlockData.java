@@ -946,14 +946,14 @@ public class GuiSkyBlockData extends GuiScreen
         this.infoList.add(new SkyBlockInfo("Fairy Souls Collected", collectedSouls + "/" + GuiSkyBlockData.MAX_FAIRY_SOULS));
 
         Date firstJoinDate = new Date(firstJoinMillis);
-        Date past = new Date(lastSaveMillis);
-        String lastLogout = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(past);
+        Date lastSaveDate = new Date(lastSaveMillis);
+        String lastLogout = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(lastSaveDate);
         String firstJoinDateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(firstJoinDate);
 
-        this.infoList.add(new SkyBlockInfo("Joined", firstJoinMillis != -1 ? this.getRelativeTime(firstJoinDate.getTime()) : EnumChatFormatting.RED + "No last save data!"));
-        this.infoList.add(new SkyBlockInfo("Joined (Date)", firstJoinDateFormat));
-        this.infoList.add(new SkyBlockInfo("Last Updated", lastSaveMillis != -1 ? this.getRelativeTime(past.getTime()) : EnumChatFormatting.RED + "No last save data!"));
-        this.infoList.add(new SkyBlockInfo("Last Updated (Date)", lastLogout));
+        this.infoList.add(new SkyBlockInfo("Joined", firstJoinMillis != -1 ? this.getRelativeTime(firstJoinDate.getTime()) : EnumChatFormatting.RED + "No first join data!"));
+        this.infoList.add(new SkyBlockInfo("Joined (Date)", firstJoinMillis != -1 ? firstJoinDateFormat : EnumChatFormatting.RED + "No first join data!"));
+        this.infoList.add(new SkyBlockInfo("Last Updated", lastSaveMillis != -1 ? this.getRelativeTime(lastSaveDate.getTime()) : EnumChatFormatting.RED + "No last save data!"));
+        this.infoList.add(new SkyBlockInfo("Last Updated (Date)", lastSaveMillis != -1 ? lastLogout : EnumChatFormatting.RED + "No last save data!"));
 
         if (banking != null)
         {
