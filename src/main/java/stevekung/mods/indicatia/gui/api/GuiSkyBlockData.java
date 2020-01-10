@@ -59,6 +59,8 @@ public class GuiSkyBlockData extends GuiScreen
 
     // Based stuff
     private boolean loadingApi = true;
+    private boolean error = false;
+    private String errorMessage;
     private boolean resize;
     private GuiButton doneButton;
     private GuiButton backButton;
@@ -241,7 +243,7 @@ public class GuiSkyBlockData extends GuiScreen
 
             if (button.id == 0)
             {
-                this.mc.displayGuiScreen(null);
+                this.mc.displayGuiScreen(this.error ? new GuiSkyBlockProfileSelection(this.username, this.profiles) : null);
             }
             else if (button.id == 1)
             {
@@ -324,80 +326,89 @@ public class GuiSkyBlockData extends GuiScreen
         }
         else
         {
-            if (this.currentSlot != null)
+            if (this.error)
             {
-                this.currentSlot.drawScreen(mouseX, mouseY, partialTicks);
+                this.drawCenteredString(this.fontRendererObj, "SkyBlock API Viewer", this.width / 2, 20, 16777215);
+                this.drawCenteredString(this.fontRendererObj, EnumChatFormatting.RED + this.errorMessage, this.width / 2, 100, 16777215);
+                super.drawScreen(mouseX, mouseY, partialTicks);
             }
-
-            this.drawCenteredString(this.fontRendererObj, EnumChatFormatting.GOLD + this.username + "'s Profile: " + this.sbProfileName, this.width / 2, 34, 16777215);
-
-            if (this.currentSlot instanceof EmptyStats)
+            else
             {
-                boolean flag = Mouse.isButtonDown(0);
-                int i = this.guiLeft;
-                int j = this.guiTop;
-                int k = i + 182;
-                int l = j + 18;
-                int i1 = k + 14;
-                int j1 = l + 72;
-
-                if (!this.wasClicking && flag && mouseX >= k && mouseY >= l && mouseX < i1 && mouseY < j1)
+                if (this.currentSlot != null)
                 {
-                    this.isScrolling = this.needsScrollBars();
+                    this.currentSlot.drawScreen(mouseX, mouseY, partialTicks);
                 }
 
-                if (!flag)
+                this.drawCenteredString(this.fontRendererObj, EnumChatFormatting.GOLD + this.username + "'s Profile: " + this.sbProfileName, this.width / 2, 34, 16777215);
+
+                if (this.currentSlot instanceof EmptyStats)
                 {
-                    this.isScrolling = false;
-                }
+                    boolean flag = Mouse.isButtonDown(0);
+                    int i = this.guiLeft;
+                    int j = this.guiTop;
+                    int k = i + 182;
+                    int l = j + 18;
+                    int i1 = k + 14;
+                    int j1 = l + 72;
 
-                this.wasClicking = flag;
-
-                if (this.isScrolling)
-                {
-                    this.currentScroll = (mouseY - l - 7.5F) / (j1 - l - 15.0F);
-                    this.currentScroll = MathHelper.clamp_float(this.currentScroll, 0.0F, 1.0F);
-                    this.skyBlockContainer.scrollTo(this.currentScroll);
-                }
-
-                this.drawTabsBackgroundLayer(partialTicks, mouseX, mouseY);
-                GlStateManager.disableRescaleNormal();
-                RenderHelper.disableStandardItemLighting();
-                GlStateManager.disableLighting();
-                GlStateManager.disableDepth();
-            }
-
-            super.drawScreen(mouseX, mouseY, partialTicks);
-
-            if (this.currentSlot instanceof EmptyStats)
-            {
-                this.drawContainerSlot(mouseX, mouseY);
-
-                RenderHelper.disableStandardItemLighting();
-                this.drawTabsForegroundLayer();
-                RenderHelper.enableGUIStandardItemLighting();
-
-                for (SkyBlockInventoryTabs tab : SkyBlockInventoryTabs.tabArray)
-                {
-                    if (tab == null)
+                    if (!this.wasClicking && flag && mouseX >= k && mouseY >= l && mouseX < i1 && mouseY < j1)
                     {
-                        continue;
+                        this.isScrolling = this.needsScrollBars();
                     }
-                    if (this.renderTabsHoveringText(tab, mouseX, mouseY))
+
+                    if (!flag)
                     {
-                        break;
+                        this.isScrolling = false;
                     }
+
+                    this.wasClicking = flag;
+
+                    if (this.isScrolling)
+                    {
+                        this.currentScroll = (mouseY - l - 7.5F) / (j1 - l - 15.0F);
+                        this.currentScroll = MathHelper.clamp_float(this.currentScroll, 0.0F, 1.0F);
+                        this.skyBlockContainer.scrollTo(this.currentScroll);
+                    }
+
+                    this.drawTabsBackgroundLayer(partialTicks, mouseX, mouseY);
+                    GlStateManager.disableRescaleNormal();
+                    RenderHelper.disableStandardItemLighting();
+                    GlStateManager.disableLighting();
+                    GlStateManager.disableDepth();
                 }
 
-                GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-                GlStateManager.disableLighting();
+                super.drawScreen(mouseX, mouseY, partialTicks);
 
-                GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-                GuiSkyBlockData.drawEntityOnScreen(this.width / 2 - 96, this.height / 2 + 40, 20 * this.res.getScaleFactor(), this.player);
-
-                if (this.theSlot != null && this.theSlot.getHasStack())
+                if (this.currentSlot instanceof EmptyStats)
                 {
-                    this.renderToolTip(this.theSlot.getStack(), mouseX, mouseY);
+                    this.drawContainerSlot(mouseX, mouseY);
+
+                    RenderHelper.disableStandardItemLighting();
+                    this.drawTabsForegroundLayer();
+                    RenderHelper.enableGUIStandardItemLighting();
+
+                    for (SkyBlockInventoryTabs tab : SkyBlockInventoryTabs.tabArray)
+                    {
+                        if (tab == null)
+                        {
+                            continue;
+                        }
+                        if (this.renderTabsHoveringText(tab, mouseX, mouseY))
+                        {
+                            break;
+                        }
+                    }
+
+                    GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+                    GlStateManager.disableLighting();
+
+                    GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+                    GuiSkyBlockData.drawEntityOnScreen(this.width / 2 - 96, this.height / 2 + 40, 20 * this.res.getScaleFactor(), this.player);
+
+                    if (this.theSlot != null && this.theSlot.getHasStack())
+                    {
+                        this.renderToolTip(this.theSlot.getStack(), mouseX, mouseY);
+                    }
                 }
             }
         }
@@ -553,6 +564,24 @@ public class GuiSkyBlockData extends GuiScreen
                 this.setCurrentTab(SkyBlockInventoryTabs.INVENTORY);
             }
             button.enabled = false;
+        }
+    }
+
+    private void setErrorMessage(String message)
+    {
+        this.error = true;
+        this.loadingApi = false;
+        this.errorMessage = message;
+        this.backButton.visible = false;
+        this.doneButton.xPosition = this.width / 2 - 75;
+        this.doneButton.yPosition = this.height / 4 + 132;
+
+        for (GuiButton button : this.buttonList)
+        {
+            if (button != this.doneButton)
+            {
+                button.visible = false;
+            }
         }
     }
 
@@ -849,8 +878,16 @@ public class GuiSkyBlockData extends GuiScreen
         URL url = new URL(SkyBlockAPIUtils.SKYBLOCK_PROFILE + this.sbProfileId);
         BufferedReader reader = new BufferedReader(new InputStreamReader(url.openConnection().getInputStream(), StandardCharsets.UTF_8));
         JsonObject obj = new JsonParser().parse(reader).getAsJsonObject();
-        JsonObject profiles = obj.get("profile").getAsJsonObject().get("members").getAsJsonObject();
-        JsonElement banking = obj.get("profile").getAsJsonObject().get("banking");
+        JsonElement profile = obj.get("profile");
+
+        if (profile == null)
+        {
+            this.setErrorMessage("No API data returned, please try again later!");
+            return;
+        }
+
+        JsonObject profiles = profile.getAsJsonObject().get("members").getAsJsonObject();
+        JsonElement banking = profile.getAsJsonObject().get("banking");
 
         for (Map.Entry<String, JsonElement> entry : profiles.entrySet())
         {
