@@ -410,6 +410,7 @@ public class GuiSkyBlockData extends GuiScreen
                         this.renderToolTip(this.theSlot.getStack(), mouseX, mouseY);
                     }
                 }
+                GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
                 GlStateManager.enableDepth();
             }
         }
