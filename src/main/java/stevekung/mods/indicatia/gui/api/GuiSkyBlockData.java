@@ -228,6 +228,7 @@ public class GuiSkyBlockData extends GuiScreen
     {
         TEMP_INVENTORY.clear();
         SKYBLOCK_INV.clear();
+        this.mc.getNetHandler().playerInfoMap.remove(this.profile.getId());
         GuiSkyBlockData.renderSecondLayer = false;
     }
 
