@@ -409,6 +409,7 @@ public class GuiSkyBlockData extends GuiScreen
                         this.renderToolTip(this.theSlot.getStack(), mouseX, mouseY);
                     }
                 }
+                GlStateManager.enableDepth();
             }
         }
     }
@@ -912,9 +913,13 @@ public class GuiSkyBlockData extends GuiScreen
         JsonElement fairySouls = currentProfile.get("fairy_souls_collected");
         JsonElement deathCount = currentProfile.get("death_count");
         JsonElement purse = currentProfile.get("coin_purse");
+        JsonElement lastSave = currentProfile.get("last_save");
+        JsonElement firstJoin = currentProfile.get("first_join");
         int collectedSouls = 0;
         int deathCounts = 0;
         float coins = 0.0F;
+        long lastSaveMillis = -1;
+        long firstJoinMillis = -1;
 
         if (fairySouls != null)
         {
@@ -928,20 +933,26 @@ public class GuiSkyBlockData extends GuiScreen
         {
             coins = purse.getAsFloat();
         }
+        if (lastSave != null)
+        {
+            lastSaveMillis = lastSave.getAsLong();
+        }
+        if (firstJoin != null)
+        {
+            firstJoinMillis = firstJoin.getAsLong();
+        }
 
         this.infoList.add(new SkyBlockInfo("Death Count", String.valueOf(deathCounts)));
         this.infoList.add(new SkyBlockInfo("Fairy Souls Collected", collectedSouls + "/" + GuiSkyBlockData.MAX_FAIRY_SOULS));
 
-        long lastSave = currentProfile.get("last_save").getAsLong();
-        long firstJoin = currentProfile.get("first_join").getAsLong();
-        Date firstJoinDate = new Date(firstJoin);
-        Date past = new Date(lastSave);
+        Date firstJoinDate = new Date(firstJoinMillis);
+        Date past = new Date(lastSaveMillis);
         String lastLogout = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(past);
         String firstJoinDateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(firstJoinDate);
 
-        this.infoList.add(new SkyBlockInfo("Joined", this.getRelativeTime(firstJoinDate.getTime())));
+        this.infoList.add(new SkyBlockInfo("Joined", firstJoinMillis != -1 ? this.getRelativeTime(firstJoinDate.getTime()) : EnumChatFormatting.RED + "No last save data!"));
         this.infoList.add(new SkyBlockInfo("Joined (Date)", firstJoinDateFormat));
-        this.infoList.add(new SkyBlockInfo("Last Updated", this.getRelativeTime(past.getTime())));
+        this.infoList.add(new SkyBlockInfo("Last Updated", lastSaveMillis != -1 ? this.getRelativeTime(past.getTime()) : EnumChatFormatting.RED + "No last save data!"));
         this.infoList.add(new SkyBlockInfo("Last Updated (Date)", lastLogout));
 
         if (banking != null)
@@ -970,6 +981,10 @@ public class GuiSkyBlockData extends GuiScreen
 
         if (seconds <= 60)
         {
+            if (seconds == 0)
+            {
+                return "just now";
+            }
             return this.convertCorrectTime((int)seconds, "second", false);
         }
         else
@@ -1100,7 +1115,7 @@ public class GuiSkyBlockData extends GuiScreen
         }
         else
         {
-            this.slayerInfo.add(new SkyBlockSlayerInfo("Slayer Info: Slayer data not available!"));
+            this.slayerInfo.add(new SkyBlockSlayerInfo(EnumChatFormatting.RED + "Slayer Info: Slayer data not available!"));
         }
     }
 
@@ -1170,7 +1185,7 @@ public class GuiSkyBlockData extends GuiScreen
         }
         else
         {
-            return Collections.singletonList(new SkyBlockSlayerInfo("Slayer Info: No " + name.toLowerCase() + " slayer data!"));
+            return Collections.singletonList(new SkyBlockSlayerInfo(EnumChatFormatting.RED + "Slayer Info: No " + name.toLowerCase() + " slayer data!"));
         }
     }
 
