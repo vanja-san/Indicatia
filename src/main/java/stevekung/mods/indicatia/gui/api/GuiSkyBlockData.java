@@ -465,8 +465,11 @@ public class GuiSkyBlockData extends GuiScreen
                         int x = this.width / 2 - 46;
                         int y = 172;
                         this.renderSkillBar(this.carpentrySkill.getName(), x, y + 28, x + 46, y + 8, this.carpentrySkill.getCurrentXp(), this.carpentrySkill.getXpRequired(), this.carpentrySkill.getCurrentLvl(), this.carpentrySkill.isReachLimit());
-                        
-                        this.drawString(this.fontRendererObj, "Average Skill: " + this.skillAvg, this.width / 2 + 60, 199, 16777215);
+
+                        if (this.skillAvg != null)
+                        {
+                            this.drawCenteredString(this.fontRendererObj, "Average Skill: " + this.skillAvg, this.width / 2 + 104, 199, 16777215);
+                        }
                     }
                 }
                 GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
@@ -1164,7 +1167,10 @@ public class GuiSkyBlockData extends GuiScreen
             avg += skill.getCurrentLvl() + skill.getSkillProgress();
             ++count;
         }
-        this.skillAvg = SKILL_AVG.format(avg / count);
+        if (avg > 0)
+        {
+            this.skillAvg = SKILL_AVG.format(avg / count);
+        }
     }
 
     private SkyBlockSkillInfo checkSkill(JsonElement element, String name)
