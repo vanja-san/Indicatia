@@ -1045,13 +1045,21 @@ public class GuiSkyBlockData extends GuiScreen
         }
 
         //TODO Add real basic stats
-        this.infoList.add(new SkyBlockInfo(ColorUtils.stringToRGB("239,83,80").toColoredFont() + "\u2764 Health", String.valueOf(100) + " (WIP)"));
-        this.infoList.add(new SkyBlockInfo(ColorUtils.stringToRGB("156,204,101").toColoredFont() + "\u2748 Defense", String.valueOf(0) + " (WIP)"));
-        this.infoList.add(new SkyBlockInfo(ColorUtils.stringToRGB("181,33,30").toColoredFont() + "\u2741 Strength", String.valueOf(0) + " (WIP)"));
-        this.infoList.add(new SkyBlockInfo(ColorUtils.stringToRGB("255,255,255").toColoredFont() + "\u2726 Speed", String.valueOf(100) + " (WIP)"));
-        this.infoList.add(new SkyBlockInfo(ColorUtils.stringToRGB("121,134,203").toColoredFont() + "\u2623 Crit Chance", String.valueOf(20) + " (WIP)"));
-        this.infoList.add(new SkyBlockInfo(ColorUtils.stringToRGB("70,90,201").toColoredFont() + "\u2620 Crit Damage", String.valueOf(50) + " (WIP)"));
-        this.infoList.add(new SkyBlockInfo(ColorUtils.stringToRGB("129,212,250").toColoredFont() + "\u270E Intelligence", String.valueOf(100) + " (WIP)"));
+        String heath = ColorUtils.stringToRGB("239,83,80").toColoredFont();
+        String defense = ColorUtils.stringToRGB("156,204,101").toColoredFont();
+        String strength = ColorUtils.stringToRGB("181,33,30").toColoredFont();
+        String speed = ColorUtils.stringToRGB("255,255,255").toColoredFont();
+        String critChance = ColorUtils.stringToRGB("121,134,203").toColoredFont();
+        String critDamage = ColorUtils.stringToRGB("70,90,201").toColoredFont();
+        String intelligence = ColorUtils.stringToRGB("129,212,250").toColoredFont();
+
+        this.infoList.add(new SkyBlockInfo(heath + "\u2764 Health", heath + String.valueOf(100) + " (WIP)"));
+        this.infoList.add(new SkyBlockInfo(defense + "\u2748 Defense", defense + String.valueOf(0) + " (WIP)"));
+        this.infoList.add(new SkyBlockInfo(strength + "\u2741 Strength", strength + String.valueOf(0) + " (WIP)"));
+        this.infoList.add(new SkyBlockInfo(speed + "\u2726 Speed", speed + String.valueOf(100) + " (WIP)"));
+        this.infoList.add(new SkyBlockInfo(critChance + "\u2623 Crit Chance", critChance + String.valueOf(20) + " (WIP)"));
+        this.infoList.add(new SkyBlockInfo(critDamage + "\u2620 Crit Damage", critDamage + String.valueOf(50) + " (WIP)"));
+        this.infoList.add(new SkyBlockInfo(intelligence + "\u270E Intelligence", intelligence + String.valueOf(100) + " (WIP)"));
 
         this.infoList.add(new SkyBlockInfo("", ""));
 
