@@ -1044,6 +1044,17 @@ public class GuiSkyBlockData extends GuiScreen
             firstJoinMillis = firstJoin.getAsLong();
         }
 
+        //TODO Add real basic stats
+        this.infoList.add(new SkyBlockInfo(ColorUtils.stringToRGB("239,83,80").toColoredFont() + "\u2764 Health", String.valueOf(100) + " (WIP)"));
+        this.infoList.add(new SkyBlockInfo(ColorUtils.stringToRGB("156,204,101").toColoredFont() + "\u2748 Defense", String.valueOf(0) + " (WIP)"));
+        this.infoList.add(new SkyBlockInfo(ColorUtils.stringToRGB("181,33,30").toColoredFont() + "\u2741 Strength", String.valueOf(0) + " (WIP)"));
+        this.infoList.add(new SkyBlockInfo(ColorUtils.stringToRGB("255,255,255").toColoredFont() + "\u2726 Speed", String.valueOf(100) + " (WIP)"));
+        this.infoList.add(new SkyBlockInfo(ColorUtils.stringToRGB("121,134,203").toColoredFont() + "\u2623 Crit Chance", String.valueOf(20) + " (WIP)"));
+        this.infoList.add(new SkyBlockInfo(ColorUtils.stringToRGB("70,90,201").toColoredFont() + "\u2620 Crit Damage", String.valueOf(50) + " (WIP)"));
+        this.infoList.add(new SkyBlockInfo(ColorUtils.stringToRGB("129,212,250").toColoredFont() + "\u270E Intelligence", String.valueOf(100) + " (WIP)"));
+
+        this.infoList.add(new SkyBlockInfo("", ""));
+
         this.infoList.add(new SkyBlockInfo("Death Count", String.valueOf(deathCounts)));
         this.infoList.add(new SkyBlockInfo("Fairy Souls Collected", collectedSouls + "/" + GuiSkyBlockData.MAX_FAIRY_SOULS));
 
