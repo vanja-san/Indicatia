@@ -1054,6 +1054,7 @@ public class GuiSkyBlockData extends GuiScreen
         String intelligence = ColorUtils.stringToRGB("129,212,250").toColoredFont();
 
         this.infoList.add(new SkyBlockInfo(heath + "\u2764 Health", heath + String.valueOf(100) + " (WIP)"));
+        this.infoList.add(new SkyBlockInfo(heath + "\u2665 Effective Health", heath + String.valueOf(100) + " (WIP)"));
         this.infoList.add(new SkyBlockInfo(defense + "\u2748 Defense", defense + String.valueOf(0) + " (WIP)"));
         this.infoList.add(new SkyBlockInfo(strength + "\u2741 Strength", strength + String.valueOf(0) + " (WIP)"));
         this.infoList.add(new SkyBlockInfo(speed + "\u2726 Speed", speed + String.valueOf(100) + " (WIP)"));
