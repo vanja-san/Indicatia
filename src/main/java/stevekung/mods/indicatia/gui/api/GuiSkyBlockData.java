@@ -83,6 +83,7 @@ public class GuiSkyBlockData extends GuiScreen
 
     // API
     private static final DecimalFormat FORMAT = new DecimalFormat("#,###,###,###,###");
+    private static final DecimalFormat SKILL_AVG = new DecimalFormat("##.#");
     public static boolean renderSecondLayer;
     private GuiScrollingList currentSlot;
     private static final int MAX_FAIRY_SOULS = 190;
@@ -96,6 +97,7 @@ public class GuiSkyBlockData extends GuiScreen
     private List<SkyBlockStats> sbOtherStats = new ArrayList<>();
     private List<ItemStack> armorItems = new ArrayList<>();
     private EntityOtherFakePlayer player;
+    private String skillAvg;
 
     // Info & Inventory
     private static final int SIZE = 36;
@@ -463,6 +465,8 @@ public class GuiSkyBlockData extends GuiScreen
                         int x = this.width / 2 - 46;
                         int y = 172;
                         this.renderSkillBar(this.carpentrySkill.getName(), x, y + 28, x + 46, y + 8, this.carpentrySkill.getCurrentXp(), this.carpentrySkill.getXpRequired(), this.carpentrySkill.getCurrentLvl(), this.carpentrySkill.isReachLimit());
+                        
+                        this.drawString(this.fontRendererObj, "Average Skill: " + this.skillAvg, this.width / 2 + 60, 199, 16777215);
                     }
                 }
                 GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
@@ -1147,6 +1151,20 @@ public class GuiSkyBlockData extends GuiScreen
         this.skillRightList.add(this.checkSkill(currentProfile.get("experience_skill_runecrafting"), "Runecrafting", SkillProgress.RUNE_SKILL));
 
         this.carpentrySkill = this.checkSkill(currentProfile.get("experience_skill_carpentry"), "Carpentry");
+
+        float avg = 0;
+        int count = 0;
+        List<SkyBlockSkillInfo> skills = new ArrayList<>();
+        skills.addAll(this.skillLeftList);
+        skills.addAll(this.skillRightList);
+        skills.add(this.carpentrySkill);
+
+        for (SkyBlockSkillInfo skill : skills)
+        {
+            avg += skill.getCurrentLvl() + skill.getSkillProgress();
+            ++count;
+        }
+        this.skillAvg = SKILL_AVG.format(avg / count);
     }
 
     private SkyBlockSkillInfo checkSkill(JsonElement element, String name)
@@ -1165,6 +1183,7 @@ public class GuiSkyBlockData extends GuiScreen
             int xpTotal = 0;
             float xpToNextLvl = 0;
             int currentXp = 0;
+            float skillProgress = 0;
 
             for (int x = 0; x < progress.length; ++x)
             {
@@ -1201,11 +1220,16 @@ public class GuiSkyBlockData extends GuiScreen
                     currentLvl = progress.length - 1;
                 }
             }
-            return new SkyBlockSkillInfo(name, currentXp, xpRequired, currentLvl, xpToNextLvl <= 0);
+
+            if (!name.equals("Runecrafting") && !name.equals("Carpentry"))
+            {
+                skillProgress = Math.max(0, Math.min(currentXp / xpToNextLvl, 1));
+            }
+            return new SkyBlockSkillInfo(name, currentXp, xpRequired, currentLvl, skillProgress, xpToNextLvl <= 0);
         }
         else
         {
-            return new SkyBlockSkillInfo(EnumChatFormatting.RED + "API is not enabled!", 0, 0, 0, false);
+            return new SkyBlockSkillInfo(EnumChatFormatting.RED + "API is not enabled!", 0, 0, 0, 0, false);
         }
     }
 
@@ -1619,14 +1643,16 @@ public class GuiSkyBlockData extends GuiScreen
         private final int currentXp;
         private final int xpRequired;
         private final int currentLvl;
+        private final float skillProgress;
         private final boolean reachLimit;
 
-        public SkyBlockSkillInfo(String name, int currentXp, int xpRequired, int currentLvl, boolean reachLimit)
+        public SkyBlockSkillInfo(String name, int currentXp, int xpRequired, int currentLvl, float skillProgress, boolean reachLimit)
         {
             this.name = name;
             this.currentXp = currentXp;
             this.xpRequired = xpRequired;
             this.currentLvl = currentLvl;
+            this.skillProgress = skillProgress;
             this.reachLimit = reachLimit;
         }
 
@@ -1648,6 +1674,11 @@ public class GuiSkyBlockData extends GuiScreen
         public int getCurrentLvl()
         {
             return this.currentLvl;
+        }
+
+        public float getSkillProgress()
+        {
+            return this.skillProgress;
         }
 
         public boolean isReachLimit()
