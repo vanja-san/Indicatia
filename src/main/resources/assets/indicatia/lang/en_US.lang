@@ -23,6 +23,7 @@ key.sb_ender_chest.desc=SkyBlock Ender Chest
 key.sb_crafted_minions.desc=SkyBlock Crafted Minions
 key.sb_crafting_table.desc=SkyBlock Crafting Table
 key.sb_view_recipe.desc=SkyBlock View Recipe
+key.sb_api_viewer.desc=SkyBlock API Viewer
 
 # COMMAND
 commands.inprofile.usage=/inprofile <add|load|save|remove|list>

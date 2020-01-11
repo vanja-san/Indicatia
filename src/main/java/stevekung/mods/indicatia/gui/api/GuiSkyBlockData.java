@@ -14,6 +14,7 @@ import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.commons.lang3.text.WordUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.GL11;
 
 import com.google.gson.*;
 import com.mojang.authlib.GameProfile;
@@ -43,17 +44,24 @@ import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.GuiScrollingList;
+import stevekung.mods.indicatia.config.ExtendedConfig;
+import stevekung.mods.indicatia.core.IndicatiaMod;
 import stevekung.mods.indicatia.event.ClientEventHandler;
+import stevekung.mods.indicatia.integration.SkyblockAddonsGuiChest;
 import stevekung.mods.indicatia.utils.*;
+import stevekung.mods.indicatia.utils.ColorUtils.RGB;
 
 public class GuiSkyBlockData extends GuiScreen
 {
     private static final ResourceLocation INVENTORY_TABS = new ResourceLocation("indicatia:textures/gui/tabs.png");
     private static final ResourceLocation XP_BARS = new ResourceLocation("indicatia:textures/gui/skill_xp_bar.png");
+    private static final ResourceLocation RARITY = new ResourceLocation("indicatia:textures/gui/rarity.png");
     private static final String[] REVENANT_HORROR_HEAD = new String[] {"0862e0b0-a14f-3f93-894f-013502936b59", "eyJ0aW1lc3RhbXAiOjE1Njg0NTc0MjAxMzcsInByb2ZpbGVJZCI6IjQxZDNhYmMyZDc0OTQwMGM5MDkwZDU0MzRkMDM4MzFiIiwicHJvZmlsZU5hbWUiOiJNZWdha2xvb24iLCJzaWduYXR1cmVSZXF1aXJlZCI6dHJ1ZSwidGV4dHVyZXMiOnsiU0tJTiI6eyJ1cmwiOiJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlL2RiYWQ5OWVkM2M4MjBiNzk3ODE5MGFkMDhhOTM0YTY4ZGZhOTBkOTk4NjgyNWRhMWM5N2Y2ZjIxZjQ5YWQ2MjYifX19"};
 
     // Based stuff
@@ -79,7 +87,9 @@ public class GuiSkyBlockData extends GuiScreen
     private GuiScrollingList currentSlot;
     private static final int MAX_FAIRY_SOULS = 190;
     private final List<SkyBlockInfo> infoList = new CopyOnWriteArrayList<>();
-    private final List<SkyBlockInfo> skillList = new CopyOnWriteArrayList<>();
+    private final List<SkyBlockSkillInfo> skillLeftList = new CopyOnWriteArrayList<>();
+    private final List<SkyBlockSkillInfo> skillRightList = new CopyOnWriteArrayList<>();
+    private SkyBlockSkillInfo carpentrySkill;
     private final List<SkyBlockSlayerInfo> slayerInfo = new CopyOnWriteArrayList<>();
     private List<SkyBlockStats> sbKillStats = new ArrayList<>();
     private List<SkyBlockStats> sbDeathStats = new ArrayList<>();
@@ -98,6 +108,7 @@ public class GuiSkyBlockData extends GuiScreen
     private boolean wasClicking;
     private final ContainerSkyBlock skyBlockContainer;
     private final ContainerArmor skyBlockArmorContainer;
+    private final SkyblockAddonsGuiChest chest = new SkyblockAddonsGuiChest();
 
     // GuiContainer fields
     private int xSize;
@@ -227,8 +238,9 @@ public class GuiSkyBlockData extends GuiScreen
     public void onGuiClosed()
     {
         TEMP_INVENTORY.clear();
+        TEMP_ARMOR_INVENTORY.clear();
         SKYBLOCK_INV.clear();
-        this.mc.getNetHandler().playerInfoMap.remove(this.profile.getId());
+        this.mc.getNetHandler().playerInfoMap.values().removeIf(network -> ((IViewerLoader)network).isLoadedFromViewer());
         GuiSkyBlockData.renderSecondLayer = false;
     }
 
@@ -343,71 +355,114 @@ public class GuiSkyBlockData extends GuiScreen
 
                 if (this.currentSlot instanceof EmptyStats)
                 {
-                    boolean flag = Mouse.isButtonDown(0);
-                    int i = this.guiLeft;
-                    int j = this.guiTop;
-                    int k = i + 182;
-                    int l = j + 18;
-                    int i1 = k + 14;
-                    int j1 = l + 72;
+                    EmptyStats stat = (EmptyStats)this.currentSlot;
 
-                    if (!this.wasClicking && flag && mouseX >= k && mouseY >= l && mouseX < i1 && mouseY < j1)
+                    if (stat.getType() == EmptyStats.Type.INVENTORY)
                     {
-                        this.isScrolling = this.needsScrollBars();
+                        boolean flag = Mouse.isButtonDown(0);
+                        int i = this.guiLeft;
+                        int j = this.guiTop;
+                        int k = i + 182;
+                        int l = j + 18;
+                        int i1 = k + 14;
+                        int j1 = l + 72;
+
+                        if (!this.wasClicking && flag && mouseX >= k && mouseY >= l && mouseX < i1 && mouseY < j1)
+                        {
+                            this.isScrolling = this.needsScrollBars();
+                        }
+
+                        if (!flag)
+                        {
+                            this.isScrolling = false;
+                        }
+
+                        this.wasClicking = flag;
+
+                        if (this.isScrolling)
+                        {
+                            this.currentScroll = (mouseY - l - 7.5F) / (j1 - l - 15.0F);
+                            this.currentScroll = MathHelper.clamp_float(this.currentScroll, 0.0F, 1.0F);
+                            this.skyBlockContainer.scrollTo(this.currentScroll);
+                        }
+
+                        this.drawTabsBackgroundLayer(partialTicks, mouseX, mouseY);
+                        GlStateManager.disableRescaleNormal();
+                        RenderHelper.disableStandardItemLighting();
+                        GlStateManager.disableLighting();
+                        GlStateManager.disableDepth();
                     }
-
-                    if (!flag)
-                    {
-                        this.isScrolling = false;
-                    }
-
-                    this.wasClicking = flag;
-
-                    if (this.isScrolling)
-                    {
-                        this.currentScroll = (mouseY - l - 7.5F) / (j1 - l - 15.0F);
-                        this.currentScroll = MathHelper.clamp_float(this.currentScroll, 0.0F, 1.0F);
-                        this.skyBlockContainer.scrollTo(this.currentScroll);
-                    }
-
-                    this.drawTabsBackgroundLayer(partialTicks, mouseX, mouseY);
-                    GlStateManager.disableRescaleNormal();
-                    RenderHelper.disableStandardItemLighting();
-                    GlStateManager.disableLighting();
-                    GlStateManager.disableDepth();
                 }
 
                 super.drawScreen(mouseX, mouseY, partialTicks);
 
                 if (this.currentSlot instanceof EmptyStats)
                 {
-                    this.drawContainerSlot(mouseX, mouseY);
+                    EmptyStats stat = (EmptyStats)this.currentSlot;
 
-                    RenderHelper.disableStandardItemLighting();
-                    this.drawTabsForegroundLayer();
-                    RenderHelper.enableGUIStandardItemLighting();
-
-                    for (SkyBlockInventoryTabs tab : SkyBlockInventoryTabs.tabArray)
+                    if (stat.getType() == EmptyStats.Type.INVENTORY)
                     {
-                        if (tab == null)
+                        this.drawContainerSlot(mouseX, mouseY);
+
+                        RenderHelper.disableStandardItemLighting();
+                        this.drawTabsForegroundLayer();
+                        RenderHelper.enableGUIStandardItemLighting();
+
+                        for (SkyBlockInventoryTabs tab : SkyBlockInventoryTabs.tabArray)
                         {
-                            continue;
+                            if (tab == null)
+                            {
+                                continue;
+                            }
+                            if (this.renderTabsHoveringText(tab, mouseX, mouseY))
+                            {
+                                break;
+                            }
                         }
-                        if (this.renderTabsHoveringText(tab, mouseX, mouseY))
+
+                        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+                        GlStateManager.disableLighting();
+
+                        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+                        GuiSkyBlockData.drawEntityOnScreen(this.width / 2 - 96, this.height / 2 + 40, 20 * this.res.getScaleFactor(), this.player);
+
+                        if (this.theSlot != null && this.theSlot.getHasStack())
                         {
-                            break;
+                            this.renderToolTip(this.theSlot.getStack(), mouseX, mouseY);
+                        }
+                        if (IndicatiaMod.isSkyblockAddonsLoaded)
+                        {
+                            this.chest.drawBackpacks(this, mouseX, mouseY, partialTicks);
                         }
                     }
-
-                    GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-                    GlStateManager.disableLighting();
-
-                    GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-                    GuiSkyBlockData.drawEntityOnScreen(this.width / 2 - 96, this.height / 2 + 40, 20 * this.res.getScaleFactor(), this.player);
-
-                    if (this.theSlot != null && this.theSlot.getHasStack())
+                    else
                     {
-                        this.renderToolTip(this.theSlot.getStack(), mouseX, mouseY);
+                        int i = 0;
+
+                        for (SkyBlockSkillInfo info : this.skillLeftList)
+                        {
+                            int x = this.width / 2 - 120;
+                            int y = 53;
+                            int barY = y + 20 + 32 * i;
+                            int textY = y + 32 * i;
+                            this.renderSkillBar(info.getName(), x, barY, x + 46, textY, info.getCurrentXp(), info.getXpRequired(), info.getCurrentLvl(), info.isReachLimit());
+                            ++i;
+                        }
+
+                        i = 0;
+
+                        for (SkyBlockSkillInfo info : this.skillRightList)
+                        {
+                            int x = this.width / 2 + 30;
+                            int y = 53;
+                            int barY = y + 20 + 32 * i;
+                            int textY = y + 32 * i;
+                            this.renderSkillBar(info.getName(), x, barY, x + 46, textY, info.getCurrentXp(), info.getXpRequired(), info.getCurrentLvl(), info.isReachLimit());
+                            ++i;
+                        }
+                        int x = this.width / 2 - 46;
+                        int y = 172;
+                        this.renderSkillBar(this.carpentrySkill.getName(), x, y + 28, x + 46, y + 8, this.carpentrySkill.getCurrentXp(), this.carpentrySkill.getXpRequired(), this.carpentrySkill.getCurrentLvl(), this.carpentrySkill.isReachLimit());
                     }
                 }
                 GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
@@ -416,15 +471,47 @@ public class GuiSkyBlockData extends GuiScreen
         }
     }
 
+    private void renderSkillBar(String name, int xBar, int yBar, int xText, int yText, int playerXp, int xpRequired, int currentLvl, boolean reachLimit)
+    {
+        this.mc.getTextureManager().bindTexture(XP_BARS);
+        GlStateManager.color(0.5F, 1.0F, 0.0F, 1.0F);
+        Gui.drawModalRectWithCustomSizedTexture(xBar, yBar, 0, 0, 91, 5, 91, 10);
+
+        if (xpRequired > 0)
+        {
+            int filled = Math.min((int)Math.floor(playerXp * 92 / xpRequired), 91);
+
+            if (filled > 0)
+            {
+                Gui.drawModalRectWithCustomSizedTexture(xBar, yBar, 0, 5, filled, 5, 91, 10);
+            }
+
+            this.drawCenteredString(this.fontRendererObj, EnumChatFormatting.GRAY + name + EnumChatFormatting.YELLOW + " " + currentLvl, xText, yText, 16777215);
+
+            if (reachLimit)
+            {
+                this.drawCenteredString(this.fontRendererObj, NumberUtils.format(playerXp), xText, yText + 10, 16777215);
+            }
+            else
+            {
+                this.drawCenteredString(this.fontRendererObj, NumberUtils.format(playerXp) + "/" + NumberUtils.format(xpRequired), xText, yText + 10, 16777215);
+            }
+        }
+        else
+        {
+            this.drawCenteredString(this.fontRendererObj, name, xText, yText + 8, 16777215);
+        }
+    }
+
     @Override
-    public void handleMouseInput() throws IOException//TODO Fix scroll
+    public void handleMouseInput() throws IOException
     {
         super.handleMouseInput();
         int i = Mouse.getEventDWheel();
 
         if (i != 0 && this.needsScrollBars())
         {
-            int j = this.skyBlockContainer.itemList.size() / 9 - 4;
+            int j = this.skyBlockContainer.itemList.size() / 9 - 4;// TODO Fix scroll
 
             if (i > 0)
             {
@@ -472,7 +559,7 @@ public class GuiSkyBlockData extends GuiScreen
             }
             else if (type.id == ViewButton.SKILLS.id)
             {
-                this.currentSlot = new SkillStats(this, this.width - 119, this.height, 44, this.height - 30, 59, 12, this.width, this.height, this.skillList);
+                this.currentSlot = new EmptyStats(this.mc, this.width - 119, this.height, 44, this.height - 30, 59, 12, this.width, this.height, EmptyStats.Type.SKILL);
                 this.hideOtherStatsButton();
                 this.hideBasicInfoButton();
             }
@@ -562,7 +649,7 @@ public class GuiSkyBlockData extends GuiScreen
             }
             else
             {
-                this.currentSlot = new EmptyStats(this.mc, this.width - 119, this.height, 44, this.height - 54, 59, 12, this.width, this.height);
+                this.currentSlot = new EmptyStats(this.mc, this.width - 119, this.height, 44, this.height - 54, 59, 12, this.width, this.height, EmptyStats.Type.INVENTORY);
                 this.setCurrentTab(SkyBlockInventoryTabs.INVENTORY);
             }
             button.enabled = false;
@@ -709,6 +796,12 @@ public class GuiSkyBlockData extends GuiScreen
         }
 
         GlStateManager.enableDepth();
+
+        if (ExtendedConfig.instance.showItemRarity)
+        {
+            this.drawRarity(slot);
+        }
+
         this.itemRender.renderItemAndEffectIntoGUI(itemStack, i, j);
         this.itemRender.renderItemOverlayIntoGUI(this.fontRendererObj, itemStack, i, j, s);
         this.itemRender.zLevel = 0.0F;
@@ -1043,20 +1136,67 @@ public class GuiSkyBlockData extends GuiScreen
 
     private void getSkills(JsonObject currentProfile)
     {
-        this.skillList.add(new SkyBlockInfo("Farming", this.checkSkill(currentProfile.get("experience_skill_farming"))));
-        this.skillList.add(new SkyBlockInfo("Foraging", this.checkSkill(currentProfile.get("experience_skill_foraging"))));
-        this.skillList.add(new SkyBlockInfo("Mining", this.checkSkill(currentProfile.get("experience_skill_mining"))));
-        this.skillList.add(new SkyBlockInfo("Fishing", this.checkSkill(currentProfile.get("experience_skill_fishing"))));
-        this.skillList.add(new SkyBlockInfo("Combat", this.checkSkill(currentProfile.get("experience_skill_combat"))));
-        this.skillList.add(new SkyBlockInfo("Enchanting", this.checkSkill(currentProfile.get("experience_skill_enchanting"))));
-        this.skillList.add(new SkyBlockInfo("Alchemy", this.checkSkill(currentProfile.get("experience_skill_alchemy"))));
-        this.skillList.add(new SkyBlockInfo("Runecrafting", this.checkSkill(currentProfile.get("experience_skill_runecrafting"))));
-        this.skillList.add(new SkyBlockInfo("Carpentry", this.checkSkill(currentProfile.get("experience_skill_carpentry"))));
+        this.skillLeftList.add(this.checkSkill(currentProfile.get("experience_skill_farming"), "Farming"));
+        this.skillLeftList.add(this.checkSkill(currentProfile.get("experience_skill_foraging"), "Foraging"));
+        this.skillLeftList.add(this.checkSkill(currentProfile.get("experience_skill_mining"), "Mining"));
+        this.skillLeftList.add(this.checkSkill(currentProfile.get("experience_skill_fishing"), "Fishing"));
+
+        this.skillRightList.add(this.checkSkill(currentProfile.get("experience_skill_combat"), "Combat"));
+        this.skillRightList.add(this.checkSkill(currentProfile.get("experience_skill_enchanting"), "Enchanting"));
+        this.skillRightList.add(this.checkSkill(currentProfile.get("experience_skill_alchemy"), "Alchemy"));
+        this.skillRightList.add(this.checkSkill(currentProfile.get("experience_skill_runecrafting"), "Runecrafting", SkillProgress.RUNE_SKILL));
+
+        this.carpentrySkill = this.checkSkill(currentProfile.get("experience_skill_carpentry"), "Carpentry");
     }
 
-    private String checkSkill(JsonElement element)
+    private SkyBlockSkillInfo checkSkill(JsonElement element, String name)
     {
-        return element != null ? FORMAT.format(element.getAsFloat()) : EnumChatFormatting.RED + "API is not enabled!";
+        return this.checkSkill(element, name, SkillProgress.SKILL);
+    }
+
+    private SkyBlockSkillInfo checkSkill(JsonElement element, String name, SkillProgress[] progress)
+    {
+        if (element != null)
+        {
+            int playerXp = (int)element.getAsFloat();
+            int xpRequired = 0;
+            int currentLvl = 0;
+            int levelToCheck = 0;
+            int xpTotal = 0;
+            float xpToNextLvl = 0;
+            int currentXp = 0;
+
+            for (int x = 0; x < progress.length; ++x)
+            {
+                if (playerXp >= xpTotal)
+                {
+                    xpTotal += progress[x].getXp();
+                    currentLvl = x;
+                    levelToCheck = progress[x].getLevel();
+
+                    if (levelToCheck <= progress.length)
+                    {
+                        xpRequired = (int)progress[x].getXp();
+                    }
+                }
+            }
+
+            if (levelToCheck < progress.length)
+            {
+                xpToNextLvl = xpTotal - playerXp;
+                currentXp = (int)(xpRequired - xpToNextLvl);
+            }
+            else
+            {
+                currentLvl = progress.length;
+                currentXp = playerXp - xpTotal;
+            }
+            return new SkyBlockSkillInfo(name, currentXp, xpRequired, currentLvl, xpToNextLvl == 0);
+        }
+        else
+        {
+            return new SkyBlockSkillInfo(EnumChatFormatting.RED + "API is not enabled!", 0, 0, 0, false);
+        }
     }
 
     private void getStats(JsonObject currentProfile)
@@ -1123,7 +1263,10 @@ public class GuiSkyBlockData extends GuiScreen
 
     private void createFakePlayer()
     {
-        this.mc.getNetHandler().playerInfoMap.put(this.profile.getId(), new NetworkPlayerInfo(this.profile)); // hack into map to show their skin :D
+        if (this.mc.getNetHandler().getPlayerInfo(this.profile.getName()) == null)
+        {
+            this.mc.getNetHandler().playerInfoMap.put(this.profile.getId(), ((IViewerLoader)new NetworkPlayerInfo(this.profile)).setLoadedFromViewer(true)); // hack into map to show their skin :D
+        }
         this.player = new EntityOtherFakePlayer(this.mc.theWorld, this.profile);
         GuiSkyBlockData.renderSecondLayer = true;
 
@@ -1146,6 +1289,73 @@ public class GuiSkyBlockData extends GuiScreen
         }
     }
 
+    private void drawRarity(Slot slot)
+    {
+        if (slot.getStack() != null && slot.getStack().hasTagCompound())
+        {
+            NBTTagCompound compound = slot.getStack().getTagCompound().getCompoundTag("display");
+
+            if (compound.getTagId("Lore") == 9)
+            {
+                NBTTagList list = compound.getTagList("Lore", 8);
+
+                if (list.tagCount() > 0)
+                {
+                    for (int j1 = 0; j1 < list.tagCount(); ++j1)
+                    {
+                        String lore = list.getStringTagAt(j1);
+                        RGB common = ColorUtils.stringToRGB("255,255,255");
+                        RGB uncommon = ColorUtils.stringToRGB("85,255,85");
+                        RGB rare = ColorUtils.stringToRGB("85,85,255");
+                        RGB epic = ColorUtils.stringToRGB("170,0,170");
+                        RGB legendary = ColorUtils.stringToRGB("255,170,0");
+                        RGB special = ColorUtils.stringToRGB("255,85,255");
+
+                        if (lore.startsWith(EnumChatFormatting.WHITE + "" + EnumChatFormatting.BOLD + "COMMON"))
+                        {
+                            this.renderRarity(slot, common);
+                        }
+                        else if (lore.startsWith(EnumChatFormatting.GREEN + "" + EnumChatFormatting.BOLD + "UNCOMMON"))
+                        {
+                            this.renderRarity(slot, uncommon);
+                        }
+                        else if (lore.startsWith(EnumChatFormatting.BLUE + "" + EnumChatFormatting.BOLD + "RARE"))
+                        {
+                            this.renderRarity(slot, rare);
+                        }
+                        else if (lore.startsWith(EnumChatFormatting.DARK_PURPLE + "" + EnumChatFormatting.BOLD + "EPIC"))
+                        {
+                            this.renderRarity(slot, epic);
+                        }
+                        else if (lore.startsWith(EnumChatFormatting.GOLD + "" + EnumChatFormatting.BOLD + "LEGENDARY"))
+                        {
+                            this.renderRarity(slot, legendary);
+                        }
+                        else if (lore.startsWith(EnumChatFormatting.LIGHT_PURPLE + "" + EnumChatFormatting.BOLD + "SPECIAL"))
+                        {
+                            this.renderRarity(slot, special);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void renderRarity(Slot slot, RGB color)
+    {
+        float alpha = ExtendedConfig.instance.itemRarityOpacity / 100.0F;
+        GlStateManager.disableLighting();
+        GlStateManager.disableDepth();
+        GlStateManager.enableBlend();
+        this.mc.getTextureManager().bindTexture(RARITY);
+        GlStateManager.color(color.floatRed(), color.floatGreen(), color.floatBlue(), alpha);
+        GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
+        Gui.drawModalRectWithCustomSizedTexture(slot.xDisplayPosition, slot.yDisplayPosition, 0, 0, 16, 16, 16, 16);
+        GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
+        GlStateManager.enableLighting();
+        GlStateManager.enableDepth();
+    }
+
     private static List<SkyBlockSlayerInfo> getSlayer(JsonElement element, String name)
     {
         List<SkyBlockSlayerInfo> list = new ArrayList<>();
@@ -1154,35 +1364,54 @@ public class GuiSkyBlockData extends GuiScreen
 
         if (xp != null)
         {
-            list.add(new SkyBlockSlayerInfo(name + " Slayer"));
-            list.add(SkyBlockSlayerInfo.createMob(name));
-
             int playerSlayerXp = xp.getAsInt();
-            int maxSlayerXp = 0;
+            int xpRequired = 0;
             int slayerLvl = 0;
+            int levelToCheck = 0;
+            int xpToNextLvl = 0;
 
-            for (SlayerSkill slayerSkills : SlayerSkill.SKILLS)
+            for (SkillProgress skill : SkillProgress.SLAYER_SKILL)
             {
-                int slayerXp = slayerSkills.getXp();
+                int slayerXp = (int)skill.getXp();
 
                 if (slayerXp <= playerSlayerXp)
                 {
-                    maxSlayerXp = slayerXp;
-                    slayerLvl++;
+                    levelToCheck = skill.getLevel();
+
+                    if (levelToCheck < SkillProgress.SLAYER_SKILL.length)
+                    {
+                        xpRequired = (int)SkillProgress.SLAYER_SKILL[levelToCheck].getXp();
+                    }
+                    ++slayerLvl;
                 }
             }
 
-            list.add(SkyBlockSlayerInfo.createXp(slayerLvl + "," + playerSlayerXp + "," + maxSlayerXp));
+            if (levelToCheck < SkillProgress.SLAYER_SKILL.length)
+            {
+                levelToCheck += 1;
+                xpToNextLvl = xpRequired - playerSlayerXp;
+            }
+            else
+            {
+                levelToCheck = SkillProgress.SLAYER_SKILL.length;
+            }
+
+            list.add(new SkyBlockSlayerInfo(EnumChatFormatting.GRAY + name + " Slayer: " + EnumChatFormatting.YELLOW + "LVL " + slayerLvl));
+            list.add(new SkyBlockSlayerInfo(EnumChatFormatting.GRAY + "EXP: " + EnumChatFormatting.LIGHT_PURPLE + (xpToNextLvl == 0 ? FORMAT.format(playerSlayerXp) : FORMAT.format(playerSlayerXp) + EnumChatFormatting.DARK_PURPLE + "/" + EnumChatFormatting.LIGHT_PURPLE + FORMAT.format(xpRequired))));
+
+            if (xpToNextLvl != 0)
+            {
+                list.add(new SkyBlockSlayerInfo(EnumChatFormatting.GRAY + "XP to " + EnumChatFormatting.YELLOW + "LVL " + levelToCheck + ": " + EnumChatFormatting.LIGHT_PURPLE + FORMAT.format(xpToNextLvl)));
+            }
+
+            list.add(SkyBlockSlayerInfo.createMobAndXp(name, playerSlayerXp + "," + xpRequired + "," + xpToNextLvl));
 
             for (int i = 1; i <= 4; i++)
             {
                 JsonElement kills = slayer.getAsJsonObject().get("boss_kills_tier_" + (i - 1));
-                list.add(new SkyBlockSlayerInfo("Tier " + i + ": " + (kills != null ? FORMAT.format(kills.getAsInt()) : 0) + " kills"));
+                list.add(new SkyBlockSlayerInfo(EnumChatFormatting.GRAY + "Tier " + i + ": " + EnumChatFormatting.YELLOW + (kills != null ? FORMAT.format(kills.getAsInt()) : 0) + " kills"));
             }
-            for (int i = 0; i < 2; i++)
-            {
-                list.add(SkyBlockSlayerInfo.empty());
-            }
+            list.add(SkyBlockSlayerInfo.empty());
             return list;
         }
         else
@@ -1194,6 +1423,7 @@ public class GuiSkyBlockData extends GuiScreen
     private static void drawEntityOnScreen(int posX, int posY, int scale, EntityLivingBase entity)
     {
         GlStateManager.enableColorMaterial();
+        GlStateManager.color(1.0F, 1.0F, 1.0F);
         GlStateManager.pushMatrix();
         GlStateManager.translate(posX, posY, 50.0F);
         GlStateManager.scale(-scale, scale, scale);
@@ -1373,9 +1603,53 @@ public class GuiSkyBlockData extends GuiScreen
         }
     }
 
+    class SkyBlockSkillInfo
+    {
+        private final String name;
+        private final int currentXp;
+        private final int xpRequired;
+        private final int currentLvl;
+        private final boolean reachLimit;
+
+        public SkyBlockSkillInfo(String name, int currentXp, int xpRequired, int currentLvl, boolean reachLimit)
+        {
+            this.name = name;
+            this.currentXp = currentXp;
+            this.xpRequired = xpRequired;
+            this.currentLvl = currentLvl;
+            this.reachLimit = reachLimit;
+        }
+
+        public String getName()
+        {
+            return this.name;
+        }
+
+        public int getCurrentXp()
+        {
+            return this.currentXp;
+        }
+
+        public int getXpRequired()
+        {
+            return this.xpRequired;
+        }
+
+        public int getCurrentLvl()
+        {
+            return this.currentLvl;
+        }
+
+        public boolean isReachLimit()
+        {
+            return this.reachLimit;
+        }
+    }
+
     static class SkyBlockSlayerInfo
     {
         private final String text;
+        private String xp;
         private Type type = Type.TEXT;
 
         public SkyBlockSlayerInfo(String text)
@@ -1383,9 +1657,10 @@ public class GuiSkyBlockData extends GuiScreen
             this.text = text;
         }
 
-        public SkyBlockSlayerInfo(String text, Type type)
+        public SkyBlockSlayerInfo(String text, String xp, Type type)
         {
             this(text);
+            this.xp = xp;
             this.type = type;
         }
 
@@ -1394,19 +1669,19 @@ public class GuiSkyBlockData extends GuiScreen
             return this.text;
         }
 
+        public String getXp()
+        {
+            return this.xp;
+        }
+
         public Type getType()
         {
             return this.type;
         }
 
-        public static SkyBlockSlayerInfo createMob(String slayerType)
+        public static SkyBlockSlayerInfo createMobAndXp(String slayerType, String xp)
         {
-            return new SkyBlockSlayerInfo(slayerType, Type.MOB);
-        }
-
-        public static SkyBlockSlayerInfo createXp(String xp)
-        {
-            return new SkyBlockSlayerInfo(xp, Type.LEVEL);
+            return new SkyBlockSlayerInfo(slayerType, xp, Type.XP_AND_MOB);
         }
 
         public static SkyBlockSlayerInfo empty()
@@ -1416,15 +1691,18 @@ public class GuiSkyBlockData extends GuiScreen
 
         public enum Type
         {
-            TEXT, MOB, LEVEL;
+            TEXT, XP_AND_MOB;
         }
     }
 
-    class EmptyStats extends GuiScrollingList
+    static class EmptyStats extends GuiScrollingList
     {
-        public EmptyStats(Minecraft mc, int width, int height, int top, int bottom, int left, int entryHeight, int parentWidth, int parentHeight)
+        private final Type type;
+
+        public EmptyStats(Minecraft mc, int width, int height, int top, int bottom, int left, int entryHeight, int parentWidth, int parentHeight, Type type)
         {
             super(mc, width, height, top, bottom, left, entryHeight, parentWidth, parentHeight);
+            this.type = type;
         }
 
         @Override
@@ -1447,6 +1725,16 @@ public class GuiSkyBlockData extends GuiScreen
         {
             return false;
         }
+
+        public Type getType()
+        {
+            return this.type;
+        }
+
+        enum Type
+        {
+            INVENTORY, SKILL;
+        }
     }
 
     class InfoStats extends GuiScrollingList
@@ -1455,45 +1743,6 @@ public class GuiSkyBlockData extends GuiScreen
         private final GuiSkyBlockData parent;
 
         public InfoStats(GuiSkyBlockData parent, int width, int height, int top, int bottom, int left, int entryHeight, int parentWidth, int parentHeight, List<SkyBlockInfo> stats)
-        {
-            super(parent.mc, width, height, top, bottom, left, entryHeight, parentWidth, parentHeight);
-            this.stats = stats;
-            this.parent = parent;
-        }
-
-        @Override
-        protected int getSize()
-        {
-            return this.stats.size();
-        }
-
-        @Override
-        protected void drawSlot(int index, int right, int top, int height, Tessellator tess)
-        {
-            SkyBlockInfo stat = this.stats.get(index);
-            this.parent.drawString(this.parent.mc.fontRendererObj, stat.getTitle(), this.left + 3, top, index % 2 == 0 ? 16777215 : 9474192);
-            this.parent.drawString(this.parent.mc.fontRendererObj, stat.getValue(), this.right - this.parent.mc.fontRendererObj.getStringWidth(stat.getValue()) - 10, top, index % 2 == 0 ? 16777215 : 9474192);
-        }
-
-        @Override
-        protected void elementClicked(int index, boolean doubleClick) {}
-
-        @Override
-        protected void drawBackground() {}
-
-        @Override
-        protected boolean isSelected(int index)
-        {
-            return false;
-        }
-    }
-
-    class SkillStats extends GuiScrollingList
-    {
-        private final List<SkyBlockInfo> stats;
-        private final GuiSkyBlockData parent;
-
-        public SkillStats(GuiSkyBlockData parent, int width, int height, int top, int bottom, int left, int entryHeight, int parentWidth, int parentHeight, List<SkyBlockInfo> stats)
         {
             super(parent.mc, width, height, top, bottom, left, entryHeight, parentWidth, parentHeight);
             this.stats = stats;
@@ -1546,7 +1795,7 @@ public class GuiSkyBlockData extends GuiScreen
             }
             else
             {
-                this.setHeaderInfo(true, 24);
+                this.setHeaderInfo(true, 16);
             }
         }
 
@@ -1563,7 +1812,7 @@ public class GuiSkyBlockData extends GuiScreen
 
             switch (stat.getType())
             {
-            case MOB:
+            case XP_AND_MOB:
                 if (stat.getText().equals("Zombie"))
                 {
                     EntityZombie zombie = new EntityZombie(this.parent.mc.theWorld);
@@ -1577,46 +1826,41 @@ public class GuiSkyBlockData extends GuiScreen
                     zombie.setCurrentItemOrArmor(2, leggings);
                     zombie.setCurrentItemOrArmor(3, chestplate);
                     zombie.setCurrentItemOrArmor(4, helmet);
-                    GuiSkyBlockData.drawEntityOnScreen(this.left + 42 * this.res.getScaleFactor(), top + 80, 20 * this.res.getScaleFactor(), zombie);
+                    GuiSkyBlockData.drawEntityOnScreen(this.left + 36 * this.res.getScaleFactor(), top + 60, 20 * this.res.getScaleFactor(), zombie);
                 }
                 else if (stat.getText().equals("Spider"))
                 {
                     EntitySpider spider = new EntitySpider(this.parent.mc.theWorld);
                     EntityCaveSpider cave = new EntityCaveSpider(this.parent.mc.theWorld);
-                    GuiSkyBlockData.drawEntityOnScreen(this.left + 42 * this.res.getScaleFactor(), top + 60, 20 * this.res.getScaleFactor(), cave);
-                    GuiSkyBlockData.drawEntityOnScreen(this.left + 42 * this.res.getScaleFactor(), top + 80, 20 * this.res.getScaleFactor(), spider);
+                    GuiSkyBlockData.drawEntityOnScreen(this.left + 36 * this.res.getScaleFactor(), top + 40, 20 * this.res.getScaleFactor(), cave);
+                    GuiSkyBlockData.drawEntityOnScreen(this.left + 36 * this.res.getScaleFactor(), top + 60, 20 * this.res.getScaleFactor(), spider);
                     GlStateManager.blendFunc(770, 771);
                 }
                 else
                 {
                     EntityWolf wolf = new EntityWolf(this.parent.mc.theWorld);
                     wolf.setAngry(true);
-                    GuiSkyBlockData.drawEntityOnScreen(this.left + 42 * this.res.getScaleFactor(), top + 80, 20 * this.res.getScaleFactor(), wolf);
+                    GuiSkyBlockData.drawEntityOnScreen(this.left + 36 * this.res.getScaleFactor(), top + 60, 20 * this.res.getScaleFactor(), wolf);
                 }
-                break;
-            case LEVEL:
+
                 this.parent.mc.getTextureManager().bindTexture(XP_BARS);
                 GlStateManager.color(0.0F, 1.0F, 1.0F, 1.0F);
                 GlStateManager.disableBlend();
 
-                String[] xpSplit = stat.getText().split(",");
-                int slayerLevel = Integer.valueOf(xpSplit[0]);
-                int playerSlayerXp = Integer.valueOf(xpSplit[1]);
-                int maxSlayerXp = Integer.valueOf(xpSplit[2]);
-                String text = "Level: " + slayerLevel + ", EXP: " + FORMAT.format(playerSlayerXp);
+                String[] xpSplit = stat.getXp().split(",");
+                int playerSlayerXp = Integer.valueOf(xpSplit[0]);
+                int xpRequired = Integer.valueOf(xpSplit[1]);
 
-                short barWidth = 91;
-                int filled = Math.min((int)Math.floor(playerSlayerXp * (barWidth + 1) / maxSlayerXp / 4), 91);//TODO Correct way to calculate exp to lvl, lvl to exp
-                Gui.drawModalRectWithCustomSizedTexture(this.right - 150, top, 0, 0, barWidth, 5, barWidth, 10);
+                int filled = Math.min((int)Math.floor(playerSlayerXp * 92 / xpRequired), 91);
+                Gui.drawModalRectWithCustomSizedTexture(this.right - 150, top, 0, 0, 91, 5, 91, 10);
 
                 if (filled > 0)
                 {
-                    Gui.drawModalRectWithCustomSizedTexture(this.right - 150, top, 0, 5, filled, 5, barWidth, 10);
+                    Gui.drawModalRectWithCustomSizedTexture(this.right - 150, top, 0, 5, filled, 5, 91, 10);
                 }
 
                 GlStateManager.enableBlend();
                 GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-                this.parent.drawString(this.parent.mc.fontRendererObj, text, this.right - this.parent.mc.fontRendererObj.getStringWidth(text) - 60, top - 16, 16777215);
                 break;
             default:
                 if (this.getSize() <= 3)

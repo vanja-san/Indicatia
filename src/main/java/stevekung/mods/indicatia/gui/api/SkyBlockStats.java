@@ -2,8 +2,6 @@ package stevekung.mods.indicatia.gui.api;
 
 import java.text.DecimalFormat;
 
-import stevekung.mods.indicatia.utils.CommonUtils;
-
 public class SkyBlockStats
 {
     private String name;
@@ -30,7 +28,8 @@ public class SkyBlockStats
     {
         if (this.name.contains("Race"))
         {
-            return CommonUtils.ticksToElapsedTime((int)this.value);//TODO Is it epoch or minecraft ticks???
+            float seconds = this.value / 1000.0F;
+            return FORMAT.format(seconds) + " seconds";
         }
         return FORMAT.format(this.value);
     }

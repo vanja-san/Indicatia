@@ -45,6 +45,7 @@
         "SkinManagerMixin",
         "ThreadDownloadImageDataMixin",
         "GuiConnectingMixin",
-        "RenderManagerMixin"
+        "RenderManagerMixin",
+        "NetworkPlayerInfoMixin"
     ]
 }

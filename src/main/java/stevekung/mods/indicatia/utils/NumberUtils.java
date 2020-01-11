@@ -10,7 +10,7 @@ public class NumberUtils
 
     static
     {
-        SUFFIXES.put(1_000L, "k");
+        SUFFIXES.put(1_000L, "K");
         SUFFIXES.put(1_000_000L, "M");
         SUFFIXES.put(1_000_000_000L, "G");
         SUFFIXES.put(1_000_000_000_000L, "T");
