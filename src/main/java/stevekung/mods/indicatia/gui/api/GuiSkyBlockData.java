@@ -1191,7 +1191,17 @@ public class GuiSkyBlockData extends GuiScreen
                 currentLvl = progress.length;
                 currentXp = playerXp - xpTotal;
             }
-            return new SkyBlockSkillInfo(name, currentXp, xpRequired, currentLvl, xpToNextLvl == 0);
+
+            if (progress == SkillProgress.RUNE_SKILL && currentXp <= 0) // fix for runecrafting 23 to 24
+            {
+                if (levelToCheck <= progress.length)
+                {
+                    xpToNextLvl = xpTotal - playerXp;
+                    currentXp = (int)(xpRequired - xpToNextLvl);
+                    currentLvl = progress.length - 1;
+                }
+            }
+            return new SkyBlockSkillInfo(name, currentXp, xpRequired, currentLvl, xpToNextLvl <= 0);
         }
         else
         {
