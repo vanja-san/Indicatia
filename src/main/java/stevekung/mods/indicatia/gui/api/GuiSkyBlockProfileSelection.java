@@ -190,6 +190,13 @@ public class GuiSkyBlockProfileSelection extends GuiScreen
         BufferedReader reader = new BufferedReader(new InputStreamReader(url.openConnection().getInputStream(), StandardCharsets.UTF_8));
         JsonElement element = new JsonParser().parse(reader);
         JsonObject obj = element.getAsJsonObject();
+
+        if (!obj.get("success").getAsBoolean())
+        {
+            this.setErrorMessage(obj.get("cause").getAsString());
+            return;
+        }
+
         JsonElement jsonPlayer = obj.get("player");
 
         if (jsonPlayer.isJsonNull())
