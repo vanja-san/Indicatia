@@ -1052,6 +1052,7 @@ public class GuiSkyBlockData extends GuiScreen
         String critChance = ColorUtils.stringToRGB("121,134,203").toColoredFont();
         String critDamage = ColorUtils.stringToRGB("70,90,201").toColoredFont();
         String intelligence = ColorUtils.stringToRGB("129,212,250").toColoredFont();
+        String fairySoulsColor = ColorUtils.stringToRGB("203,54,202").toColoredFont();
 
         this.infoList.add(new SkyBlockInfo(heath + "\u2764 Health", heath + String.valueOf(100) + " (WIP)"));
         this.infoList.add(new SkyBlockInfo(heath + "\u2665 Effective Health", heath + String.valueOf(100) + " (WIP)"));
@@ -1064,8 +1065,7 @@ public class GuiSkyBlockData extends GuiScreen
 
         this.infoList.add(new SkyBlockInfo("", ""));
 
-        this.infoList.add(new SkyBlockInfo("Death Count", String.valueOf(deathCounts)));
-        this.infoList.add(new SkyBlockInfo("Fairy Souls Collected", collectedSouls + "/" + GuiSkyBlockData.MAX_FAIRY_SOULS));
+        this.infoList.add(new SkyBlockInfo(fairySoulsColor + "Fairy Souls Collected", fairySoulsColor + collectedSouls + "/" + GuiSkyBlockData.MAX_FAIRY_SOULS));
 
         Date firstJoinDate = new Date(firstJoinMillis);
         Date lastSaveDate = new Date(lastSaveMillis);
@@ -1076,6 +1076,8 @@ public class GuiSkyBlockData extends GuiScreen
         this.infoList.add(new SkyBlockInfo("Joined (Date)", firstJoinMillis != -1 ? firstJoinDateFormat : EnumChatFormatting.RED + "No first join data!"));
         this.infoList.add(new SkyBlockInfo("Last Updated", lastSaveMillis != -1 ? this.getRelativeTime(lastSaveDate.getTime()) : EnumChatFormatting.RED + "No last save data!"));
         this.infoList.add(new SkyBlockInfo("Last Updated (Date)", lastSaveMillis != -1 ? lastLogout : EnumChatFormatting.RED + "No last save data!"));
+
+        this.infoList.add(new SkyBlockInfo("Death Count", String.valueOf(deathCounts)));
 
         if (banking != null)
         {
