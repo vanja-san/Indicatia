@@ -2,14 +2,14 @@ package stevekung.mods.indicatia.gui.api;
 
 import com.mojang.authlib.GameProfile;
 
-public class SkyBlockFallbackData
+public class ProfileDataCallback
 {
     private final String sbProfileId;
     private final String profileName;
     private final String uuid;
     private final GameProfile profile;
 
-    public SkyBlockFallbackData(String sbProfileId, String profileName, String uuid, GameProfile profile)
+    public ProfileDataCallback(String sbProfileId, String profileName, String uuid, GameProfile profile)
     {
         this.sbProfileId = sbProfileId;
         this.profileName = profileName;

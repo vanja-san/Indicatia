@@ -36,7 +36,7 @@ public class GuiSkyBlockProfileSelection extends GuiScreen
     private GuiButton doneButton;
     private GuiButton backButton;
     private String username;
-    private List<SkyBlockFallbackData> profiles = new ArrayList<>();
+    private List<ProfileDataCallback> profiles = new ArrayList<>();
     private final StopWatch watch = new StopWatch();
     private int percent;
 
@@ -45,7 +45,7 @@ public class GuiSkyBlockProfileSelection extends GuiScreen
         this.username = username;
     }
 
-    public GuiSkyBlockProfileSelection(String username, List<SkyBlockFallbackData> profiles)
+    public GuiSkyBlockProfileSelection(String username, List<ProfileDataCallback> profiles)
     {
         this.username = username;
         this.profiles = profiles;
@@ -63,7 +63,7 @@ public class GuiSkyBlockProfileSelection extends GuiScreen
         {
             int i = 0;
 
-            for (SkyBlockFallbackData data : this.profiles)
+            for (ProfileDataCallback data : this.profiles)
             {
                 String sbProfileId = data.getProfileId();
                 String profileName = data.getProfileName();
@@ -225,7 +225,7 @@ public class GuiSkyBlockProfileSelection extends GuiScreen
             GuiSBProfileButton button = new GuiSBProfileButton(i + 1000, this.width / 2 - 75, 50, 150, 20, profileName, sbProfileId, this.username, uuid, profile);
             button.yPosition += i * 22;
             this.buttonList.add(button);
-            this.profiles.add(new SkyBlockFallbackData(sbProfileId, profileName, uuid, profile));
+            this.profiles.add(new ProfileDataCallback(sbProfileId, profileName, uuid, profile));
             ++i;
         }
         for (GuiButton button : this.buttonList)

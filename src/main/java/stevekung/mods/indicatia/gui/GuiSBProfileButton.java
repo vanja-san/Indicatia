@@ -7,11 +7,11 @@ import com.mojang.authlib.GameProfile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import stevekung.mods.indicatia.gui.api.GuiSkyBlockData;
-import stevekung.mods.indicatia.gui.api.SkyBlockFallbackData;
+import stevekung.mods.indicatia.gui.api.ProfileDataCallback;
 
 public class GuiSBProfileButton extends GuiButton
 {
-    private List<SkyBlockFallbackData> profiles;
+    private List<ProfileDataCallback> profiles;
     private final String sbProfileId;
     private final String sbProfileName;
     private final String username;
@@ -41,7 +41,7 @@ public class GuiSBProfileButton extends GuiButton
         return false;
     }
 
-    public void setProfileList(List<SkyBlockFallbackData> profiles)
+    public void setProfileList(List<ProfileDataCallback> profiles)
     {
         this.profiles = profiles;
     }

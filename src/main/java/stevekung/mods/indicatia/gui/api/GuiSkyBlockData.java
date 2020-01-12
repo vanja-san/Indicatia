@@ -71,7 +71,7 @@ public class GuiSkyBlockData extends GuiScreen
     private boolean resize;
     private GuiButton doneButton;
     private GuiButton backButton;
-    private final List<SkyBlockFallbackData> profiles;
+    private final List<ProfileDataCallback> profiles;
     private final String sbProfileId;
     private final String sbProfileName;
     private final String username;
@@ -119,7 +119,7 @@ public class GuiSkyBlockData extends GuiScreen
     private int guiTop;
     private Slot theSlot;
 
-    public GuiSkyBlockData(List<SkyBlockFallbackData> profiles, String sbProfileId, String sbProfileName, String username, String uuid, GameProfile profile)
+    public GuiSkyBlockData(List<ProfileDataCallback> profiles, String sbProfileId, String sbProfileName, String username, String uuid, GameProfile profile)
     {
         this.allowUserInput = true;
         this.skyBlockContainer = new ContainerSkyBlock();
