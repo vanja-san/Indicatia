@@ -14,10 +14,11 @@ import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumChatFormatting;
+import stevekung.mods.indicatia.config.ConfigManagerIN;
 
 public class SkyBlockAPIUtils
 {
-    private static final String API_KEY = "cf1a95f9-82e5-4770-9e66-f9b9f1a613c5";
+    private static final String API_KEY = ConfigManagerIN.hypixelApiKey;
     public static final String PLAYER_NAME = "https://api.hypixel.net/player?key=" + API_KEY + "&name=";
     public static final String SKYBLOCK_PROFILE = "https://api.hypixel.net/skyblock/profile?key=" + API_KEY + "&profile=";
     public static final String SKYBLOCK_AUCTION = "https://api.hypixel.net/skyblock/auction?key=" + API_KEY + "&profile=";

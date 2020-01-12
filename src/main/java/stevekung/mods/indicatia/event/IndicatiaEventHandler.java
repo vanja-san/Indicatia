@@ -35,10 +35,7 @@ import net.minecraft.network.status.client.C01PacketPing;
 import net.minecraft.network.status.server.S00PacketServerInfo;
 import net.minecraft.network.status.server.S01PacketPong;
 import net.minecraft.potion.Potion;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.IChatComponent;
-import net.minecraft.util.MovementInput;
-import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.*;
 import net.minecraftforge.client.GuiIngameForge;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
@@ -57,6 +54,7 @@ import stevekung.mods.indicatia.gui.config.GuiExtendedConfig;
 import stevekung.mods.indicatia.gui.config.GuiRenderPreview;
 import stevekung.mods.indicatia.handler.KeyBindingHandler;
 import stevekung.mods.indicatia.utils.*;
+import stevekung.mods.indicatia.utils.JsonUtils;
 
 public class IndicatiaEventHandler
 {
@@ -198,8 +196,19 @@ public class IndicatiaEventHandler
         {
             this.mc.displayGuiScreen(new GuiExtendedConfig());
         }
-        else if (KeyBindingHandler.KEY_SB_API_VIEWER.isKeyDown())
+
+        if (KeyBindingHandler.KEY_SB_API_VIEWER.isKeyDown())
         {
+            if (StringUtils.isNullOrEmpty(ConfigManagerIN.hypixelApiKey))
+            {
+                ClientUtils.printClientMessage("Couldn't open API Viewer, Empty text in the Config!", JsonUtils.red());
+                return;
+            }
+            if (!ConfigManagerIN.hypixelApiKey.matches("[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"))
+            {
+                ClientUtils.printClientMessage("Invalid UUID for Hypixel API Key!", JsonUtils.red());
+                return;
+            }
             this.mc.displayGuiScreen(new GuiSkyBlockAPIViewer());
         }
 

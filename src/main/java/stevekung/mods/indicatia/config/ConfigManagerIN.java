@@ -19,6 +19,7 @@ public class ConfigManagerIN
     public static final String KEY_BINDING_SETTINGS = "indicatia_key_binding_settings";
 
     // Main Settings
+    public static String hypixelApiKey;
     public static String confirmDisconnectMode;
     public static boolean enableRenderInfo;
     public static boolean enableBlockhitAnimation;
@@ -72,6 +73,10 @@ public class ConfigManagerIN
 
         prop = ConfigManagerIN.getProperty(ConfigManagerIN.MAIN_SETTINGS, "Enable Render Info", true);
         ConfigManagerIN.enableRenderInfo = prop.getBoolean();
+        propOrder.add(prop.getName());
+
+        prop = ConfigManagerIN.getProperty(ConfigManagerIN.MAIN_SETTINGS, "Hypixel API Key", "");
+        ConfigManagerIN.hypixelApiKey = prop.getString();
         propOrder.add(prop.getName());
 
         prop = ConfigManagerIN.getProperty(ConfigManagerIN.MAIN_SETTINGS, "Confirm Disconnect Mode", "gui");
