@@ -23,7 +23,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -79,7 +78,6 @@ public class GuiSkyBlockData extends GuiScreen
     private final GameProfile profile;
     private final StopWatch watch = new StopWatch();
     private int percent;
-    private ScaledResolution res;
 
     // API
     private static final DecimalFormat FORMAT = new DecimalFormat("#,###,###,###,###");
@@ -139,7 +137,6 @@ public class GuiSkyBlockData extends GuiScreen
     public void initGui()
     {
         this.buttonList.clear();
-        this.res = new ScaledResolution(this.mc);
 
         if (!this.resize)
         {
@@ -426,7 +423,7 @@ public class GuiSkyBlockData extends GuiScreen
                         GlStateManager.disableLighting();
 
                         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-                        GuiSkyBlockData.drawEntityOnScreen(this.width / 2 - 96, this.height / 2 + 40, 20 * this.res.getScaleFactor(), this.player);
+                        GuiSkyBlockData.drawEntityOnScreen(this.width / 2 - 96, this.height / 2 + 40, 40, this.player);
 
                         if (this.theSlot != null && this.theSlot.getHasStack())
                         {
@@ -1532,10 +1529,10 @@ public class GuiSkyBlockData extends GuiScreen
     {
         public ContainerArmor()
         {
-            for (int i = 0; i < 4; ++i)
-            {
-                this.addSlotToContainer(new Slot(GuiSkyBlockData.TEMP_ARMOR_INVENTORY, 3 - i, -52, i * 22 - 2));
-            }
+            this.addSlotToContainer(new Slot(GuiSkyBlockData.TEMP_ARMOR_INVENTORY, 0, -52, 65));
+            this.addSlotToContainer(new Slot(GuiSkyBlockData.TEMP_ARMOR_INVENTORY, 1, -52, 47));
+            this.addSlotToContainer(new Slot(GuiSkyBlockData.TEMP_ARMOR_INVENTORY, 2, -52, 26));
+            this.addSlotToContainer(new Slot(GuiSkyBlockData.TEMP_ARMOR_INVENTORY, 3, -52, 2));
         }
 
         @Override
@@ -1849,14 +1846,12 @@ public class GuiSkyBlockData extends GuiScreen
     {
         private final List<SkyBlockSlayerInfo> stats;
         private final GuiSkyBlockData parent;
-        private final ScaledResolution res;
 
         public SlayerStats(GuiSkyBlockData parent, int width, int height, int top, int bottom, int left, int entryHeight, int parentWidth, int parentHeight, List<SkyBlockSlayerInfo> stats)
         {
             super(parent.mc, width, height, top, bottom, left, entryHeight, parentWidth, parentHeight);
             this.stats = stats;
             this.parent = parent;
-            this.res = new ScaledResolution(this.parent.mc);
 
             if (this.stats.size() <= 3)
             {
@@ -1895,21 +1890,21 @@ public class GuiSkyBlockData extends GuiScreen
                     zombie.setCurrentItemOrArmor(2, leggings);
                     zombie.setCurrentItemOrArmor(3, chestplate);
                     zombie.setCurrentItemOrArmor(4, helmet);
-                    GuiSkyBlockData.drawEntityOnScreen(this.left + 36 * this.res.getScaleFactor(), top + 60, 20 * this.res.getScaleFactor(), zombie);
+                    GuiSkyBlockData.drawEntityOnScreen(this.left + 70, top + 60, 40, zombie);
                 }
                 else if (stat.getText().equals("Spider"))
                 {
                     EntitySpider spider = new EntitySpider(this.parent.mc.theWorld);
                     EntityCaveSpider cave = new EntityCaveSpider(this.parent.mc.theWorld);
-                    GuiSkyBlockData.drawEntityOnScreen(this.left + 36 * this.res.getScaleFactor(), top + 40, 20 * this.res.getScaleFactor(), cave);
-                    GuiSkyBlockData.drawEntityOnScreen(this.left + 36 * this.res.getScaleFactor(), top + 60, 20 * this.res.getScaleFactor(), spider);
+                    GuiSkyBlockData.drawEntityOnScreen(this.left + 70, top + 40, 40, cave);
+                    GuiSkyBlockData.drawEntityOnScreen(this.left + 70, top + 60, 40, spider);
                     GlStateManager.blendFunc(770, 771);
                 }
                 else
                 {
                     EntityWolf wolf = new EntityWolf(this.parent.mc.theWorld);
                     wolf.setAngry(true);
-                    GuiSkyBlockData.drawEntityOnScreen(this.left + 36 * this.res.getScaleFactor(), top + 60, 20 * this.res.getScaleFactor(), wolf);
+                    GuiSkyBlockData.drawEntityOnScreen(this.left + 70, top + 60, 40, wolf);
                 }
 
                 this.parent.mc.getTextureManager().bindTexture(XP_BARS);
