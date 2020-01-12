@@ -1,12 +1,5 @@
 [
     {
-        "count": 1,
-        "health": 2,
-        "defense": 1,
-        "strength": 1,
-        "speed": 0
-    },
-    {
         "count": 5,
         "health": 3,
         "defense": 1,
