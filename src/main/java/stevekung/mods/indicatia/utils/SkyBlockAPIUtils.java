@@ -18,10 +18,27 @@ import stevekung.mods.indicatia.config.ConfigManagerIN;
 
 public class SkyBlockAPIUtils
 {
-    private static final String API_KEY = ConfigManagerIN.hypixelApiKey;
-    public static final String PLAYER_NAME = "https://api.hypixel.net/player?key=" + API_KEY + "&name=";
-    public static final String SKYBLOCK_PROFILE = "https://api.hypixel.net/skyblock/profile?key=" + API_KEY + "&profile=";
-    public static final String SKYBLOCK_AUCTION = "https://api.hypixel.net/skyblock/auction?key=" + API_KEY + "&profile=";
+    private static String API_KEY;
+    public static String PLAYER_NAME;
+    public static String SKYBLOCK_PROFILE;
+    public static String SKYBLOCK_AUCTION;
+
+    public static void setApiKey()
+    {
+        LoggerIN.info("Setting an API Key");
+        SkyBlockAPIUtils.API_KEY = ConfigManagerIN.hypixelApiKey;
+        PLAYER_NAME = "https://api.hypixel.net/player?key=" + API_KEY + "&name=";
+        SKYBLOCK_PROFILE = "https://api.hypixel.net/skyblock/profile?key=" + API_KEY + "&profile=";
+        SKYBLOCK_AUCTION = "https://api.hypixel.net/skyblock/auction?key=" + API_KEY + "&profile=";
+    }
+
+    public static void setApiKeyFromServer(String uuid)
+    {
+        ConfigManagerIN.getProperty(ConfigManagerIN.MAIN_SETTINGS, "Hypixel API Key", ConfigManagerIN.hypixelApiKey).set(uuid);
+        ConfigManagerIN.hypixelApiKey = uuid;
+        ConfigManagerIN.getConfig().save();
+        SkyBlockAPIUtils.setApiKey();
+    }
 
     public static List<ItemStack> decodeItem(JsonObject currentProfile, String invName)
     {

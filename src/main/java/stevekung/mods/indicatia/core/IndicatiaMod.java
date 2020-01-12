@@ -139,6 +139,7 @@ public class IndicatiaMod
     {
         GuiChatRegistry.register(new GuiIndicatiaChat());
         new ThreadMinigameData().run();
+        SkyBlockAPIUtils.setApiKey();
         CommonUtils.POOL.execute(() ->
         {
             try
@@ -171,6 +172,7 @@ public class IndicatiaMod
         if (event.modID.equalsIgnoreCase(IndicatiaMod.MOD_ID))
         {
             ConfigManagerIN.syncConfig(false);
+            SkyBlockAPIUtils.setApiKey();
         }
     }
 

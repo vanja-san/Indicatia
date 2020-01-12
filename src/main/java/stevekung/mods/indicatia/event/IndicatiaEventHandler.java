@@ -204,7 +204,7 @@ public class IndicatiaEventHandler
                 ClientUtils.printClientMessage("Couldn't open API Viewer, Empty text in the Config!", JsonUtils.red());
                 return;
             }
-            if (!ConfigManagerIN.hypixelApiKey.matches("[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"))
+            if (!ConfigManagerIN.hypixelApiKey.matches(HypixelEventHandler.UUID_PATTERN_STRING))
             {
                 ClientUtils.printClientMessage("Invalid UUID for Hypixel API Key!", JsonUtils.red());
                 return;
