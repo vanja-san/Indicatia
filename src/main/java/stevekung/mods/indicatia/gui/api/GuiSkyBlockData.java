@@ -1468,7 +1468,7 @@ public class GuiSkyBlockData extends GuiScreen
             for (int i = 1; i <= 4; i++)
             {
                 JsonElement kills = slayer.getAsJsonObject().get("boss_kills_tier_" + (i - 1));
-                list.add(new SkyBlockSlayerInfo(EnumChatFormatting.GRAY + "Tier " + i + ": " + EnumChatFormatting.YELLOW + (kills != null ? FORMAT.format(kills.getAsInt()) : 0) + " kills"));
+                list.add(new SkyBlockSlayerInfo(EnumChatFormatting.GRAY + "Tier " + i + ": " + EnumChatFormatting.YELLOW + GuiSkyBlockData.getSlayerKill(kills)));
             }
             list.add(SkyBlockSlayerInfo.empty());
             return list;
@@ -1477,6 +1477,16 @@ public class GuiSkyBlockData extends GuiScreen
         {
             return Collections.singletonList(new SkyBlockSlayerInfo(EnumChatFormatting.RED + "Slayer Info: No " + name.toLowerCase() + " slayer data!"));
         }
+    }
+
+    private static String getSlayerKill(JsonElement element)
+    {
+        if (element != null)
+        {
+            int kills = element.getAsInt();
+            return FORMAT.format(kills) + " kill" + (kills <= 1 ? "" : "s");
+        }
+        return "0 kill";
     }
 
     private static void drawEntityOnScreen(int posX, int posY, int scale, EntityLivingBase entity)
