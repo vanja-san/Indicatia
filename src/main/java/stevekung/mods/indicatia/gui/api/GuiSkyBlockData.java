@@ -1219,7 +1219,7 @@ public class GuiSkyBlockData extends GuiScreen
 
         if (seconds <= 60)
         {
-            if (seconds == 0)
+            if (seconds <= 0)
             {
                 return "just now";
             }
