@@ -679,7 +679,7 @@ public class HypixelEventHandler
         }
     }
 
-    private static void replaceAuctionTime(String lore, Calendar calendar, List<String> tooltip, List<String> dates, String replacedText, int indexToRemove)
+    /*private static void replaceAuctionTime(String lore, Calendar calendar, List<String> tooltip, List<String> dates, String replacedText, int indexToRemove)TODO Temporary disabled
     {
         if (lore.startsWith(replacedText))
         {
@@ -732,7 +732,7 @@ public class HypixelEventHandler
             tooltip.remove(indexToRemove);
             tooltip.addAll(indexToRemove, dates);
         }
-    }
+    }*/
 
     private enum CoinType
     {

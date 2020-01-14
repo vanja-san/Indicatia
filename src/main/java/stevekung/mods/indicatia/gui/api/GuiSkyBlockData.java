@@ -14,7 +14,6 @@ import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.commons.lang3.text.WordUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
 
 import com.google.gson.*;
 import com.mojang.authlib.GameProfile;
@@ -43,8 +42,6 @@ import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
@@ -54,13 +51,11 @@ import stevekung.mods.indicatia.core.IndicatiaMod;
 import stevekung.mods.indicatia.event.ClientEventHandler;
 import stevekung.mods.indicatia.integration.SkyblockAddonsGuiChest;
 import stevekung.mods.indicatia.utils.*;
-import stevekung.mods.indicatia.utils.ColorUtils.RGB;
 
 public class GuiSkyBlockData extends GuiScreen
 {
     private static final ResourceLocation INVENTORY_TABS = new ResourceLocation("indicatia:textures/gui/tabs.png");
     private static final ResourceLocation XP_BARS = new ResourceLocation("indicatia:textures/gui/skill_xp_bar.png");
-    private static final ResourceLocation RARITY = new ResourceLocation("indicatia:textures/gui/rarity.png");
     private static final String[] REVENANT_HORROR_HEAD = new String[] {"0862e0b0-a14f-3f93-894f-013502936b59", "eyJ0aW1lc3RhbXAiOjE1Njg0NTc0MjAxMzcsInByb2ZpbGVJZCI6IjQxZDNhYmMyZDc0OTQwMGM5MDkwZDU0MzRkMDM4MzFiIiwicHJvZmlsZU5hbWUiOiJNZWdha2xvb24iLCJzaWduYXR1cmVSZXF1aXJlZCI6dHJ1ZSwidGV4dHVyZXMiOnsiU0tJTiI6eyJ1cmwiOiJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlL2RiYWQ5OWVkM2M4MjBiNzk3ODE5MGFkMDhhOTM0YTY4ZGZhOTBkOTk4NjgyNWRhMWM5N2Y2ZjIxZjQ5YWQ2MjYifX19"};
 
     // Based stuff
@@ -109,6 +104,20 @@ public class GuiSkyBlockData extends GuiScreen
     private final ContainerSkyBlock skyBlockContainer;
     private final ContainerArmor skyBlockArmorContainer;
     private final SkyblockAddonsGuiChest chest = new SkyblockAddonsGuiChest();
+
+    // Player Bonus Stats
+    private int totalFairySouls;
+    private int farmingLevel;
+    private int foragingLevel;
+    private int miningLevel;
+    private int fishingLevel;
+    private int combatLevel;
+    private int enchantingLevel;
+    private int alchemyLevel;
+    private int zombieSlayerLevel;
+    private int spiderSlayerLevel;
+    private int wolfSlayerLevel;
+    private BonusStatTemplate allStat = new BonusStatTemplate(100, 0, 0, 0, 100, 20, 50, 100);
 
     // GuiContainer fields
     private int xSize;
@@ -803,7 +812,7 @@ public class GuiSkyBlockData extends GuiScreen
 
         if (ExtendedConfig.instance.showItemRarity)
         {
-            this.drawRarity(slot);
+            RenderUtils.drawRarity(slot);
         }
 
         this.itemRender.renderItemAndEffectIntoGUI(itemStack, i, j);
@@ -995,35 +1004,117 @@ public class GuiSkyBlockData extends GuiScreen
             if (userUUID.equals(this.uuid))
             {
                 JsonObject currentUserProfile = profiles.get(userUUID).getAsJsonObject();
-                this.getBasicInfo(currentUserProfile, banking);
                 this.getSkills(currentUserProfile);
                 this.getStats(currentUserProfile);
                 this.getSlayerInfo(currentUserProfile);
                 this.getInventories(currentUserProfile);
                 this.createFakePlayer();
+                this.calculatePlayerStats(currentUserProfile);
+                this.getBasicInfo(currentUserProfile, banking);
                 break;
             }
         }
         this.loadingApi = false;
     }
 
-    private void getBasicInfo(JsonObject currentProfile, JsonElement banking)
+    private void calculatePlayerStats(JsonObject currentProfile)
     {
         JsonElement fairySouls = currentProfile.get("fairy_souls_collected");
+
+        if (fairySouls != null)
+        {
+            this.totalFairySouls = fairySouls.getAsInt();
+        }
+
+        this.allStat.add(this.getFairySouls(this.totalFairySouls));
+        this.allStat.add(this.calculateSkillBonus(PlayerStatsBonus.FARMING, this.farmingLevel));
+        this.allStat.add(this.calculateSkillBonus(PlayerStatsBonus.FORAGING, this.foragingLevel));
+        this.allStat.add(this.calculateSkillBonus(PlayerStatsBonus.MINING, this.miningLevel));
+        this.allStat.add(this.calculateSkillBonus(PlayerStatsBonus.FISHING, this.fishingLevel));
+        this.allStat.add(this.calculateSkillBonus(PlayerStatsBonus.COMBAT, this.combatLevel));
+        this.allStat.add(this.calculateSkillBonus(PlayerStatsBonus.ENCHANTING, this.enchantingLevel));
+        this.allStat.add(this.calculateSkillBonus(PlayerStatsBonus.ALCHEMY, this.alchemyLevel));
+        this.allStat.add(this.calculateSkillBonus(PlayerStatsBonus.ZOMBIE_SLAYER, this.zombieSlayerLevel));
+        this.allStat.add(this.calculateSkillBonus(PlayerStatsBonus.SPIDER_SLAYER, this.spiderSlayerLevel));
+        this.allStat.add(this.calculateSkillBonus(PlayerStatsBonus.WOLF_SLAYER, this.wolfSlayerLevel));
+
+        //base.getDefense() <= 0 ? base.getHealth() : Math.round(base.getHealth() * (1 + base.getDefense() / 100))TODO
+        this.allStat.add(new BonusStatTemplate(0, 0, Math.round(this.allStat.getHealth() * (1 + this.allStat.getDefense() / 100)), 0, 0, 0, 0, 0));
+
+        //System.out.println(base.getEffectiveHealth());
+
+        LoggerIN.info("Health:{}, Defense:{}, Strength:{}, Speed:{}, CritChance:{}, CritDmg:{}, Intelligence:{}", this.allStat.getHealth(), this.allStat.getDefense(), this.allStat.getStrength(), this.allStat.getSpeed(), this.allStat.getCritChance(), this.allStat.getCritDamage(), this.allStat.getIntelligence());
+    }
+
+    private BonusStatTemplate calculateSkillBonus(PlayerStatsBonus.IBonusTemplate[] bonus, int skillLevel)
+    {
+        int healthTemp = 0;
+        int defenseTemp = 0;
+        int strengthTemp = 0;
+        int speedTemp = 0;
+        int critChanceTemp = 0;
+        int critDamageTemp = 0;
+        int intelligenceTemp = 0;
+
+        for (int i = 0; i < bonus.length; ++i)
+        {
+            int levelToCheck = bonus[i].getLevel();
+            int nextIndex = 0;
+            boolean limit = true;
+
+            if (nextIndex <= i)
+            {
+                nextIndex = i + 1; // check level at next index of json
+            }
+
+            if (nextIndex >= bonus.length)
+            {
+                nextIndex = bonus.length - 1;
+                limit = false;
+            }
+
+            int levelToCheck2 = bonus[nextIndex].getLevel();
+
+            if (levelToCheck <= skillLevel)
+            {
+                int health = bonus[i].getHealth();
+                int defense = bonus[i].getDefense();
+                int strength = bonus[i].getStrength();
+                int speed = bonus[i].getSpeed();
+                int critChance = bonus[i].getCritChance();
+                int critDamage = bonus[i].getCritDamage();
+                int intelligence = bonus[i].getIntelligence();
+
+                for (int level = levelToCheck; level <= skillLevel; level++)
+                {
+                    if (level >= levelToCheck2 && limit)
+                    {
+                        break;
+                    }
+                    healthTemp += health;
+                    defenseTemp += defense;
+                    strengthTemp += strength;
+                    speedTemp += speed;
+                    critChanceTemp += critChance;
+                    critDamageTemp += critDamage;
+                    intelligenceTemp += intelligence;
+                }
+            }
+        }
+        return new BonusStatTemplate(healthTemp, defenseTemp, 0, strengthTemp, speedTemp, critChanceTemp, critDamageTemp, intelligenceTemp);
+    }
+
+    private void getBasicInfo(JsonObject currentProfile, JsonElement banking)
+    {
         JsonElement deathCount = currentProfile.get("death_count");
         JsonElement purse = currentProfile.get("coin_purse");
         JsonElement lastSave = currentProfile.get("last_save");
         JsonElement firstJoin = currentProfile.get("first_join");
-        int collectedSouls = 0;
         int deathCounts = 0;
         float coins = 0.0F;
         long lastSaveMillis = -1;
         long firstJoinMillis = -1;
 
-        if (fairySouls != null)
-        {
-            collectedSouls = fairySouls.getAsInt();
-        }
         if (deathCount != null)
         {
             deathCounts = deathCount.getAsInt();
@@ -1051,18 +1142,18 @@ public class GuiSkyBlockData extends GuiScreen
         String intelligence = ColorUtils.stringToRGB("129,212,250").toColoredFont();
         String fairySoulsColor = ColorUtils.stringToRGB("203,54,202").toColoredFont();
 
-        this.infoList.add(new SkyBlockInfo(heath + "\u2764 Health", heath + String.valueOf(100) + " (WIP)"));
-        this.infoList.add(new SkyBlockInfo(heath + "\u2665 Effective Health", heath + String.valueOf(100) + " (WIP)"));
-        this.infoList.add(new SkyBlockInfo(defense + "\u2748 Defense", defense + String.valueOf(0) + " (WIP)"));
-        this.infoList.add(new SkyBlockInfo(strength + "\u2741 Strength", strength + String.valueOf(0) + " (WIP)"));
-        this.infoList.add(new SkyBlockInfo(speed + "\u2726 Speed", speed + String.valueOf(100) + " (WIP)"));
-        this.infoList.add(new SkyBlockInfo(critChance + "\u2623 Crit Chance", critChance + String.valueOf(20) + " (WIP)"));
-        this.infoList.add(new SkyBlockInfo(critDamage + "\u2620 Crit Damage", critDamage + String.valueOf(50) + " (WIP)"));
-        this.infoList.add(new SkyBlockInfo(intelligence + "\u270E Intelligence", intelligence + String.valueOf(100) + " (WIP)"));
+        this.infoList.add(new SkyBlockInfo(heath + "\u2764 Health", heath + this.allStat.getHealth()));
+        this.infoList.add(new SkyBlockInfo(heath + "\u2665 Effective Health", heath + this.allStat.getEffectiveHealth()));
+        this.infoList.add(new SkyBlockInfo(defense + "\u2748 Defense", defense + this.allStat.getDefense()));
+        this.infoList.add(new SkyBlockInfo(strength + "\u2741 Strength", strength + this.allStat.getStrength()));
+        this.infoList.add(new SkyBlockInfo(speed + "\u2726 Speed", speed + this.allStat.getSpeed()));
+        this.infoList.add(new SkyBlockInfo(critChance + "\u2623 Crit Chance", critChance + this.allStat.getCritChance()));
+        this.infoList.add(new SkyBlockInfo(critDamage + "\u2620 Crit Damage", critDamage + this.allStat.getCritDamage()));
+        this.infoList.add(new SkyBlockInfo(intelligence + "\u270E Intelligence", intelligence + this.allStat.getIntelligence()));
 
         this.infoList.add(new SkyBlockInfo("", ""));
 
-        this.infoList.add(new SkyBlockInfo(fairySoulsColor + "Fairy Souls Collected", fairySoulsColor + collectedSouls + "/" + GuiSkyBlockData.MAX_FAIRY_SOULS));
+        this.infoList.add(new SkyBlockInfo(fairySoulsColor + "Fairy Souls Collected", fairySoulsColor + this.totalFairySouls + "/" + GuiSkyBlockData.MAX_FAIRY_SOULS));
 
         Date firstJoinDate = new Date(firstJoinMillis);
         Date lastSaveDate = new Date(lastSaveMillis);
@@ -1086,6 +1177,32 @@ public class GuiSkyBlockData extends GuiScreen
             this.infoList.add(new SkyBlockInfo("Banking Account", EnumChatFormatting.RED + "API is not enabled!"));
         }
         this.infoList.add(new SkyBlockInfo("Purse", FORMAT.format(coins)));
+    }
+
+    private BonusStatTemplate getFairySouls(int fairySouls)
+    {
+        int healthBase = 0;
+        int defenseBase = 0;
+        int strengthBase = 0;
+        int speedBase = 0;
+
+        for (PlayerStatsBonus.FairySouls progress : PlayerStatsBonus.FAIRY_SOULS)
+        {
+            int soulToCheck = progress.getCount();
+            int health = progress.getHealth();
+            int defense = progress.getDefense();
+            int strength = progress.getStrength();
+            int speed = progress.getSpeed();
+
+            if (soulToCheck <= fairySouls)
+            {
+                healthBase += health;
+                defenseBase += defense;
+                strengthBase += strength;
+                speedBase += speed;
+            }
+        }
+        return new BonusStatTemplate(healthBase, defenseBase, 0, strengthBase, speedBase, 0, 0, 0);
     }
 
     private String convertCorrectTime(int time, String text, boolean an)
@@ -1162,17 +1279,17 @@ public class GuiSkyBlockData extends GuiScreen
 
     private void getSkills(JsonObject currentProfile)
     {
-        this.skillLeftList.add(this.checkSkill(currentProfile.get("experience_skill_farming"), "Farming"));
-        this.skillLeftList.add(this.checkSkill(currentProfile.get("experience_skill_foraging"), "Foraging"));
-        this.skillLeftList.add(this.checkSkill(currentProfile.get("experience_skill_mining"), "Mining"));
-        this.skillLeftList.add(this.checkSkill(currentProfile.get("experience_skill_fishing"), "Fishing"));
+        this.skillLeftList.add(this.checkSkill(currentProfile.get("experience_skill_farming"), SkillType.FARMING));
+        this.skillLeftList.add(this.checkSkill(currentProfile.get("experience_skill_foraging"), SkillType.FORAGING));
+        this.skillLeftList.add(this.checkSkill(currentProfile.get("experience_skill_mining"), SkillType.MINING));
+        this.skillLeftList.add(this.checkSkill(currentProfile.get("experience_skill_fishing"), SkillType.FISHING));
 
-        this.skillRightList.add(this.checkSkill(currentProfile.get("experience_skill_combat"), "Combat"));
-        this.skillRightList.add(this.checkSkill(currentProfile.get("experience_skill_enchanting"), "Enchanting"));
-        this.skillRightList.add(this.checkSkill(currentProfile.get("experience_skill_alchemy"), "Alchemy"));
-        this.skillRightList.add(this.checkSkill(currentProfile.get("experience_skill_runecrafting"), "Runecrafting", SkillProgress.RUNE_SKILL));
+        this.skillRightList.add(this.checkSkill(currentProfile.get("experience_skill_combat"), SkillType.COMBAT));
+        this.skillRightList.add(this.checkSkill(currentProfile.get("experience_skill_enchanting"), SkillType.ENCHANTING));
+        this.skillRightList.add(this.checkSkill(currentProfile.get("experience_skill_alchemy"), SkillType.ALCHEMY));
+        this.skillRightList.add(this.checkSkill(currentProfile.get("experience_skill_runecrafting"), SkillType.RUNECRAFTING, SkillProgress.RUNE_SKILL));
 
-        this.carpentrySkill = this.checkSkill(currentProfile.get("experience_skill_carpentry"), "Carpentry");
+        this.carpentrySkill = this.checkSkill(currentProfile.get("experience_skill_carpentry"), SkillType.CARPENTRY);
 
         float avg = 0;
         int count = 0;
@@ -1192,12 +1309,12 @@ public class GuiSkyBlockData extends GuiScreen
         }
     }
 
-    private SkyBlockSkillInfo checkSkill(JsonElement element, String name)
+    private SkyBlockSkillInfo checkSkill(JsonElement element, SkillType type)
     {
-        return this.checkSkill(element, name, SkillProgress.SKILL);
+        return this.checkSkill(element, type, SkillProgress.SKILL);
     }
 
-    private SkyBlockSkillInfo checkSkill(JsonElement element, String name, SkillProgress[] progress)
+    private SkyBlockSkillInfo checkSkill(JsonElement element, SkillType type, SkillProgress[] progress)
     {
         if (element != null)
         {
@@ -1245,16 +1362,46 @@ public class GuiSkyBlockData extends GuiScreen
                     currentLvl = progress.length - 1;
                 }
             }
-
-            if (!name.equals("Runecrafting") && !name.equals("Carpentry"))
+            if (type != SkillType.RUNECRAFTING && type != SkillType.CARPENTRY)
             {
                 skillProgress = Math.max(0, Math.min(currentXp / xpToNextLvl, 1));
             }
-            return new SkyBlockSkillInfo(name, currentXp, xpRequired, currentLvl, skillProgress, xpToNextLvl <= 0);
+            this.setSkillLevel(type, currentLvl);
+            return new SkyBlockSkillInfo(type.getName(), currentXp, xpRequired, currentLvl, skillProgress, xpToNextLvl <= 0);
         }
         else
         {
             return new SkyBlockSkillInfo(EnumChatFormatting.RED + "API is not enabled!", 0, 0, 0, 0, false);
+        }
+    }
+
+    private void setSkillLevel(SkillType type, int currentLevel)
+    {
+        switch (type)
+        {
+        case FARMING:
+            this.farmingLevel = currentLevel;
+            break;
+        case FORAGING:
+            this.foragingLevel = currentLevel;
+            break;
+        case MINING:
+            this.miningLevel = currentLevel;
+            break;
+        case FISHING:
+            this.fishingLevel = currentLevel;
+            break;
+        case COMBAT:
+            this.combatLevel = currentLevel;
+            break;
+        case ENCHANTING:
+            this.enchantingLevel = currentLevel;
+            break;
+        case ALCHEMY:
+            this.alchemyLevel = currentLevel;
+            break;
+        default:
+            break;
         }
     }
 
@@ -1310,9 +1457,9 @@ public class GuiSkyBlockData extends GuiScreen
 
         if (slayerBosses != null)
         {
-            this.slayerInfo.addAll(GuiSkyBlockData.getSlayer(slayerBosses, "Zombie"));
-            this.slayerInfo.addAll(GuiSkyBlockData.getSlayer(slayerBosses, "Spider"));
-            this.slayerInfo.addAll(GuiSkyBlockData.getSlayer(slayerBosses, "Wolf"));
+            this.slayerInfo.addAll(this.getSlayer(slayerBosses, SlayerType.ZOMBIE));
+            this.slayerInfo.addAll(this.getSlayer(slayerBosses, SlayerType.SPIDER));
+            this.slayerInfo.addAll(this.getSlayer(slayerBosses, SlayerType.WOLF));
         }
         else
         {
@@ -1348,77 +1495,10 @@ public class GuiSkyBlockData extends GuiScreen
         }
     }
 
-    private void drawRarity(Slot slot)
-    {
-        if (slot.getStack() != null && slot.getStack().hasTagCompound())
-        {
-            NBTTagCompound compound = slot.getStack().getTagCompound().getCompoundTag("display");
-
-            if (compound.getTagId("Lore") == 9)
-            {
-                NBTTagList list = compound.getTagList("Lore", 8);
-
-                if (list.tagCount() > 0)
-                {
-                    for (int j1 = 0; j1 < list.tagCount(); ++j1)
-                    {
-                        String lore = list.getStringTagAt(j1);
-                        RGB common = ColorUtils.stringToRGB("255,255,255");
-                        RGB uncommon = ColorUtils.stringToRGB("85,255,85");
-                        RGB rare = ColorUtils.stringToRGB("85,85,255");
-                        RGB epic = ColorUtils.stringToRGB("170,0,170");
-                        RGB legendary = ColorUtils.stringToRGB("255,170,0");
-                        RGB special = ColorUtils.stringToRGB("255,85,255");
-
-                        if (lore.startsWith(EnumChatFormatting.WHITE + "" + EnumChatFormatting.BOLD + "COMMON"))
-                        {
-                            this.renderRarity(slot, common);
-                        }
-                        else if (lore.startsWith(EnumChatFormatting.GREEN + "" + EnumChatFormatting.BOLD + "UNCOMMON"))
-                        {
-                            this.renderRarity(slot, uncommon);
-                        }
-                        else if (lore.startsWith(EnumChatFormatting.BLUE + "" + EnumChatFormatting.BOLD + "RARE"))
-                        {
-                            this.renderRarity(slot, rare);
-                        }
-                        else if (lore.startsWith(EnumChatFormatting.DARK_PURPLE + "" + EnumChatFormatting.BOLD + "EPIC"))
-                        {
-                            this.renderRarity(slot, epic);
-                        }
-                        else if (lore.startsWith(EnumChatFormatting.GOLD + "" + EnumChatFormatting.BOLD + "LEGENDARY"))
-                        {
-                            this.renderRarity(slot, legendary);
-                        }
-                        else if (lore.startsWith(EnumChatFormatting.LIGHT_PURPLE + "" + EnumChatFormatting.BOLD + "SPECIAL"))
-                        {
-                            this.renderRarity(slot, special);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private void renderRarity(Slot slot, RGB color)
-    {
-        float alpha = ExtendedConfig.instance.itemRarityOpacity / 100.0F;
-        GlStateManager.disableLighting();
-        GlStateManager.disableDepth();
-        GlStateManager.enableBlend();
-        this.mc.getTextureManager().bindTexture(RARITY);
-        GlStateManager.color(color.floatRed(), color.floatGreen(), color.floatBlue(), alpha);
-        GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
-        Gui.drawModalRectWithCustomSizedTexture(slot.xDisplayPosition, slot.yDisplayPosition, 0, 0, 16, 16, 16, 16);
-        GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
-        GlStateManager.enableLighting();
-        GlStateManager.enableDepth();
-    }
-
-    private static List<SkyBlockSlayerInfo> getSlayer(JsonElement element, String name)
+    private List<SkyBlockSlayerInfo> getSlayer(JsonElement element, SlayerType type)
     {
         List<SkyBlockSlayerInfo> list = new ArrayList<>();
-        JsonElement slayer = element.getAsJsonObject().get(name.toLowerCase());
+        JsonElement slayer = element.getAsJsonObject().get(type.name().toLowerCase());
         JsonElement xp = slayer.getAsJsonObject().get("xp");
 
         if (xp != null)
@@ -1455,7 +1535,9 @@ public class GuiSkyBlockData extends GuiScreen
                 levelToCheck = SkillProgress.SLAYER_SKILL.length;
             }
 
-            list.add(new SkyBlockSlayerInfo(EnumChatFormatting.GRAY + name + " Slayer: " + EnumChatFormatting.YELLOW + "LVL " + slayerLvl));
+            this.setSlayerSkillLevel(type, slayerLvl);
+
+            list.add(new SkyBlockSlayerInfo(EnumChatFormatting.GRAY + type.getName() + " Slayer: " + EnumChatFormatting.YELLOW + "LVL " + slayerLvl));
             list.add(new SkyBlockSlayerInfo(EnumChatFormatting.GRAY + "EXP: " + EnumChatFormatting.LIGHT_PURPLE + (xpToNextLvl == 0 ? FORMAT.format(playerSlayerXp) : FORMAT.format(playerSlayerXp) + EnumChatFormatting.DARK_PURPLE + "/" + EnumChatFormatting.LIGHT_PURPLE + FORMAT.format(xpRequired))));
 
             if (xpToNextLvl != 0)
@@ -1463,23 +1545,41 @@ public class GuiSkyBlockData extends GuiScreen
                 list.add(new SkyBlockSlayerInfo(EnumChatFormatting.GRAY + "XP to " + EnumChatFormatting.YELLOW + "LVL " + levelToCheck + ": " + EnumChatFormatting.LIGHT_PURPLE + FORMAT.format(xpToNextLvl)));
             }
 
-            list.add(SkyBlockSlayerInfo.createMobAndXp(name, playerSlayerXp + "," + xpRequired + "," + xpToNextLvl));
+            list.add(SkyBlockSlayerInfo.createMobAndXp(type.getName(), playerSlayerXp + "," + xpRequired + "," + xpToNextLvl));
 
             for (int i = 1; i <= 4; i++)
             {
                 JsonElement kills = slayer.getAsJsonObject().get("boss_kills_tier_" + (i - 1));
-                list.add(new SkyBlockSlayerInfo(EnumChatFormatting.GRAY + "Tier " + i + ": " + EnumChatFormatting.YELLOW + GuiSkyBlockData.getSlayerKill(kills)));
+                list.add(new SkyBlockSlayerInfo(EnumChatFormatting.GRAY + "Tier " + i + ": " + EnumChatFormatting.YELLOW + this.getSlayerKill(kills)));
             }
             list.add(SkyBlockSlayerInfo.empty());
             return list;
         }
         else
         {
-            return Collections.singletonList(new SkyBlockSlayerInfo(EnumChatFormatting.RED + "Slayer Info: No " + name.toLowerCase() + " slayer data!"));
+            return Collections.singletonList(new SkyBlockSlayerInfo(EnumChatFormatting.RED + "Slayer Info: No " + type.name().toLowerCase() + " slayer data!"));
         }
     }
 
-    private static String getSlayerKill(JsonElement element)
+    private void setSlayerSkillLevel(SlayerType type, int currentLevel)
+    {
+        switch (type)
+        {
+        case ZOMBIE:
+            this.zombieSlayerLevel = currentLevel;
+            break;
+        case SPIDER:
+            this.spiderSlayerLevel = currentLevel;
+            break;
+        case WOLF:
+            this.wolfSlayerLevel = currentLevel;
+            break;
+        default:
+            break;
+        }
+    }
+
+    private String getSlayerKill(JsonElement element)
     {
         if (element != null)
         {
@@ -2012,6 +2112,127 @@ public class GuiSkyBlockData extends GuiScreen
         protected boolean isSelected(int index)
         {
             return false;
+        }
+    }
+
+    public class BonusStatTemplate
+    {
+        private int health;
+        private int defense;
+        private int effectiveHealth;
+        private int strength;
+        private int speed;
+        private int critChance;
+        private int critDamage;
+        private int intelligence;
+
+        public BonusStatTemplate(int health, int defense, int effectiveHealth, int strength, int speed, int critChance, int critDamage, int intelligence)
+        {
+            this.health = health;
+            this.defense = defense;
+            this.effectiveHealth = effectiveHealth;
+            this.strength = strength;
+            this.speed = speed;
+            this.critChance = critChance;
+            this.critDamage = critDamage;
+            this.intelligence = intelligence;
+        }
+
+        public BonusStatTemplate add(BonusStatTemplate toAdd)
+        {
+            this.health += toAdd.health;
+            this.defense += toAdd.defense;
+            this.effectiveHealth += toAdd.effectiveHealth;
+            this.strength += toAdd.strength;
+            this.speed += toAdd.speed;
+            this.critChance += toAdd.critChance;
+            this.critDamage += toAdd.critDamage;
+            this.intelligence += toAdd.intelligence;
+            return new BonusStatTemplate(this.health, this.defense, this.effectiveHealth, this.strength, this.speed, this.critChance, this.critDamage, this.intelligence);
+        }
+
+        public int getHealth()
+        {
+            return this.health;
+        }
+
+        public int getDefense()
+        {
+            return this.defense;
+        }
+
+        public int getEffectiveHealth()
+        {
+            return this.effectiveHealth;
+        }
+
+        public int getStrength()
+        {
+            return this.strength;
+        }
+
+        public int getSpeed()
+        {
+            return this.speed;
+        }
+
+        public int getCritChance()
+        {
+            return this.critChance;
+        }
+
+        public int getCritDamage()
+        {
+            return this.critDamage;
+        }
+
+        public int getIntelligence()
+        {
+            return this.intelligence;
+        }
+    }
+
+    private enum SkillType
+    {
+        FARMING("Farming"),
+        FORAGING("Foraging"),
+        MINING("Mining"),
+        FISHING("Fishing"),
+        COMBAT("Combat"),
+        ENCHANTING("Enchanting"),
+        ALCHEMY("Alchemy"),
+        RUNECRAFTING("Runecrafting"),
+        CARPENTRY("Carpentry");
+
+        private final String name;
+
+        private SkillType(String name)
+        {
+            this.name = name;
+        }
+
+        public String getName()
+        {
+            return this.name;
+        }
+    }
+
+    private enum SlayerType
+    {
+        ZOMBIE("Zombie"),
+        SPIDER("Spider"),
+        WOLF("Wolf");
+
+        private final String name;
+
+        private SlayerType(String name)
+        {
+            this.name = name;
+        }
+
+        public String getName()
+        {
+            return this.name;
         }
     }
 

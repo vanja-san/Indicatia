@@ -34,26 +34,12 @@ public class SkillProgress
         return this.xp;
     }
 
-    public static void getSkillXpFromRemote(Type type) throws IOException
+    public static SkillProgress[] getSkillXpFromRemote(Type type) throws IOException
     {
-        URL url = new URL("https://raw.githubusercontent.com/SteveKunG/Indicatia/1.8.9_skyblock/api/" + type + "_xp.json");
+        URL url = new URL("https://raw.githubusercontent.com/SteveKunG/Indicatia/1.8.9_skyblock/api/skill/" + type + "_xp.json");
         URLConnection connection = url.openConnection();
         BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
-        SkillProgress[] skill = GSON.fromJson(in, SkillProgress[].class);
-
-        switch (type)
-        {
-        case SKILL:
-        default:
-            SKILL = skill;
-            break;
-        case SLAYER:
-            SLAYER_SKILL = skill;
-            break;
-        case RUNE:
-            RUNE_SKILL = skill;
-            break;
-        }
+        return GSON.fromJson(in, SkillProgress[].class);
     }
 
     public enum Type

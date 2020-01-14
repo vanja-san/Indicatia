@@ -35,6 +35,7 @@ import stevekung.mods.indicatia.event.HUDRenderEventHandler;
 import stevekung.mods.indicatia.event.HypixelEventHandler;
 import stevekung.mods.indicatia.event.IndicatiaEventHandler;
 import stevekung.mods.indicatia.gui.GuiIndicatiaChat;
+import stevekung.mods.indicatia.gui.api.PlayerStatsBonus;
 import stevekung.mods.indicatia.gui.api.SkillProgress;
 import stevekung.mods.indicatia.handler.KeyBindingHandler;
 import stevekung.mods.indicatia.utils.*;
@@ -144,9 +145,14 @@ public class IndicatiaMod
         {
             try
             {
-                SkillProgress.getSkillXpFromRemote(SkillProgress.Type.SKILL);
-                SkillProgress.getSkillXpFromRemote(SkillProgress.Type.SLAYER);
-                SkillProgress.getSkillXpFromRemote(SkillProgress.Type.RUNE);
+                SkillProgress.SKILL = SkillProgress.getSkillXpFromRemote(SkillProgress.Type.SKILL);
+                SkillProgress.SLAYER_SKILL = SkillProgress.getSkillXpFromRemote(SkillProgress.Type.SLAYER);
+                SkillProgress.RUNE_SKILL = SkillProgress.getSkillXpFromRemote(SkillProgress.Type.RUNE);
+
+                for (PlayerStatsBonus.Type type : PlayerStatsBonus.Type.VALUES)
+                {
+                    PlayerStatsBonus.getBonusFromRemote(type);
+                }
             }
             catch (IOException e)
             {
