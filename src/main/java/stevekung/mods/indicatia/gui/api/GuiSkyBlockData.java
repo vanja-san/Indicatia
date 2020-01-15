@@ -1,6 +1,7 @@
 package stevekung.mods.indicatia.gui.api;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -9,6 +10,8 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.commons.lang3.text.WordUtils;
@@ -42,6 +45,9 @@ import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompressedStreamTools;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
@@ -76,6 +82,7 @@ public class GuiSkyBlockData extends GuiScreen
 
     // API
     private static final DecimalFormat FORMAT = new DecimalFormat("#,###,###,###,###");
+    private static final DecimalFormat NUMBER_FORMAT_WITH_SYMBOL = new DecimalFormat("+#;-#");
     private static final DecimalFormat SKILL_AVG = new DecimalFormat("##.#");
     public static boolean renderSecondLayer;
     private GuiScrollingList currentSlot;
@@ -117,7 +124,7 @@ public class GuiSkyBlockData extends GuiScreen
     private int zombieSlayerLevel;
     private int spiderSlayerLevel;
     private int wolfSlayerLevel;
-    private BonusStatTemplate allStat = new BonusStatTemplate(100, 0, 0, 0, 100, 20, 50, 100);
+    private BonusStatTemplate allStat = new BonusStatTemplate(100, 0, 0, 0, 0, 100, 20, 50, 100);
 
     // GuiContainer fields
     private int xSize;
@@ -1010,11 +1017,53 @@ public class GuiSkyBlockData extends GuiScreen
                 this.getInventories(currentUserProfile);
                 this.createFakePlayer();
                 this.calculatePlayerStats(currentUserProfile);
+                this.getItemStats(this.inventoryToStats, false);
+                this.getItemStats(this.armorItems, true);
+                LoggerIN.info("PreBonus Health:{}, Defense:{}, Strength:{}, Speed:{}, CritChance:{}, CritDmg:{}, Intelligence:{}", this.allStat.getHealth(), this.allStat.getDefense(), this.allStat.getStrength(), this.allStat.getSpeed(), this.allStat.getCritChance(), this.allStat.getCritDamage(), this.allStat.getIntelligence());
+                this.applyBonuses();
+                LoggerIN.info("PostBonus Health:{}, Defense:{}, Strength:{}, Speed:{}, CritChance:{}, CritDmg:{}, Intelligence:{}", this.allStat.getHealth(), this.allStat.getDefense(), this.allStat.getStrength(), this.allStat.getSpeed(), this.allStat.getCritChance(), this.allStat.getCritDamage(), this.allStat.getIntelligence());
+                this.allStat.add(new BonusStatTemplate(0, 0, 0, this.allStat.getDefense() <= 0 ? this.allStat.getHealth() : Math.round(this.allStat.getHealth() * (1 + this.allStat.getDefense() / 100)), 0, 0, 0, 0, 0));
                 this.getBasicInfo(currentUserProfile, banking);
                 break;
             }
         }
         this.loadingApi = false;
+    }
+
+    private void applyBonuses()
+    {
+        if (this.hasDayNightCrystal)
+        {
+            this.allStat.addDefense(5);
+            this.allStat.addStrength(5);
+        }
+
+        if (this.hasFullLapisArmor)
+        {
+            this.allStat.addHealth(60);
+        }
+        else if (this.hasFullMastiff)
+        {
+            this.allStat.addHealth(50 * this.allStat.getCritDamage());
+        }
+        else if (this.hasFullYoungDragon)
+        {
+            this.allStat.addSpeed(70);
+        }
+        else if (this.hasFullSpeedster)
+        {
+            this.allStat.addSpeed(20);
+        }
+        else if (this.hasFullSuperiorDragon)
+        {
+            this.allStat.setHealth((int)Math.round(this.allStat.getHealth() * 1.05D));
+            this.allStat.setDefense((int)Math.round(this.allStat.getDefense() * 1.05D));
+            this.allStat.setStrength((int)Math.round(this.allStat.getStrength() * 1.05D));
+            this.allStat.setSpeed((int)Math.round(this.allStat.getSpeed() * 1.05D));
+            this.allStat.setCritChance((int)Math.round(this.allStat.getCritChance() * 1.05D));
+            this.allStat.setCritDamage((int)Math.round(this.allStat.getCritDamage() * 1.05D));
+            this.allStat.setIntelligence((int)Math.round(this.allStat.getIntelligence() * 1.05D));
+        }
     }
 
     private void calculatePlayerStats(JsonObject currentProfile)
@@ -1037,19 +1086,13 @@ public class GuiSkyBlockData extends GuiScreen
         this.allStat.add(this.calculateSkillBonus(PlayerStatsBonus.ZOMBIE_SLAYER, this.zombieSlayerLevel));
         this.allStat.add(this.calculateSkillBonus(PlayerStatsBonus.SPIDER_SLAYER, this.spiderSlayerLevel));
         this.allStat.add(this.calculateSkillBonus(PlayerStatsBonus.WOLF_SLAYER, this.wolfSlayerLevel));
-
-        //base.getDefense() <= 0 ? base.getHealth() : Math.round(base.getHealth() * (1 + base.getDefense() / 100))TODO
-        this.allStat.add(new BonusStatTemplate(0, 0, Math.round(this.allStat.getHealth() * (1 + this.allStat.getDefense() / 100)), 0, 0, 0, 0, 0));
-
-        //System.out.println(base.getEffectiveHealth());
-
-        LoggerIN.info("Health:{}, Defense:{}, Strength:{}, Speed:{}, CritChance:{}, CritDmg:{}, Intelligence:{}", this.allStat.getHealth(), this.allStat.getDefense(), this.allStat.getStrength(), this.allStat.getSpeed(), this.allStat.getCritChance(), this.allStat.getCritDamage(), this.allStat.getIntelligence());
     }
 
     private BonusStatTemplate calculateSkillBonus(PlayerStatsBonus.IBonusTemplate[] bonus, int skillLevel)
     {
         int healthTemp = 0;
         int defenseTemp = 0;
+        int trueDefenseTemp = 0;
         int strengthTemp = 0;
         int speedTemp = 0;
         int critChanceTemp = 0;
@@ -1079,6 +1122,7 @@ public class GuiSkyBlockData extends GuiScreen
             {
                 int health = bonus[i].getHealth();
                 int defense = bonus[i].getDefense();
+                int trueDefense = bonus[i].getTrueDefense();
                 int strength = bonus[i].getStrength();
                 int speed = bonus[i].getSpeed();
                 int critChance = bonus[i].getCritChance();
@@ -1093,6 +1137,7 @@ public class GuiSkyBlockData extends GuiScreen
                     }
                     healthTemp += health;
                     defenseTemp += defense;
+                    trueDefenseTemp += trueDefense;
                     strengthTemp += strength;
                     speedTemp += speed;
                     critChanceTemp += critChance;
@@ -1101,7 +1146,143 @@ public class GuiSkyBlockData extends GuiScreen
                 }
             }
         }
-        return new BonusStatTemplate(healthTemp, defenseTemp, 0, strengthTemp, speedTemp, critChanceTemp, critDamageTemp, intelligenceTemp);
+        return new BonusStatTemplate(healthTemp, defenseTemp, trueDefenseTemp, 0, strengthTemp, speedTemp, critChanceTemp, critDamageTemp, intelligenceTemp);
+    }
+
+
+    private static final Pattern STATS_PATTERN = Pattern.compile("(?<type>Strength|Crit Chance|Crit Damage|Health|Defense|Speed|Intelligence|True Defense): (?<value>(?:\\+|\\-)[0-9,]+)?(?:\\%){0,1}(?:(?: HP(?: \\(\\+[0-9,]+ HP\\)){0,1}(?: \\(\\w+ \\+[0-9,]+ HP\\)){0,1})|(?: \\(\\+[0-9,]+\\))|(?: \\(\\w+ \\+[0-9,]+(?:\\%){0,1}\\))){0,1}");
+    private List<ItemStack> inventoryToStats = new ArrayList<>();
+
+    private void getHealthFromCake(NBTTagCompound extraAttrib)
+    {
+        List<ItemStack> itemStack1 = new ArrayList<>();
+
+        try
+        {
+            NBTTagCompound compound1 = CompressedStreamTools.readCompressed(new ByteArrayInputStream(extraAttrib.getByteArray("new_year_cake_bag_data")));
+            NBTTagList list = compound1.getTagList("i", 10);
+            List<Integer> cakeYears = new ArrayList<>();
+
+            for (int i = 0; i < list.tagCount(); ++i)
+            {
+                itemStack1.add(ItemStack.loadItemStackFromNBT(list.getCompoundTagAt(i)));
+            }
+
+            for (ItemStack cake : itemStack1)
+            {
+                if (cake != null && cake.hasTagCompound())
+                {
+                    int year = cake.getTagCompound().getCompoundTag("ExtraAttributes").getInteger("new_years_cake");
+
+                    if (!cakeYears.contains(year))
+                    {
+                        cakeYears.add(year);
+                    }
+                }
+            }
+            this.allStat.addHealth(cakeYears.size());
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    private void getItemStats(List<ItemStack> inventory, boolean armor)
+    {
+        int healthTemp = 0;
+        int defenseTemp = 0;
+        int trueDefenseTemp = 0;
+        int strengthTemp = 0;
+        int speedTemp = 0;
+        int critChanceTemp = 0;
+        int critDamageTemp = 0;
+        int intelligenceTemp = 0;
+
+        for (ItemStack itemStack : inventory)
+        {
+            if (itemStack != null && itemStack.hasTagCompound())
+            {
+                NBTTagCompound compound = itemStack.getTagCompound().getCompoundTag("display");
+                NBTTagCompound extraAttrib = itemStack.getTagCompound().getCompoundTag("ExtraAttributes");
+                String itemId = extraAttrib.getString("id");
+
+                if (itemId.equals("FROZEN_CHICKEN"))
+                {
+                    this.allStat.addSpeed(1);
+                }
+                else if (itemId.equals("SPEED_TALISMAN"))
+                {
+                    this.allStat.addSpeed(3);
+                }
+                else if (itemId.equals("NEW_YEAR_CAKE_BAG"))
+                {
+                    this.getHealthFromCake(extraAttrib);
+                }
+
+                if (compound.getTagId("Lore") == 9)
+                {
+                    NBTTagList list = compound.getTagList("Lore", 8);
+
+                    if (list.tagCount() > 0)
+                    {
+                        for (int j1 = 0; j1 < list.tagCount(); ++j1)
+                        {
+                            String lore = EnumChatFormatting.getTextWithoutFormattingCodes(list.getStringTagAt(j1));
+                            String lastLore = EnumChatFormatting.getTextWithoutFormattingCodes(list.getStringTagAt(list.tagCount() - 1));
+                            Matcher matcher = STATS_PATTERN.matcher(lore);
+
+                            if (!armor && (lastLore.endsWith(" BOOTS") || lastLore.endsWith(" LEGGINGS") || lastLore.endsWith(" CHESTPLATE") || lastLore.endsWith(" HELMET") || !lastLore.endsWith(" ACCESSORY")))
+                            {
+                                continue;
+                            }
+
+                            if (matcher.matches())
+                            {
+                                String type = matcher.group("type");
+                                String value = matcher.group("value").replace(",", "");
+                                int valueInt = 0;
+
+                                try
+                                {
+                                    valueInt = NUMBER_FORMAT_WITH_SYMBOL.parse(value).intValue();
+                                }
+                                catch (Exception e) {}
+
+                                switch (type)
+                                {
+                                case "Health":
+                                    healthTemp += valueInt;
+                                    break;
+                                case "Defense":
+                                    defenseTemp += valueInt;
+                                    break;
+                                case "True Defense":
+                                    trueDefenseTemp += valueInt;
+                                    break;
+                                case "Strength":
+                                    strengthTemp += valueInt;
+                                    break;
+                                case "Speed":
+                                    speedTemp += valueInt;
+                                    break;
+                                case "Crit Chance":
+                                    critChanceTemp += valueInt;
+                                    break;
+                                case "Crit Damage":
+                                    critDamageTemp += valueInt;
+                                    break;
+                                case "Intelligence":
+                                    intelligenceTemp += valueInt;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        this.allStat.add(new BonusStatTemplate(healthTemp, defenseTemp, trueDefenseTemp, 0, strengthTemp, speedTemp, critChanceTemp, critDamageTemp, intelligenceTemp));
     }
 
     private void getBasicInfo(JsonObject currentProfile, JsonElement banking)
@@ -1132,9 +1313,9 @@ public class GuiSkyBlockData extends GuiScreen
             firstJoinMillis = firstJoin.getAsLong();
         }
 
-        //TODO Add real basic stats
         String heath = ColorUtils.stringToRGB("239,83,80").toColoredFont();
         String defense = ColorUtils.stringToRGB("156,204,101").toColoredFont();
+        String trueDefense = ColorUtils.stringToRGB("255,255,255").toColoredFont();
         String strength = ColorUtils.stringToRGB("181,33,30").toColoredFont();
         String speed = ColorUtils.stringToRGB("255,255,255").toColoredFont();
         String critChance = ColorUtils.stringToRGB("121,134,203").toColoredFont();
@@ -1145,6 +1326,7 @@ public class GuiSkyBlockData extends GuiScreen
         this.infoList.add(new SkyBlockInfo(heath + "\u2764 Health", heath + this.allStat.getHealth()));
         this.infoList.add(new SkyBlockInfo(heath + "\u2665 Effective Health", heath + this.allStat.getEffectiveHealth()));
         this.infoList.add(new SkyBlockInfo(defense + "\u2748 Defense", defense + this.allStat.getDefense()));
+        this.infoList.add(new SkyBlockInfo(trueDefense + "\u2742 True Defense", trueDefense + this.allStat.getTrueDefense()));
         this.infoList.add(new SkyBlockInfo(strength + "\u2741 Strength", strength + this.allStat.getStrength()));
         this.infoList.add(new SkyBlockInfo(speed + "\u2726 Speed", speed + this.allStat.getSpeed()));
         this.infoList.add(new SkyBlockInfo(critChance + "\u2623 Crit Chance", critChance + this.allStat.getCritChance()));
@@ -1202,7 +1384,7 @@ public class GuiSkyBlockData extends GuiScreen
                 speedBase += speed;
             }
         }
-        return new BonusStatTemplate(healthBase, defenseBase, 0, strengthBase, speedBase, 0, 0, 0);
+        return new BonusStatTemplate(healthBase, defenseBase, 0, 0, strengthBase, speedBase, 0, 0, 0);
     }
 
     private String convertCorrectTime(int time, String text, boolean an)
@@ -1433,22 +1615,66 @@ public class GuiSkyBlockData extends GuiScreen
         }
     }
 
+    private boolean hasDayNightCrystal;
+    private boolean hasFullSuperiorDragon;
+    private boolean hasFullLapisArmor;
+    private boolean hasFullMastiff;
+    private boolean hasFullYoungDragon;
+    private boolean hasFullSpeedster;
+
+    private long checkSkyBlockItem(List<ItemStack> list, String type)
+    {
+        return list.stream().filter(armor -> armor != null && armor.hasTagCompound() && armor.getTagCompound().getCompoundTag("ExtraAttributes").getString("id").startsWith(type)).count();
+    }
+
     private void getInventories(JsonObject currentProfile)
     {
         this.armorItems.addAll(SkyBlockAPIUtils.decodeItem(currentProfile, "inv_armor"));
+
+        if (this.checkSkyBlockItem(this.armorItems, "SUPERIOR_DRAGON_") == 4)
+        {
+            this.hasFullSuperiorDragon = true;
+        }
+        else if (this.checkSkyBlockItem(this.armorItems, "LAPIS_ARMOR_") == 4)
+        {
+            this.hasFullLapisArmor = true;
+        }
+        else if (this.checkSkyBlockItem(this.armorItems, "MASTIFF_") == 4)
+        {
+            this.hasFullMastiff = true;
+        }
+        else if (this.checkSkyBlockItem(this.armorItems, "YOUNG_DRAGON_") == 4)
+        {
+            this.hasFullYoungDragon = true;
+        }
+        else if (this.checkSkyBlockItem(this.armorItems, "SPEEDSTER_") == 4)
+        {
+            this.hasFullSpeedster = true;
+        }
 
         for (int i = 0; i < 4; ++i)
         {
             GuiSkyBlockData.TEMP_ARMOR_INVENTORY.setInventorySlotContents(i, this.armorItems.get(i));
         }
 
-        SKYBLOCK_INV.add(new SkyBlockInventory(SkyBlockAPIUtils.decodeItem(currentProfile, "inv_contents"), SkyBlockInventoryTabs.INVENTORY));
+        List<ItemStack> mainInventory = SkyBlockAPIUtils.decodeItem(currentProfile, "inv_contents");
+        List<ItemStack> accessoryInventory = SkyBlockAPIUtils.decodeItem(currentProfile, "talisman_bag");
+
+        SKYBLOCK_INV.add(new SkyBlockInventory(mainInventory, SkyBlockInventoryTabs.INVENTORY));
         SKYBLOCK_INV.add(new SkyBlockInventory(SkyBlockAPIUtils.decodeItem(currentProfile, "ender_chest_contents"), SkyBlockInventoryTabs.ENDER_CHEST));
-        SKYBLOCK_INV.add(new SkyBlockInventory(SkyBlockAPIUtils.decodeItem(currentProfile, "talisman_bag"), SkyBlockInventoryTabs.ACCESSORY));
+        SKYBLOCK_INV.add(new SkyBlockInventory(accessoryInventory, SkyBlockInventoryTabs.ACCESSORY));
         SKYBLOCK_INV.add(new SkyBlockInventory(SkyBlockAPIUtils.decodeItem(currentProfile, "potion_bag"), SkyBlockInventoryTabs.POTION));
         SKYBLOCK_INV.add(new SkyBlockInventory(SkyBlockAPIUtils.decodeItem(currentProfile, "fishing_bag"), SkyBlockInventoryTabs.FISHING));
         SKYBLOCK_INV.add(new SkyBlockInventory(SkyBlockAPIUtils.decodeItem(currentProfile, "quiver"), SkyBlockInventoryTabs.QUIVER));
         SKYBLOCK_INV.add(new SkyBlockInventory(SkyBlockAPIUtils.decodeItem(currentProfile, "candy_inventory_contents"), SkyBlockInventoryTabs.CANDY));
+
+        this.inventoryToStats.addAll(mainInventory);
+        this.inventoryToStats.addAll(accessoryInventory);
+
+        if (this.checkSkyBlockItem(this.inventoryToStats, "NIGHT_CRYSTAL") == 1 || this.checkSkyBlockItem(this.inventoryToStats, "DAY_CRYSTAL") == 1)
+        {
+            this.hasDayNightCrystal = true;
+        }
     }
 
     private void getSlayerInfo(JsonObject currentProfile)
@@ -2119,6 +2345,7 @@ public class GuiSkyBlockData extends GuiScreen
     {
         private int health;
         private int defense;
+        private int trueDefense;
         private int effectiveHealth;
         private int strength;
         private int speed;
@@ -2126,10 +2353,11 @@ public class GuiSkyBlockData extends GuiScreen
         private int critDamage;
         private int intelligence;
 
-        public BonusStatTemplate(int health, int defense, int effectiveHealth, int strength, int speed, int critChance, int critDamage, int intelligence)
+        public BonusStatTemplate(int health, int defense, int trueDefense, int effectiveHealth, int strength, int speed, int critChance, int critDamage, int intelligence)
         {
             this.health = health;
             this.defense = defense;
+            this.trueDefense = trueDefense;
             this.effectiveHealth = effectiveHealth;
             this.strength = strength;
             this.speed = speed;
@@ -2142,13 +2370,14 @@ public class GuiSkyBlockData extends GuiScreen
         {
             this.health += toAdd.health;
             this.defense += toAdd.defense;
+            this.trueDefense += toAdd.trueDefense;
             this.effectiveHealth += toAdd.effectiveHealth;
             this.strength += toAdd.strength;
             this.speed += toAdd.speed;
             this.critChance += toAdd.critChance;
             this.critDamage += toAdd.critDamage;
             this.intelligence += toAdd.intelligence;
-            return new BonusStatTemplate(this.health, this.defense, this.effectiveHealth, this.strength, this.speed, this.critChance, this.critDamage, this.intelligence);
+            return new BonusStatTemplate(this.health, this.defense, this.trueDefense, this.effectiveHealth, this.strength, this.speed, this.critChance, this.critDamage, this.intelligence);
         }
 
         public int getHealth()
@@ -2158,7 +2387,16 @@ public class GuiSkyBlockData extends GuiScreen
 
         public int getDefense()
         {
+            if (this.defense <= 0)
+            {
+                return 0;
+            }
             return this.defense;
+        }
+
+        public int getTrueDefense()
+        {
+            return this.trueDefense;
         }
 
         public int getEffectiveHealth()
@@ -2189,6 +2427,105 @@ public class GuiSkyBlockData extends GuiScreen
         public int getIntelligence()
         {
             return this.intelligence;
+        }
+
+        public void setHealth(int health)
+        {
+            this.health = health;
+        }
+
+        public void setDefense(int defense)
+        {
+            this.defense = defense;
+        }
+
+        public void setTrueDefense(int trueDefense)
+        {
+            this.trueDefense = trueDefense;
+        }
+
+        public void setEffectiveHealth(int effectiveHealth)
+        {
+            this.effectiveHealth = effectiveHealth;
+        }
+
+        public void setStrength(int strength)
+        {
+            this.strength = strength;
+        }
+
+        public void setSpeed(int speed)
+        {
+            this.speed = speed;
+        }
+
+        public void setCritChance(int critChance)
+        {
+            this.critChance = critChance;
+        }
+
+        public void setCritDamage(int critDamage)
+        {
+            this.critDamage = critDamage;
+        }
+
+        public void setIntelligence(int intelligence)
+        {
+            this.intelligence = intelligence;
+        }
+
+        public BonusStatTemplate addHealth(int health)
+        {
+            this.health += health;
+            return this;
+        }
+
+        public BonusStatTemplate addDefense(int defense)
+        {
+            this.defense += defense;
+            return this;
+        }
+
+        public BonusStatTemplate addTrueDefense(int trueDefense)
+        {
+            this.trueDefense += trueDefense;
+            return this;
+        }
+
+        public BonusStatTemplate addEffectiveHealth(int effectiveHealth)
+        {
+            this.effectiveHealth += effectiveHealth;
+            return this;
+        }
+
+        public BonusStatTemplate addStrength(int strength)
+        {
+            this.strength += strength;
+            return this;
+        }
+
+        public BonusStatTemplate addSpeed(int speed)
+        {
+            this.speed += speed;
+            return this;
+        }
+
+        public BonusStatTemplate addCritChance(int critChance)
+        {
+            this.critChance += critChance;
+            return this;
+        }
+
+        public BonusStatTemplate addCritDamage(int critDamage)
+        {
+            this.critDamage += critDamage;
+            return this;
+        }
+
+        public BonusStatTemplate addIntelligence(int intelligence)
+        {
+            this.intelligence += intelligence;
+            return this;
         }
     }
 

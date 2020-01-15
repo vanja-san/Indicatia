@@ -401,6 +401,11 @@ public class PlayerStatsBonus
             return 0;
         }
 
+        default int getTrueDefense()
+        {
+            return 0;
+        }
+
         default int getStrength()
         {
             return 0;
