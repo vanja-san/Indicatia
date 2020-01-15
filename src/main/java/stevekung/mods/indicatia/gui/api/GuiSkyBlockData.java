@@ -81,6 +81,7 @@ public class GuiSkyBlockData extends GuiScreen
     private int percent;
 
     // API
+    private static final Pattern STATS_PATTERN = Pattern.compile("(?<type>Strength|Crit Chance|Crit Damage|Health|Defense|Speed|Intelligence|True Defense): (?<value>(?:\\+|\\-)[0-9,]+)?(?:\\%){0,1}(?:(?: HP(?: \\(\\+[0-9,]+ HP\\)){0,1}(?: \\(\\w+ \\+[0-9,]+ HP\\)){0,1})|(?: \\(\\+[0-9,]+\\))|(?: \\(\\w+ \\+[0-9,]+(?:\\%){0,1}\\))){0,1}");
     private static final DecimalFormat FORMAT = new DecimalFormat("#,###,###,###,###");
     private static final DecimalFormat NUMBER_FORMAT_WITH_SYMBOL = new DecimalFormat("+#;-#");
     private static final DecimalFormat SKILL_AVG = new DecimalFormat("##.#");
@@ -96,8 +97,15 @@ public class GuiSkyBlockData extends GuiScreen
     private List<SkyBlockStats> sbDeathStats = new ArrayList<>();
     private List<SkyBlockStats> sbOtherStats = new ArrayList<>();
     private List<ItemStack> armorItems = new ArrayList<>();
+    private List<ItemStack> inventoryToStats = new ArrayList<>();
     private EntityOtherFakePlayer player;
     private String skillAvg;
+    private boolean hasDayNightCrystal;
+    private boolean hasFullSuperiorDragon;
+    private boolean hasFullLapisArmor;
+    private boolean hasFullMastiff;
+    private boolean hasFullYoungDragon;
+    private boolean hasFullSpeedster;
 
     // Info & Inventory
     private static final int SIZE = 36;
@@ -491,38 +499,6 @@ public class GuiSkyBlockData extends GuiScreen
         }
     }
 
-    private void renderSkillBar(String name, int xBar, int yBar, int xText, int yText, int playerXp, int xpRequired, int currentLvl, boolean reachLimit)
-    {
-        this.mc.getTextureManager().bindTexture(XP_BARS);
-        GlStateManager.color(0.5F, 1.0F, 0.0F, 1.0F);
-        Gui.drawModalRectWithCustomSizedTexture(xBar, yBar, 0, 0, 91, 5, 91, 10);
-
-        if (xpRequired > 0)
-        {
-            int filled = Math.min((int)Math.floor(playerXp * 92 / xpRequired), 91);
-
-            if (filled > 0)
-            {
-                Gui.drawModalRectWithCustomSizedTexture(xBar, yBar, 0, 5, filled, 5, 91, 10);
-            }
-
-            this.drawCenteredString(this.fontRendererObj, EnumChatFormatting.GRAY + name + EnumChatFormatting.YELLOW + " " + currentLvl, xText, yText, 16777215);
-
-            if (reachLimit)
-            {
-                this.drawCenteredString(this.fontRendererObj, NumberUtils.format(playerXp), xText, yText + 10, 16777215);
-            }
-            else
-            {
-                this.drawCenteredString(this.fontRendererObj, NumberUtils.format(playerXp) + "/" + NumberUtils.format(xpRequired), xText, yText + 10, 16777215);
-            }
-        }
-        else
-        {
-            this.drawCenteredString(this.fontRendererObj, name, xText, yText + 8, 16777215);
-        }
-    }
-
     @Override
     public void handleMouseInput() throws IOException
     {
@@ -547,6 +523,7 @@ public class GuiSkyBlockData extends GuiScreen
         }
     }
 
+    // Input
     private void actionPerformedViewInfo(GuiButton button)
     {
         ViewButton type = ViewButton.getTypeForButton(button);
@@ -716,33 +693,95 @@ public class GuiSkyBlockData extends GuiScreen
         return test;
     }
 
-    private boolean renderTabsHoveringText(SkyBlockInventoryTabs tab, int mouseX, int mouseY)
+    private boolean isMouseOverSlot(Slot slot, int mouseX, int mouseY)
     {
-        int i = tab.getTabColumn();
-        int j = 28 * i;
-        int k = 0;
+        return this.isPointInRegion(slot.xDisplayPosition, slot.yDisplayPosition, 16, 16, mouseX, mouseY);
+    }
 
-        if (i > 0)
-        {
-            j += i;
-        }
-        if (tab.isTabInFirstRow())
-        {
-            k = k - 28;
-        }
-        else
-        {
-            k = k + this.ySize - 2;
-        }
+    private boolean isPointInRegion(int left, int top, int right, int bottom, int mouseX, int mouseY)
+    {
+        int i = this.guiLeft;
+        int j = this.guiTop;
+        mouseX = mouseX - i;
+        mouseY = mouseY - j;
+        return mouseX >= left - 1 && mouseX < left + right + 1 && mouseY >= top - 1 && mouseY < top + bottom + 1;
+    }
 
-        if (this.isPointInRegion(j + 2, k + 3, 25, 25, mouseX, mouseY))
+    private void setCurrentTab(SkyBlockInventoryTabs tab)
+    {
+        if (tab == null)
         {
-            this.drawHoveringText(Collections.singletonList(tab.getTranslatedTabLabel()), mouseX, mouseY);
-            return true;
+            return;
         }
-        else
+        this.selectedTabIndex = tab.getTabIndex();
+        ContainerSkyBlock container = this.skyBlockContainer;
+        container.itemList.clear();
+        tab.displayAllItems(container.itemList);
+        this.currentScroll = 0.0F;
+        container.scrollTo(0.0F);
+    }
+
+    private boolean needsScrollBars()
+    {
+        if (SkyBlockInventoryTabs.tabArray[this.selectedTabIndex] == null)
         {
             return false;
+        }
+        return SkyBlockInventoryTabs.tabArray[this.selectedTabIndex].hasScrollBar() && this.skyBlockContainer.canScroll();
+    }
+
+    private void hideOtherStatsButton()
+    {
+        for (GuiButton viewButton : this.buttonList)
+        {
+            if (OtherStatsViewButton.getTypeForButton(viewButton) != null)
+            {
+                viewButton.visible = false;
+            }
+        }
+    }
+
+    private void hideBasicInfoButton()
+    {
+        for (GuiButton viewButton : this.buttonList)
+        {
+            if (BasicInfoViewButton.getTypeForButton(viewButton) != null)
+            {
+                viewButton.visible = false;
+            }
+        }
+    }
+
+    // Render
+    private void renderSkillBar(String name, int xBar, int yBar, int xText, int yText, int playerXp, int xpRequired, int currentLvl, boolean reachLimit)
+    {
+        this.mc.getTextureManager().bindTexture(XP_BARS);
+        GlStateManager.color(0.5F, 1.0F, 0.0F, 1.0F);
+        Gui.drawModalRectWithCustomSizedTexture(xBar, yBar, 0, 0, 91, 5, 91, 10);
+
+        if (xpRequired > 0)
+        {
+            int filled = Math.min((int)Math.floor(playerXp * 92 / xpRequired), 91);
+
+            if (filled > 0)
+            {
+                Gui.drawModalRectWithCustomSizedTexture(xBar, yBar, 0, 5, filled, 5, 91, 10);
+            }
+
+            this.drawCenteredString(this.fontRendererObj, EnumChatFormatting.GRAY + name + EnumChatFormatting.YELLOW + " " + currentLvl, xText, yText, 16777215);
+
+            if (reachLimit)
+            {
+                this.drawCenteredString(this.fontRendererObj, NumberUtils.format(playerXp), xText, yText + 10, 16777215);
+            }
+            else
+            {
+                this.drawCenteredString(this.fontRendererObj, NumberUtils.format(playerXp) + "/" + NumberUtils.format(xpRequired), xText, yText + 10, 16777215);
+            }
+        }
+        else
+        {
+            this.drawCenteredString(this.fontRendererObj, name, xText, yText + 8, 16777215);
         }
     }
 
@@ -828,9 +867,34 @@ public class GuiSkyBlockData extends GuiScreen
         this.zLevel = 0.0F;
     }
 
-    private boolean isMouseOverSlot(Slot slot, int mouseX, int mouseY)
+    private boolean renderTabsHoveringText(SkyBlockInventoryTabs tab, int mouseX, int mouseY)
     {
-        return this.isPointInRegion(slot.xDisplayPosition, slot.yDisplayPosition, 16, 16, mouseX, mouseY);
+        int i = tab.getTabColumn();
+        int j = 28 * i;
+        int k = 0;
+
+        if (i > 0)
+        {
+            j += i;
+        }
+        if (tab.isTabInFirstRow())
+        {
+            k = k - 28;
+        }
+        else
+        {
+            k = k + this.ySize - 2;
+        }
+
+        if (this.isPointInRegion(j + 2, k + 3, 25, 25, mouseX, mouseY))
+        {
+            this.drawHoveringText(Collections.singletonList(tab.getTranslatedTabLabel()), mouseX, mouseY);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     private void drawTabsBackgroundLayer(float partialTicks, int mouseX, int mouseY)
@@ -877,15 +941,6 @@ public class GuiSkyBlockData extends GuiScreen
             GlStateManager.disableBlend();
             this.fontRendererObj.drawString(tab.getTranslatedTabLabel(), this.guiLeft + 12, this.guiTop + 6, 4210752);
         }
-    }
-
-    private boolean isPointInRegion(int left, int top, int right, int bottom, int mouseX, int mouseY)
-    {
-        int i = this.guiLeft;
-        int j = this.guiTop;
-        mouseX = mouseX - i;
-        mouseY = mouseY - j;
-        return mouseX >= left - 1 && mouseX < left + right + 1 && mouseY >= top - 1 && mouseY < top + bottom + 1;
     }
 
     private void drawTab(SkyBlockInventoryTabs tab)
@@ -937,57 +992,7 @@ public class GuiSkyBlockData extends GuiScreen
         this.zLevel = 0.0F;
     }
 
-    private void setCurrentTab(SkyBlockInventoryTabs tab)
-    {
-        if (tab == null)
-        {
-            return;
-        }
-        this.selectedTabIndex = tab.getTabIndex();
-        ContainerSkyBlock container = this.skyBlockContainer;
-        container.itemList.clear();
-        tab.displayAllItems(container.itemList);
-        this.currentScroll = 0.0F;
-        container.scrollTo(0.0F);
-    }
-
-    private boolean needsScrollBars()
-    {
-        if (SkyBlockInventoryTabs.tabArray[this.selectedTabIndex] == null)
-        {
-            return false;
-        }
-        return SkyBlockInventoryTabs.tabArray[this.selectedTabIndex].hasScrollBar() && this.skyBlockContainer.canScroll();
-    }
-
-    private void hideOtherStatsButton()
-    {
-        for (GuiButton viewButton : this.buttonList)
-        {
-            if (OtherStatsViewButton.getTypeForButton(viewButton) != null)
-            {
-                viewButton.visible = false;
-            }
-        }
-    }
-
-    private void hideBasicInfoButton()
-    {
-        for (GuiButton viewButton : this.buttonList)
-        {
-            if (BasicInfoViewButton.getTypeForButton(viewButton) != null)
-            {
-                viewButton.visible = false;
-            }
-        }
-    }
-
-    private String replaceStatsString(String statName, String replace)
-    {
-        String original = statName.replace(replace + "_", "").replace("_", " ");
-        return original.equals(replace) ? "Total " + replace : WordUtils.capitalize(original) + " " + replace;
-    }
-
+    // Player Data
     private void getPlayerData() throws IOException
     {
         URL url = new URL(SkyBlockAPIUtils.SKYBLOCK_PROFILE + this.sbProfileId);
@@ -1018,7 +1023,7 @@ public class GuiSkyBlockData extends GuiScreen
                 this.createFakePlayer();
                 this.calculatePlayerStats(currentUserProfile);
                 this.getItemStats(this.inventoryToStats, false);
-                this.getItemStats(this.armorItems, true);
+                this.getItemStats(this.armorItems, true);//TODO
                 LoggerIN.info("PreBonus Health:{}, Defense:{}, Strength:{}, Speed:{}, CritChance:{}, CritDmg:{}, Intelligence:{}", this.allStat.getHealth(), this.allStat.getDefense(), this.allStat.getStrength(), this.allStat.getSpeed(), this.allStat.getCritChance(), this.allStat.getCritDamage(), this.allStat.getIntelligence());
                 this.applyBonuses();
                 LoggerIN.info("PostBonus Health:{}, Defense:{}, Strength:{}, Speed:{}, CritChance:{}, CritDmg:{}, Intelligence:{}", this.allStat.getHealth(), this.allStat.getDefense(), this.allStat.getStrength(), this.allStat.getSpeed(), this.allStat.getCritChance(), this.allStat.getCritDamage(), this.allStat.getIntelligence());
@@ -1148,10 +1153,6 @@ public class GuiSkyBlockData extends GuiScreen
         }
         return new BonusStatTemplate(healthTemp, defenseTemp, trueDefenseTemp, 0, strengthTemp, speedTemp, critChanceTemp, critDamageTemp, intelligenceTemp);
     }
-
-
-    private static final Pattern STATS_PATTERN = Pattern.compile("(?<type>Strength|Crit Chance|Crit Damage|Health|Defense|Speed|Intelligence|True Defense): (?<value>(?:\\+|\\-)[0-9,]+)?(?:\\%){0,1}(?:(?: HP(?: \\(\\+[0-9,]+ HP\\)){0,1}(?: \\(\\w+ \\+[0-9,]+ HP\\)){0,1})|(?: \\(\\+[0-9,]+\\))|(?: \\(\\w+ \\+[0-9,]+(?:\\%){0,1}\\))){0,1}");
-    private List<ItemStack> inventoryToStats = new ArrayList<>();
 
     private void getHealthFromCake(NBTTagCompound extraAttrib)
     {
@@ -1392,6 +1393,12 @@ public class GuiSkyBlockData extends GuiScreen
         return (time == 1 ? an ? "an" : "a" : time) + " " + text + (time == 1 ? "" : "s") + " ago";
     }
 
+    private String replaceStatsString(String statName, String replace)
+    {
+        String original = statName.replace(replace + "_", "").replace("_", " ");
+        return original.equals(replace) ? "Total " + replace : WordUtils.capitalize(original) + " " + replace;
+    }
+
     private String getRelativeTime(long timeDiff)
     {
         timeDiff = timeDiff / 1000;
@@ -1614,13 +1621,6 @@ public class GuiSkyBlockData extends GuiScreen
             }
         }
     }
-
-    private boolean hasDayNightCrystal;
-    private boolean hasFullSuperiorDragon;
-    private boolean hasFullLapisArmor;
-    private boolean hasFullMastiff;
-    private boolean hasFullYoungDragon;
-    private boolean hasFullSpeedster;
 
     private long checkSkyBlockItem(List<ItemStack> list, String type)
     {
