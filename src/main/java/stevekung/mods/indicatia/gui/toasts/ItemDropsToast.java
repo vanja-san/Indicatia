@@ -6,6 +6,7 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
@@ -55,6 +56,11 @@ public class ItemDropsToast implements IToast
             ItemStack itemStack = drop.getItemStack();
             String itemName = itemStack.getDisplayName() + this.magicFind;
             float partialTicks = ClientEventHandler.renderPartialTicks;
+
+            if (itemStack.getItem() == Items.enchanted_book)
+            {
+                itemName = itemStack.getTooltip(null, false).get(1) + this.magicFind;
+            }
 
             if (!StringUtils.isNullOrEmpty(this.magicFind))
             {
