@@ -56,11 +56,23 @@ public class GuiToast extends Gui
         int textWidth = toastGui.mc.fontRendererObj.getStringWidth(itemName);
         int maxSize = textWidth - 135;
         long timeElapsed = delta - firstDrawTime - 500L;
+        long timeElapsed2 = 15000L - delta - 5000L;
         long textSpeed = 8000L;
+        int maxTextLength = 125;
 
-        if (timeElapsed > 0 && textWidth > maxSize && textWidth > 120)
+        if (textWidth > maxSize && textWidth > maxTextLength)
         {
-            x = Math.max((int) (-textWidth * timeElapsed / textSpeed + x), -maxSize + 16);
+            if (timeElapsed > 0)
+            {
+                x = Math.max((int) (-textWidth * timeElapsed / textSpeed + x), -maxSize + 16);
+            }
+
+            int backward = Math.max(Math.min((int) -(textWidth * timeElapsed2 / textSpeed), 30), -maxSize + 16);
+
+            if (timeElapsed > timeElapsed2)
+            {
+                x = backward;
+            }
         }
 
         ScaledResolution res = new ScaledResolution(toastGui.mc);
