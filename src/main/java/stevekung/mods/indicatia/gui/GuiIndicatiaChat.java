@@ -16,6 +16,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ChatStyle;
 import net.minecraft.util.EnumChatFormatting;
+import stevekung.mods.indicatia.config.ConfigManagerIN;
 import stevekung.mods.indicatia.config.ExtendedConfig;
 import stevekung.mods.indicatia.gui.GuiDropdownMinigames.IDropboxCallback;
 import stevekung.mods.indicatia.utils.*;
@@ -46,7 +47,7 @@ public class GuiIndicatiaChat implements IGuiChat, IDropboxCallback
             }
         });
 
-        if (InfoUtils.INSTANCE.isHypixel())
+        if (ConfigManagerIN.enableChatMode && InfoUtils.INSTANCE.isHypixel())
         {
             Minecraft mc = Minecraft.getMinecraft();
             String chatMode = "CHAT MODE: " + JsonUtils.create(this.mode.getDesc()).setChatStyle(new ChatStyle().setColor(this.mode.getColor()).setBold(true)).getFormattedText();
@@ -205,11 +206,15 @@ public class GuiIndicatiaChat implements IGuiChat, IDropboxCallback
             String max = Collections.max(list, Comparator.comparing(text -> text.length()));
             int length = mc.fontRendererObj.getStringWidth(max) + 32;
 
-            // hypixel chat
-            buttonList.add(new GuiButton(200, width - 23, height - 35, 20, 20, "A"));
-            buttonList.add(new GuiButton(201, width - 23, height - 56, 20, 20, "P"));
-            buttonList.add(new GuiButton(202, width - 23, height - 77, 20, 20, "G"));
-            buttonList.add(new GuiButton(203, width - 31, height - 98, 28, 20, "COOP"));
+            if (ConfigManagerIN.enableChatMode)
+            {
+                // hypixel chat
+                buttonList.add(new GuiButton(200, width - 23, height - 35, 20, 20, "A"));
+                buttonList.add(new GuiButton(201, width - 23, height - 56, 20, 20, "P"));
+                buttonList.add(new GuiButton(202, width - 23, height - 77, 20, 20, "G"));
+                buttonList.add(new GuiButton(203, width - 31, height - 98, 28, 20, "COOP"));
+            }
+
             buttonList.add(this.dropdown = new GuiDropdownMinigames(this, width - length, 2, list));
             this.dropdown.width = length;
             this.prevSelect = ExtendedConfig.instance.selectedHypixelMinigame;

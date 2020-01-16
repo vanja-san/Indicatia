@@ -35,6 +35,7 @@ public class ConfigManagerIN
     public static boolean enableSmoothSneakingView;
     public static boolean enableAlternatePlayerModel;
     public static boolean enableTransparentSkullRender;
+    public static boolean enableChatMode;
 
     // Key Binding Settings
     public static String keyToggleSprint;
@@ -144,6 +145,10 @@ public class ConfigManagerIN
         prop = ConfigManagerIN.getProperty(ConfigManagerIN.MAIN_SETTINGS, "Enable Transparent Skull Render", false);
         ConfigManagerIN.enableTransparentSkullRender = prop.getBoolean();
         prop.comment = LangUtils.translate("gui.config.indicatia.transparent_skull_render");
+        propOrder.add(prop.getName());
+
+        prop = ConfigManagerIN.getProperty(ConfigManagerIN.MAIN_SETTINGS, "Enable Chat Mode", true);
+        ConfigManagerIN.enableChatMode = prop.getBoolean();
         propOrder.add(prop.getName());
 
         return propOrder;
