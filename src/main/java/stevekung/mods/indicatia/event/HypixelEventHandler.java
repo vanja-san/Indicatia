@@ -22,6 +22,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.client.gui.inventory.GuiEditSign;
+import net.minecraft.event.ClickEvent;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.scoreboard.Score;
@@ -29,6 +30,7 @@ import net.minecraft.scoreboard.ScoreObjective;
 import net.minecraft.scoreboard.ScorePlayerTeam;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.IChatComponent;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.MouseEvent;
@@ -62,6 +64,7 @@ public class HypixelEventHandler
     public static final String UUID_PATTERN_STRING = "[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}";
     private static final Pattern UUID_PATTERN = Pattern.compile("Your new API key is (?<uuid>" + HypixelEventHandler.UUID_PATTERN_STRING + ")");
     private static final String RANKED_PATTERN = "(?:(?:\\w)|(?:\\[VIP?\\u002B{0,1}\\]|\\[MVP?\\u002B{0,2}\\]|\\[YOUTUBE\\]) \\w)+";
+    private static final Pattern CHAT_PATTERN = Pattern.compile("(?:(\\w+)|(?:\\[VIP?\\u002B{0,1}\\]|\\[MVP?\\u002B{0,2}\\]|\\[YOUTUBE\\]) (\\w+))+: (?:[\\w ])+");
 
     // Item Drop Stuff
     private static final String DROP_PATTERN = "(?<item>[\\w\\u0027\\u25C6 -]+)";
@@ -222,6 +225,7 @@ public class HypixelEventHandler
             Matcher visitIslandMatcher = HypixelEventHandler.VISIT_ISLAND_PATTERN.matcher(message);
             Matcher joinedPartyMatcher = HypixelEventHandler.JOINED_PARTY_PATTERN.matcher(message);
             Matcher uuidMatcher = HypixelEventHandler.UUID_PATTERN.matcher(message);
+            Matcher chatMatcher = HypixelEventHandler.CHAT_PATTERN.matcher(message);
 
             // Item Drop matcher
             Matcher rareDropPattern = HypixelEventHandler.RARE_DROP_PATTERN.matcher(message);
@@ -308,6 +312,30 @@ public class HypixelEventHandler
                 {
                     SkyBlockAPIUtils.setApiKeyFromServer(uuidMatcher.group("uuid"));
                     ClientUtils.printClientMessage("Setting a new API Key!", JsonUtils.green());
+                }
+                else if (chatMatcher.matches())
+                {
+                    try
+                    {
+                        String name = "";
+
+                        if (chatMatcher.group(1) != null)
+                        {
+                            name = chatMatcher.group(1);
+                        }
+                        if (chatMatcher.group(2) != null)
+                        {
+                            name = chatMatcher.group(2);
+                        }
+
+                        if (!name.isEmpty())
+                        {
+                            IChatComponent chat = event.message.createCopy();
+                            chat.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/p " + name));
+                            event.message = chat;
+                        }
+                    }
+                    catch (Exception e) {}
                 }
 
                 if (RareDropMode.getById(ExtendedConfig.instance.itemDropMode).equalsIgnoreCase("toast"))
