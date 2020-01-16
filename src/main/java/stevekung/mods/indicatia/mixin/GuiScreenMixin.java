@@ -11,7 +11,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiScreen;
 
-@Mixin(GuiScreen.class)
+@Mixin(value = GuiScreen.class, priority = 900)
 public abstract class GuiScreenMixin extends Gui
 {
     @Shadow

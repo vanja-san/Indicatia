@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.client.Minecraft;
@@ -30,7 +31,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ReportedException;
-import net.minecraft.util.ScreenShotHelper;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.event.GuiOpenEvent;
@@ -296,32 +296,10 @@ public abstract class MinecraftMixin
         this.systemTime = Minecraft.getSystemTime();
     }
 
-    @Overwrite
-    public void dispatchKeypresses()
+    @Redirect(method = "dispatchKeypresses()V", at = @At(value = "INVOKE", target = "org/lwjgl/input/Keyboard.getEventCharacter()C"))
+    private char getEventCharacter()
     {
-        int i = Keyboard.getEventKey() == 0 ? Keyboard.getEventCharacter() + 256 : Keyboard.getEventKey();
-
-        if (i != 0 && !Keyboard.isRepeatEvent())
-        {
-            if (!(this.that.currentScreen instanceof GuiControls) || ((GuiControls)this.that.currentScreen).time <= Minecraft.getSystemTime() - 20L)
-            {
-                if (Keyboard.getEventKeyState())
-                {
-                    if (i == this.that.gameSettings.keyBindFullscreen.getKeyCode())
-                    {
-                        this.that.toggleFullscreen();
-                    }
-                    else if (i == this.that.gameSettings.keyBindScreenshot.getKeyCode())
-                    {
-                        this.that.ingameGUI.getChatGUI().printChatMessage(ScreenShotHelper.saveScreenshot(this.that.mcDataDir, this.that.displayWidth, this.that.displayHeight, this.framebufferMc));
-                    }
-                }
-                else if (this.that.currentScreen instanceof GuiControls)
-                {
-                    ((GuiControls)this.that.currentScreen).buttonId = null;
-                }
-            }
-        }
+        return (char)(Keyboard.getEventCharacter() + 256);
     }
 
     @Overwrite
@@ -488,7 +466,7 @@ public abstract class MinecraftMixin
                 this.debugCrashKeyPressTime = Minecraft.getSystemTime();
             }
 
-            this.dispatchKeypresses();
+            this.that.dispatchKeypresses();
 
             if (this.that.currentScreen != null)
             {
