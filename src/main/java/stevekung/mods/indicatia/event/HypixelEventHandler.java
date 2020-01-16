@@ -383,7 +383,7 @@ public class HypixelEventHandler
                     {
                         String type = rareDropBracketPattern.group("type");
                         String name = rareDropBracketPattern.group("item");
-                        String magicFind = rareDropPattern.group("mf");
+                        String magicFind = rareDropBracketPattern.group(3);
                         ToastUtils.DropType dropType = type.equals("RARE") ? ToastUtils.DropType.SLAYER_RARE_DROP : type.equals("VERY RARE") ? ToastUtils.DropType.SLAYER_VERY_RARE_DROP : ToastUtils.DropType.SLAYER_CRAZY_RARE_DROP;
                         HypixelEventHandler.ITEM_DROP_CHECK_LIST.add(new ToastUtils.ItemDropCheck(EnumChatFormatting.getTextWithoutFormattingCodes(name), magicFind, dropType, ToastType.DROP));
                         LoggerIN.logToast(message);
@@ -591,10 +591,6 @@ public class HypixelEventHandler
                                     iterator.remove();
                                 }
                             }
-                        }
-                        else if (newItemName.equals("Enchanted Book"))
-                        {
-                            System.out.println(newItem.getTagCompound());
                         }
                     }
                 }
