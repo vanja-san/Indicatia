@@ -112,6 +112,7 @@ public class LayerGlowingTexture implements LayerRenderer<EntityLivingBase>
             GlStateManager.depthMask(true);
             GlStateManager.disableBlend();
             GlStateManager.enableAlpha();
+            GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
         }
     }
 
