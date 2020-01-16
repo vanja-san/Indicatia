@@ -416,6 +416,64 @@ public class SkyblockAddonsGuiChest
         }
     }
 
+    public void keyTypedLockedSlot(Minecraft mc, Slot theSlot, int keyCode)
+    {
+        SkyblockAddons main = SkyblockAddons.getInstance();
+
+        if (main.getUtils().isOnSkyblock())
+        {
+            if (main.getConfigValues().isEnabled(Feature.LOCK_SLOTS) && keyCode != 1 && keyCode != mc.gameSettings.keyBindInventory.getKeyCode())
+            {
+                int slot = main.getUtils().getLastHoveredSlot();
+
+                if (mc.thePlayer.inventory.getItemStack() == null && theSlot != null)
+                {
+                    for (int i = 0; i < 9; ++i)
+                    {
+                        if (keyCode == mc.gameSettings.keyBindsHotbar[i].getKeyCode())
+                        {
+                            slot = i + 36; // They are hotkeying, the actual slot is the targeted one, +36 because
+                        }
+                    }
+                }
+
+                if (slot >= 9 || mc.thePlayer.openContainer instanceof ContainerPlayer && slot >= 5)
+                {
+                    if (main.getConfigValues().getLockedSlots().contains(slot))
+                    {
+                        if (main.getLockSlot().getKeyCode() == keyCode)
+                        {
+                            main.getUtils().playLoudSound("random.orb", 1);
+                            main.getConfigValues().getLockedSlots().remove(slot);
+                            main.getConfigValues().saveConfig();
+                        }
+                        else
+                        {
+                            main.getUtils().playLoudSound("note.bass", 0.5);
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        if (main.getLockSlot().getKeyCode() == keyCode)
+                        {
+                            main.getUtils().playLoudSound("random.orb", 0.1);
+                            main.getConfigValues().getLockedSlots().add(slot);
+                            main.getConfigValues().saveConfig();
+                        }
+                    }
+                }
+            }
+            if (mc.gameSettings.keyBindDrop.getKeyCode() == keyCode && main.getConfigValues().isEnabled(Feature.STOP_DROPPING_SELLING_RARE_ITEMS))
+            {
+                if (main.getInventoryUtils().shouldCancelDrop(theSlot))
+                {
+                    return;
+                }
+            }
+        }
+    }
+
     private void drawGradientRect(Gui gui, int left, int top, int right, int bottom, int startColor, int endColor)
     {
         float f = (startColor >> 24 & 255) / 255.0F;

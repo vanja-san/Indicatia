@@ -339,6 +339,11 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
             return;
         }
 
+        if (IndicatiaMod.isSkyblockAddonsLoaded)
+        {
+            this.chest.keyTypedLockedSlot(this.mc, this.theSlot, keyCode);
+        }
+
         if (this.isChatableGui())
         {
             if ((keyCode == 1 || keyCode == this.mc.gameSettings.keyBindInventory.getKeyCode()) && !this.inputField.isFocused())
