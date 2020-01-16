@@ -17,7 +17,7 @@ import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import stevekung.mods.indicatia.utils.LoggerIN;
 
 @IFMLLoadingPlugin.SortingIndex(1)
-public class FMLLoadingPlugin implements ITweaker
+public class MixinsLoadingPlugin implements ITweaker
 {
     @Override
     public void acceptOptions(List<String> args, File gameDir, File assetsDir, String profile) {}

@@ -70,7 +70,7 @@ jar {
             "FMLAT": "indicatia_at.cfg",
             "MixinConfigs": "mixins.indicatia.json",
             "TweakOrder": "0",
-            "TweakClass": "stevekung.mods.indicatia.tweaker.FMLLoadingPlugin"
+            "TweakClass": "stevekung.mods.indicatia.tweaker.MixinsLoadingPlugin"
     )
     exclude "codes/biscuit/**"
     baseName = "IndicatiaSkyBlock-" + mcVersion
@@ -104,7 +104,7 @@ task deobfJar(type: Jar) {
             "FMLAT": "indicatia_at.cfg",
             "MixinConfigs": "mixins.indicatia.json",
             "TweakOrder": "0",
-            "TweakClass": "stevekung.mods.indicatia.tweaker.FMLLoadingPlugin"
+            "TweakClass": "stevekung.mods.indicatia.tweaker.MixinsLoadingPlugin"
     )
     baseName = "IndicatiaSkyBlock-" + mcVersion
     classifier = "deobf"

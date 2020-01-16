@@ -1023,10 +1023,8 @@ public class GuiSkyBlockData extends GuiScreen
                 this.createFakePlayer();
                 this.calculatePlayerStats(currentUserProfile);
                 this.getItemStats(this.inventoryToStats, false);
-                this.getItemStats(this.armorItems, true);//TODO
-                LoggerIN.info("PreBonus Health:{}, Defense:{}, Strength:{}, Speed:{}, CritChance:{}, CritDmg:{}, Intelligence:{}", this.allStat.getHealth(), this.allStat.getDefense(), this.allStat.getStrength(), this.allStat.getSpeed(), this.allStat.getCritChance(), this.allStat.getCritDamage(), this.allStat.getIntelligence());
+                this.getItemStats(this.armorItems, true);
                 this.applyBonuses();
-                LoggerIN.info("PostBonus Health:{}, Defense:{}, Strength:{}, Speed:{}, CritChance:{}, CritDmg:{}, Intelligence:{}", this.allStat.getHealth(), this.allStat.getDefense(), this.allStat.getStrength(), this.allStat.getSpeed(), this.allStat.getCritChance(), this.allStat.getCritDamage(), this.allStat.getIntelligence());
                 this.allStat.add(new BonusStatTemplate(0, 0, 0, this.allStat.getDefense() <= 0 ? this.allStat.getHealth() : Math.round(this.allStat.getHealth() * (1 + this.allStat.getDefense() / 100)), 0, 0, 0, 0, 0));
                 this.getBasicInfo(currentUserProfile, banking);
                 break;

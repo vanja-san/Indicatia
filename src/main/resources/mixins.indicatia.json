@@ -42,9 +42,6 @@
         "GuiIngameMixin",
         "NetHandlerPlayClientMixin",
         "GuiChestMixin",
-        "SkinManagerMixin",
-        "ThreadDownloadImageDataMixin",
-        "GuiConnectingMixin",
         "RenderManagerMixin",
         "NetworkPlayerInfoMixin"
     ]
