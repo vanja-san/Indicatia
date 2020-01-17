@@ -2,6 +2,7 @@ package stevekung.mods.indicatia.utils;
 
 import java.awt.Desktop;
 import java.net.URI;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -15,9 +16,9 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 
 public class CommonUtils
 {
-    public static final ExecutorService POOL = Executors.newFixedThreadPool(100, new ThreadFactory()
+    private static final ExecutorService POOL = Executors.newFixedThreadPool(100, new ThreadFactory()
     {
-        final AtomicInteger counter = new AtomicInteger(0);
+        private final AtomicInteger counter = new AtomicInteger(0);
 
         @Override
         public Thread newThread(Runnable runnable)
@@ -25,6 +26,11 @@ public class CommonUtils
             return new Thread(runnable, String.format("Thread %s", this.counter.incrementAndGet()));
         }
     });
+
+    public static void runAsync(Runnable runnable)
+    {
+        CompletableFuture.runAsync(runnable, CommonUtils.POOL);
+    }
 
     public static void registerEventHandler(Object event)
     {

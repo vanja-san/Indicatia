@@ -1,16 +1,14 @@
 package stevekung.mods.indicatia.event;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URL;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.IOUtils;
 import org.lwjgl.input.Keyboard;
 
 import com.google.common.collect.Iterables;
@@ -619,18 +617,21 @@ public class HypixelEventHandler
 
     private static void addVisitingToast(String name)
     {
-        CommonUtils.POOL.execute(() ->
+        CommonUtils.runAsync(() ->
         {
-            try (InputStream input = new URL("https://api.mojang.com/users/profiles/minecraft/" + name).openStream())
+            try
             {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(input, Charset.forName("UTF-8")));
-                JsonObject json = new JsonParser().parse(reader).getAsJsonObject();
-                String rawName = json.get("name").getAsString();
-                String rawUUID = json.get("id").getAsString();
+                URL url = new URL("https://api.mojang.com/users/profiles/minecraft/" + name);
+                JsonObject obj = new JsonParser().parse(IOUtils.toString(url.openConnection().getInputStream(), StandardCharsets.UTF_8)).getAsJsonObject();
+                String rawName = obj.get("name").getAsString();
+                String rawUUID = obj.get("id").getAsString();
                 String uuid = rawUUID.replaceFirst("([0-9a-fA-F]{8})([0-9a-fA-F]{4})([0-9a-fA-F]{4})([0-9a-fA-F]{4})([0-9a-fA-F]+)", "$1-$2-$3-$4-$5");
                 HUDRenderEventHandler.INSTANCE.getToastGui().add(new VisitIslandToast(rawName, UUID.fromString(uuid)));
             }
-            catch (Exception e) {}
+            catch (Throwable e)
+            {
+                e.printStackTrace();
+            }
         });
     }
 

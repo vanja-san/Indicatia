@@ -141,7 +141,7 @@ public class IndicatiaMod
         GuiChatRegistry.register(new GuiIndicatiaChat());
         new ThreadMinigameData().run();
         SkyBlockAPIUtils.setApiKey();
-        CommonUtils.POOL.execute(() ->
+        CommonUtils.runAsync(() ->
         {
             try
             {
@@ -154,7 +154,7 @@ public class IndicatiaMod
                     PlayerStatsBonus.getBonusFromRemote(type);
                 }
             }
-            catch (IOException e)
+            catch (Throwable e)
             {
                 e.printStackTrace();
             }

@@ -81,18 +81,18 @@ public abstract class ServerListEntryNormalMixin implements GuiListExtended.IGui
                 this.field_148301_e.serverMOTD = "";
                 this.field_148301_e.populationInfo = "";
 
-                CommonUtils.POOL.submit(() ->
+                CommonUtils.runAsync(() ->
                 {
                     try
                     {
                         this.field_148303_c.getOldServerPinger().ping(this.field_148301_e);
                     }
-                    catch (UnknownHostException e)
+                    catch (UnknownHostException var2)
                     {
                         this.field_148301_e.pingToServer = -1L;
                         this.field_148301_e.serverMOTD = EnumChatFormatting.DARK_RED + "Can\'t resolve hostname";
                     }
-                    catch (Exception e)
+                    catch (Exception var3)
                     {
                         this.field_148301_e.pingToServer = -1L;
                         this.field_148301_e.serverMOTD = EnumChatFormatting.DARK_RED + "Can\'t connect to server.";
@@ -249,7 +249,7 @@ public abstract class ServerListEntryNormalMixin implements GuiListExtended.IGui
                 this.field_148301_e.serverMOTD = "";
                 this.field_148301_e.populationInfo = "";
 
-                CommonUtils.POOL.submit(() ->
+                CommonUtils.runAsync(() ->
                 {
                     try
                     {

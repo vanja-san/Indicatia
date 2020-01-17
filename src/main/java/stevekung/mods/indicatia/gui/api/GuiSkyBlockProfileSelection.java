@@ -1,8 +1,6 @@
 package stevekung.mods.indicatia.gui.api;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -10,9 +8,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.time.StopWatch;
 
-import com.google.gson.*;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
 
 import net.minecraft.client.Minecraft;
@@ -23,10 +24,7 @@ import net.minecraft.tileentity.TileEntitySkull;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
 import stevekung.mods.indicatia.gui.GuiSBProfileButton;
-import stevekung.mods.indicatia.utils.ColorUtils;
-import stevekung.mods.indicatia.utils.CommonUtils;
-import stevekung.mods.indicatia.utils.LangUtils;
-import stevekung.mods.indicatia.utils.SkyBlockAPIUtils;
+import stevekung.mods.indicatia.utils.*;
 
 public class GuiSkyBlockProfileSelection extends GuiScreen
 {
@@ -65,11 +63,7 @@ public class GuiSkyBlockProfileSelection extends GuiScreen
 
             for (ProfileDataCallback data : this.profiles)
             {
-                String sbProfileId = data.getProfileId();
-                String profileName = data.getProfileName();
-                String uuid = data.getUUID();
-                GameProfile gameProfile = data.getGameProfile();
-                GuiSBProfileButton button = new GuiSBProfileButton(i + 1000, this.width / 2 - 75, 50, 150, 20, profileName, sbProfileId, this.username, uuid, gameProfile);
+                GuiSBProfileButton button = new GuiSBProfileButton(i + 1000, this.width / 2 - 75, 50, 150, 20, data);
                 button.yPosition += i * 22;
                 this.buttonList.add(button);
                 ++i;
@@ -84,20 +78,20 @@ public class GuiSkyBlockProfileSelection extends GuiScreen
         }
         else
         {
-            CommonUtils.POOL.execute(() ->
+            CommonUtils.runAsync(() ->
             {
-                this.watch.start();
-
                 try
                 {
+                    this.watch.start();
                     this.checkAPI();
+                    this.watch.stop();
+                    LoggerIN.info("API Download finished in: {}ms", this.watch.getTime());
                 }
-                catch (IOException | JsonSyntaxException | JsonIOException e)
+                catch (Throwable e)
                 {
+                    this.setErrorMessage(e.getMessage());
                     e.printStackTrace();
-                    this.loadingApi = false;
                 }
-                this.watch.stop();
             });
         }
     }
@@ -107,7 +101,7 @@ public class GuiSkyBlockProfileSelection extends GuiScreen
     {
         if (!this.watch.isStopped() && this.percent < 100)
         {
-            this.percent = (int)(this.watch.getTime() * 100 / 1500);
+            this.percent = (int)(this.watch.getTime() * 100 / 1500L);
         }
         if (this.percent > 100)
         {
@@ -187,9 +181,7 @@ public class GuiSkyBlockProfileSelection extends GuiScreen
         }
 
         URL url = new URL(SkyBlockAPIUtils.PLAYER_NAME + this.username);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(url.openConnection().getInputStream(), StandardCharsets.UTF_8));
-        JsonElement element = new JsonParser().parse(reader);
-        JsonObject obj = element.getAsJsonObject();
+        JsonObject obj = new JsonParser().parse(IOUtils.toString(url.openConnection().getInputStream(), StandardCharsets.UTF_8)).getAsJsonObject();
 
         if (!obj.get("success").getAsBoolean())
         {
@@ -229,10 +221,11 @@ public class GuiSkyBlockProfileSelection extends GuiScreen
             String profileName = profiles.get(entry.getKey()).getAsJsonObject().get("cute_name").getAsString();
             String uuid = jsonPlayer.getAsJsonObject().get("uuid").getAsString();
             GameProfile profile = TileEntitySkull.updateGameprofile(new GameProfile(UUID.fromString(uuid.replaceFirst("([0-9a-fA-F]{8})([0-9a-fA-F]{4})([0-9a-fA-F]{4})([0-9a-fA-F]{4})([0-9a-fA-F]+)", "$1-$2-$3-$4-$5")), this.username));
-            GuiSBProfileButton button = new GuiSBProfileButton(i + 1000, this.width / 2 - 75, 50, 150, 20, profileName, sbProfileId, this.username, uuid, profile);
+            ProfileDataCallback callback = new ProfileDataCallback(sbProfileId, profileName, this.username, uuid, profile);
+            GuiSBProfileButton button = new GuiSBProfileButton(i + 1000, this.width / 2 - 75, 50, 150, 20, callback);
             button.yPosition += i * 22;
             this.buttonList.add(button);
-            this.profiles.add(new ProfileDataCallback(sbProfileId, profileName, uuid, profile));
+            this.profiles.add(callback);
             ++i;
         }
         for (GuiButton button : this.buttonList)

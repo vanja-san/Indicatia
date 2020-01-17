@@ -1,24 +1,24 @@
 package stevekung.mods.indicatia.gui.api;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.commons.lang3.text.WordUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.lwjgl.input.Mouse;
 
-import com.google.gson.*;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
 
 import net.minecraft.client.Minecraft;
@@ -88,16 +88,16 @@ public class GuiSkyBlockData extends GuiScreen
     public static boolean renderSecondLayer;
     private GuiScrollingList currentSlot;
     private static final int MAX_FAIRY_SOULS = 190;
-    private final List<SkyBlockInfo> infoList = new CopyOnWriteArrayList<>();
-    private final List<SkyBlockSkillInfo> skillLeftList = new CopyOnWriteArrayList<>();
-    private final List<SkyBlockSkillInfo> skillRightList = new CopyOnWriteArrayList<>();
+    private final List<SkyBlockInfo> infoList = new ArrayList<>();
+    private final List<SkyBlockSkillInfo> skillLeftList = new ArrayList<>();
+    private final List<SkyBlockSkillInfo> skillRightList = new ArrayList<>();
+    private final List<SkyBlockSlayerInfo> slayerInfo = new ArrayList<>();
+    private final List<SkyBlockStats> sbKillStats = new ArrayList<>();
+    private final List<SkyBlockStats> sbDeathStats = new ArrayList<>();
+    private final List<SkyBlockStats> sbOtherStats = new ArrayList<>();
+    private final List<ItemStack> armorItems = new ArrayList<>();
+    private final List<ItemStack> inventoryToStats = new ArrayList<>();
     private SkyBlockSkillInfo carpentrySkill;
-    private final List<SkyBlockSlayerInfo> slayerInfo = new CopyOnWriteArrayList<>();
-    private List<SkyBlockStats> sbKillStats = new ArrayList<>();
-    private List<SkyBlockStats> sbDeathStats = new ArrayList<>();
-    private List<SkyBlockStats> sbOtherStats = new ArrayList<>();
-    private List<ItemStack> armorItems = new ArrayList<>();
-    private List<ItemStack> inventoryToStats = new ArrayList<>();
     private EntityOtherFakePlayer player;
     private String skillAvg;
     private boolean hasDayNightCrystal;
@@ -141,17 +141,17 @@ public class GuiSkyBlockData extends GuiScreen
     private int guiTop;
     private Slot theSlot;
 
-    public GuiSkyBlockData(List<ProfileDataCallback> profiles, String sbProfileId, String sbProfileName, String username, String uuid, GameProfile profile)
+    public GuiSkyBlockData(List<ProfileDataCallback> profiles, ProfileDataCallback callback)
     {
         this.allowUserInput = true;
         this.skyBlockContainer = new ContainerSkyBlock();
         this.skyBlockArmorContainer = new ContainerArmor();
         this.profiles = profiles;
-        this.sbProfileId = sbProfileId;
-        this.sbProfileName = sbProfileName;
-        this.username = username;
-        this.uuid = uuid;
-        this.profile = profile;
+        this.sbProfileId = callback.getProfileId();
+        this.sbProfileName = callback.getProfileName();
+        this.username = callback.getUsername();
+        this.uuid = callback.getUUID();
+        this.profile = callback.getGameProfile();
 
         this.xSize = 202;
         this.ySize = 96;
@@ -164,20 +164,20 @@ public class GuiSkyBlockData extends GuiScreen
 
         if (!this.resize)
         {
-            CommonUtils.POOL.execute(() ->
+            CommonUtils.runAsync(() ->
             {
-                this.watch.start();
-
                 try
                 {
+                    this.watch.start();
                     this.getPlayerData();
+                    this.watch.stop();
+                    LoggerIN.info("API Download finished in: {}ms", this.watch.getTime());
                 }
-                catch (IOException | JsonSyntaxException | JsonIOException e)
+                catch (Throwable e)
                 {
+                    this.setErrorMessage(e.getMessage());
                     e.printStackTrace();
-                    this.loadingApi = false;
                 }
-                this.watch.stop();
             });
         }
 
@@ -507,7 +507,7 @@ public class GuiSkyBlockData extends GuiScreen
 
         if (i != 0 && this.needsScrollBars())
         {
-            int j = this.skyBlockContainer.itemList.size() / 9 - 4;// TODO Fix scroll
+            int j = this.skyBlockContainer.itemList.size() / 9 - 4;
 
             if (i > 0)
             {
@@ -996,8 +996,7 @@ public class GuiSkyBlockData extends GuiScreen
     private void getPlayerData() throws IOException
     {
         URL url = new URL(SkyBlockAPIUtils.SKYBLOCK_PROFILE + this.sbProfileId);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(url.openConnection().getInputStream(), StandardCharsets.UTF_8));
-        JsonObject obj = new JsonParser().parse(reader).getAsJsonObject();
+        JsonObject obj = new JsonParser().parse(IOUtils.toString(url.openConnection().getInputStream(), StandardCharsets.UTF_8)).getAsJsonObject();
         JsonElement profile = obj.get("profile");
 
         if (profile == null)
