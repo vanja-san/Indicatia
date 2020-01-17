@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.time.StopWatch;
@@ -101,7 +102,7 @@ public class GuiSkyBlockProfileSelection extends GuiScreen
     {
         if (!this.watch.isStopped() && this.percent < 100)
         {
-            this.percent = (int)(this.watch.getTime() * 100 / 1500L);
+            this.percent = (int)(this.watch.getTime() * 100 / 10000L);
         }
         if (this.percent > 100)
         {
@@ -221,7 +222,7 @@ public class GuiSkyBlockProfileSelection extends GuiScreen
             String profileName = profiles.get(entry.getKey()).getAsJsonObject().get("cute_name").getAsString();
             String uuid = jsonPlayer.getAsJsonObject().get("uuid").getAsString();
             GameProfile profile = TileEntitySkull.updateGameprofile(new GameProfile(UUID.fromString(uuid.replaceFirst("([0-9a-fA-F]{8})([0-9a-fA-F]{4})([0-9a-fA-F]{4})([0-9a-fA-F]{4})([0-9a-fA-F]+)", "$1-$2-$3-$4-$5")), this.username));
-            ProfileDataCallback callback = new ProfileDataCallback(sbProfileId, profileName, this.username, uuid, profile);
+            ProfileDataCallback callback = new ProfileDataCallback(sbProfileId, profileName, this.username, uuid, profile, "Last active: " + CommonUtils.getRelativeTime(this.getLastSaveProfile(sbProfileId, uuid)));
             GuiSBProfileButton button = new GuiSBProfileButton(i + 1000, this.width / 2 - 75, 50, 150, 20, callback);
             button.yPosition += i * 22;
             this.buttonList.add(button);
@@ -236,6 +237,27 @@ public class GuiSkyBlockProfileSelection extends GuiScreen
             }
         }
         this.loadingApi = false;
+    }
+
+    private long getLastSaveProfile(String currentProfileId, String uuid) throws IOException
+    {
+        long lastSave = -1;
+        URL url = new URL(SkyBlockAPIUtils.SKYBLOCK_PROFILE + currentProfileId);
+        JsonObject obj = new JsonParser().parse(IOUtils.toString(url.openConnection().getInputStream(), StandardCharsets.UTF_8)).getAsJsonObject();
+        JsonElement profile = obj.get("profile");
+        JsonObject profiles = profile.getAsJsonObject().get("members").getAsJsonObject();
+
+        for (Map.Entry<String, JsonElement> entry : profiles.entrySet().stream().filter(entry -> entry.getKey().equals(uuid)).collect(Collectors.toList()))
+        {
+            JsonObject currentUserProfile = profiles.get(entry.getKey()).getAsJsonObject();
+            JsonElement lastSaveJson = currentUserProfile.get("last_save");
+
+            if (lastSaveJson != null)
+            {
+                lastSave = lastSaveJson.getAsLong();
+            }
+        }
+        return lastSave;
     }
 
     private void setErrorMessage(String message)

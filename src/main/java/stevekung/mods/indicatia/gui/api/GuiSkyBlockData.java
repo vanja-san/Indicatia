@@ -1340,9 +1340,9 @@ public class GuiSkyBlockData extends GuiScreen
         String lastLogout = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(lastSaveDate);
         String firstJoinDateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(firstJoinDate);
 
-        this.infoList.add(new SkyBlockInfo("Joined", firstJoinMillis != -1 ? this.getRelativeTime(firstJoinDate.getTime()) : EnumChatFormatting.RED + "No first join data!"));
+        this.infoList.add(new SkyBlockInfo("Joined", firstJoinMillis != -1 ? CommonUtils.getRelativeTime(firstJoinDate.getTime()) : EnumChatFormatting.RED + "No first join data!"));
         this.infoList.add(new SkyBlockInfo("Joined (Date)", firstJoinMillis != -1 ? firstJoinDateFormat : EnumChatFormatting.RED + "No first join data!"));
-        this.infoList.add(new SkyBlockInfo("Last Updated", lastSaveMillis != -1 ? this.getRelativeTime(lastSaveDate.getTime()) : EnumChatFormatting.RED + "No last save data!"));
+        this.infoList.add(new SkyBlockInfo("Last Updated", lastSaveMillis != -1 ? CommonUtils.getRelativeTime(lastSaveDate.getTime()) : EnumChatFormatting.RED + "No last save data!"));
         this.infoList.add(new SkyBlockInfo("Last Updated (Date)", lastSaveMillis != -1 ? lastLogout : EnumChatFormatting.RED + "No last save data!"));
 
         this.infoList.add(new SkyBlockInfo("Death Count", String.valueOf(deathCounts)));
@@ -1385,82 +1385,10 @@ public class GuiSkyBlockData extends GuiScreen
         return new BonusStatTemplate(healthBase, defenseBase, 0, 0, strengthBase, speedBase, 0, 0, 0);
     }
 
-    private String convertCorrectTime(int time, String text, boolean an)
-    {
-        return (time == 1 ? an ? "an" : "a" : time) + " " + text + (time == 1 ? "" : "s") + " ago";
-    }
-
     private String replaceStatsString(String statName, String replace)
     {
         String original = statName.replace(replace + "_", "").replace("_", " ");
         return original.equals(replace) ? "Total " + replace : WordUtils.capitalize(original) + " " + replace;
-    }
-
-    private String getRelativeTime(long timeDiff)
-    {
-        timeDiff = timeDiff / 1000;
-        long current = System.currentTimeMillis() / 1000;
-        long timeElapsed = current - timeDiff;
-        long seconds = timeElapsed;
-
-        if (seconds <= 60)
-        {
-            if (seconds <= 0)
-            {
-                return "just now";
-            }
-            return this.convertCorrectTime((int)seconds, "second", false);
-        }
-        else
-        {
-            int minutes = Math.round(timeElapsed / 60);
-
-            if (minutes <= 60)
-            {
-                return this.convertCorrectTime(minutes, "minute", false);
-            }
-            else
-            {
-                int hours = Math.round(timeElapsed / 3600);
-
-                if (hours <= 24)
-                {
-                    return this.convertCorrectTime(hours, "hour", true);
-                }
-                else
-                {
-                    int days = Math.round(timeElapsed / 86400);
-
-                    if (days <= 7)
-                    {
-                        return this.convertCorrectTime(days, "day", false);
-                    }
-                    else
-                    {
-                        int weeks = Math.round(timeElapsed / 604800);
-
-                        if (weeks <= 4)
-                        {
-                            return this.convertCorrectTime(weeks, "week", false);
-                        }
-                        else
-                        {
-                            int months = Math.round(timeElapsed / 2600640);
-
-                            if (months <= 12)
-                            {
-                                return this.convertCorrectTime(months, "month", false);
-                            }
-                            else
-                            {
-                                int years = Math.round(timeElapsed / 31207680);
-                                return this.convertCorrectTime(years, "year", false);
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
 
     private void getSkills(JsonObject currentProfile)

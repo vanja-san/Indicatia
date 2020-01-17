@@ -9,14 +9,16 @@ public class ProfileDataCallback
     private final String username;
     private final String uuid;
     private final GameProfile profile;
+    private final String lastSave;
 
-    public ProfileDataCallback(String sbProfileId, String profileName, String username, String uuid, GameProfile profile)
+    public ProfileDataCallback(String sbProfileId, String profileName, String username, String uuid, GameProfile profile, String lastSave)
     {
         this.sbProfileId = sbProfileId;
         this.profileName = profileName;
         this.username = username;
         this.uuid = uuid;
         this.profile = profile;
+        this.lastSave = lastSave;
     }
 
     public String getProfileId()
@@ -42,5 +44,10 @@ public class ProfileDataCallback
     public GameProfile getGameProfile()
     {
         return this.profile;
+    }
+
+    public String getLastSave()
+    {
+        return this.lastSave;
     }
 }

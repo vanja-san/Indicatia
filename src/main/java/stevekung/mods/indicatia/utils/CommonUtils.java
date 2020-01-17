@@ -73,4 +73,76 @@ public class CommonUtils
             e.printStackTrace();
         }
     }
+
+    public static String getRelativeTime(long timeDiff)
+    {
+        timeDiff = timeDiff / 1000;
+        long current = System.currentTimeMillis() / 1000;
+        long timeElapsed = current - timeDiff;
+        long seconds = timeElapsed;
+
+        if (seconds <= 60)
+        {
+            if (seconds <= 0)
+            {
+                return "just now";
+            }
+            return CommonUtils.convertCorrectTime((int)seconds, "second", false);
+        }
+        else
+        {
+            int minutes = Math.round(timeElapsed / 60);
+
+            if (minutes <= 60)
+            {
+                return CommonUtils.convertCorrectTime(minutes, "minute", false);
+            }
+            else
+            {
+                int hours = Math.round(timeElapsed / 3600);
+
+                if (hours <= 24)
+                {
+                    return CommonUtils.convertCorrectTime(hours, "hour", true);
+                }
+                else
+                {
+                    int days = Math.round(timeElapsed / 86400);
+
+                    if (days <= 7)
+                    {
+                        return CommonUtils.convertCorrectTime(days, "day", false);
+                    }
+                    else
+                    {
+                        int weeks = Math.round(timeElapsed / 604800);
+
+                        if (weeks <= 4)
+                        {
+                            return CommonUtils.convertCorrectTime(weeks, "week", false);
+                        }
+                        else
+                        {
+                            int months = Math.round(timeElapsed / 2600640);
+
+                            if (months <= 12)
+                            {
+                                return CommonUtils.convertCorrectTime(months, "month", false);
+                            }
+                            else
+                            {
+                                int years = Math.round(timeElapsed / 31207680);
+                                return CommonUtils.convertCorrectTime(years, "year", false);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private static String convertCorrectTime(int time, String text, boolean an)
+    {
+        return (time == 1 ? an ? "an" : "a" : time) + " " + text + (time == 1 ? "" : "s") + " ago";
+    }
 }
