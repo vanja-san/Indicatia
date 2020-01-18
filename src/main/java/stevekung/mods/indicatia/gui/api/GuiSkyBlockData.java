@@ -2341,6 +2341,10 @@ public class GuiSkyBlockData extends GuiScreen
 
         public int getCritChance()
         {
+            if (this.critChance > 100)
+            {
+                return 100;
+            }
             return this.critChance;
         }
 
