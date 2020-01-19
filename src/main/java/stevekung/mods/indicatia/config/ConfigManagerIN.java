@@ -36,6 +36,7 @@ public class ConfigManagerIN
     public static boolean enableAlternatePlayerModel;
     public static boolean enableTransparentSkullRender;
     public static boolean enableChatMode;
+    public static boolean disableHurtCameraEffect;
 
     // Key Binding Settings
     public static String keyToggleSprint;
@@ -149,6 +150,10 @@ public class ConfigManagerIN
 
         prop = ConfigManagerIN.getProperty(ConfigManagerIN.MAIN_SETTINGS, "Enable Chat Mode", true);
         ConfigManagerIN.enableChatMode = prop.getBoolean();
+        propOrder.add(prop.getName());
+
+        prop = ConfigManagerIN.getProperty(ConfigManagerIN.MAIN_SETTINGS, "Disable Hurt Camera Effect", false);
+        ConfigManagerIN.disableHurtCameraEffect = prop.getBoolean();
         propOrder.add(prop.getName());
 
         return propOrder;

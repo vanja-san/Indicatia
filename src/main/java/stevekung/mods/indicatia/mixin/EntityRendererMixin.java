@@ -35,6 +35,15 @@ public abstract class EntityRendererMixin
         }
     }
 
+    @Inject(method = "hurtCameraEffect(F)V", cancellable = true, at = @At("HEAD"))
+    private void hurtCameraEffect(float partialTicks, CallbackInfo info)
+    {
+        if (ConfigManagerIN.disableHurtCameraEffect)
+        {
+            info.cancel();
+        }
+    }
+
     @Redirect(method = "orientCamera(F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/WorldClient;rayTraceBlocks(Lnet/minecraft/util/Vec3;Lnet/minecraft/util/Vec3;)Lnet/minecraft/util/MovingObjectPosition;"))
     private MovingObjectPosition rayTraceBlocks(WorldClient world, Vec3 from, Vec3 to)
     {
