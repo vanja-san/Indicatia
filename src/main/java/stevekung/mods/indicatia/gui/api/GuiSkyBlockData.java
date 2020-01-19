@@ -99,6 +99,7 @@ public class GuiSkyBlockData extends GuiScreen
     private final List<ItemStack> armorItems = new ArrayList<>();
     private final List<ItemStack> inventoryToStats = new ArrayList<>();
     private SkyBlockSkillInfo carpentrySkill;
+    private int slayerTotalAmountSpent;
     private EntityOtherFakePlayer player;
     private String skillAvg;
     private boolean hasDayNightCrystal;
@@ -495,6 +496,11 @@ public class GuiSkyBlockData extends GuiScreen
                         }
                     }
                 }
+                else if (this.currentSlot instanceof SlayerStats)
+                {
+                    String total = EnumChatFormatting.GRAY + "Total Amount Spent: " + EnumChatFormatting.YELLOW + FORMAT.format(this.slayerTotalAmountSpent);
+                    this.drawString(this.fontRendererObj, total, this.width - this.fontRendererObj.getStringWidth(total) - 60, this.height - 38, 16777215);
+                }
                 GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
                 GlStateManager.enableDepth();
             }
@@ -564,7 +570,7 @@ public class GuiSkyBlockData extends GuiScreen
             }
             else if (type.id == ViewButton.SLAYERS.id)
             {
-                this.currentSlot = new SlayerStats(this, this.width - 119, this.height, 44, this.height - 30, 59, 16, this.width, this.height, this.slayerInfo);
+                this.currentSlot = new SlayerStats(this, this.width - 119, this.height, 44, this.height - 42, 59, 16, this.width, this.height, this.slayerInfo);
                 this.hideOtherStatsButton();
                 this.hideBasicInfoButton();
             }
@@ -1701,12 +1707,17 @@ public class GuiSkyBlockData extends GuiScreen
             }
 
             list.add(SkyBlockSlayerInfo.createMobAndXp(type.getName(), playerSlayerXp + "," + xpRequired + "," + xpToNextLvl));
+            int amount = 0;
 
             for (int i = 1; i <= 4; i++)
             {
-                JsonElement kills = slayer.getAsJsonObject().get("boss_kills_tier_" + (i - 1));
-                list.add(new SkyBlockSlayerInfo(EnumChatFormatting.GRAY + "Tier " + i + ": " + EnumChatFormatting.YELLOW + this.getSlayerKill(kills)));
+                JsonElement kill = slayer.getAsJsonObject().get("boss_kills_tier_" + (i - 1));
+                int kills = this.getSlayerKill(kill);
+                amount += this.getSlayerPrice(kills, i - 1);
+                list.add(new SkyBlockSlayerInfo(EnumChatFormatting.GRAY + "Tier " + i + ": " + EnumChatFormatting.YELLOW + this.formatSlayerKill(this.getSlayerKill(kill))));
             }
+            this.slayerTotalAmountSpent += amount;
+            list.add(new SkyBlockSlayerInfo(EnumChatFormatting.GRAY + "Amount Spent: " + EnumChatFormatting.YELLOW + FORMAT.format(amount)));
             list.add(SkyBlockSlayerInfo.empty());
             return list;
         }
@@ -1734,14 +1745,42 @@ public class GuiSkyBlockData extends GuiScreen
         }
     }
 
-    private String getSlayerKill(JsonElement element)
+    private int getSlayerKill(JsonElement element)
     {
         if (element != null)
         {
             int kills = element.getAsInt();
-            return FORMAT.format(kills) + " kill" + (kills <= 1 ? "" : "s");
+            return kills;
         }
-        return "0 kill";
+        return 0;
+    }
+
+    private int getSlayerPrice(int kills, int index)
+    {
+        int price = 0;
+
+        switch (index)
+        {
+        default:
+        case 0:
+            price = 100;
+            break;
+        case 1:
+            price = 2000;
+            break;
+        case 2:
+            price = 10000;
+            break;
+        case 3:
+            price = 50000;
+            break;
+        }
+        return kills * price;
+    }
+
+    private String formatSlayerKill(int kills)
+    {
+        return FORMAT.format(kills) + " kill" + (kills <= 1 ? "" : "s");
     }
 
     private static void drawEntityOnScreen(int posX, int posY, int scale, EntityLivingBase entity)
@@ -2155,21 +2194,21 @@ public class GuiSkyBlockData extends GuiScreen
                     zombie.setCurrentItemOrArmor(2, leggings);
                     zombie.setCurrentItemOrArmor(3, chestplate);
                     zombie.setCurrentItemOrArmor(4, helmet);
-                    GuiSkyBlockData.drawEntityOnScreen(this.left + 70, top + 60, 40, zombie);
+                    GuiSkyBlockData.drawEntityOnScreen(this.left + 80, top + 60, 40, zombie);
                 }
                 else if (stat.getText().equals("Spider"))
                 {
                     EntitySpider spider = new EntitySpider(this.parent.mc.theWorld);
                     EntityCaveSpider cave = new EntityCaveSpider(this.parent.mc.theWorld);
-                    GuiSkyBlockData.drawEntityOnScreen(this.left + 70, top + 40, 40, cave);
-                    GuiSkyBlockData.drawEntityOnScreen(this.left + 70, top + 60, 40, spider);
+                    GuiSkyBlockData.drawEntityOnScreen(this.left + 80, top + 40, 40, cave);
+                    GuiSkyBlockData.drawEntityOnScreen(this.left + 80, top + 60, 40, spider);
                     GlStateManager.blendFunc(770, 771);
                 }
                 else
                 {
                     EntityWolf wolf = new EntityWolf(this.parent.mc.theWorld);
                     wolf.setAngry(true);
-                    GuiSkyBlockData.drawEntityOnScreen(this.left + 70, top + 60, 40, wolf);
+                    GuiSkyBlockData.drawEntityOnScreen(this.left + 80, top + 60, 40, wolf);
                 }
 
                 this.parent.mc.getTextureManager().bindTexture(XP_BARS);
@@ -2181,11 +2220,11 @@ public class GuiSkyBlockData extends GuiScreen
                 int xpRequired = Integer.valueOf(xpSplit[1]);
 
                 int filled = Math.min((int)Math.floor(playerSlayerXp * 92 / xpRequired), 91);
-                Gui.drawModalRectWithCustomSizedTexture(this.right - 150, top, 0, 0, 91, 5, 91, 10);
+                Gui.drawModalRectWithCustomSizedTexture(this.right - 120, top, 0, 0, 91, 5, 91, 10);
 
                 if (filled > 0)
                 {
-                    Gui.drawModalRectWithCustomSizedTexture(this.right - 150, top, 0, 5, filled, 5, 91, 10);
+                    Gui.drawModalRectWithCustomSizedTexture(this.right - 120, top, 0, 5, filled, 5, 91, 10);
                 }
 
                 GlStateManager.enableBlend();
@@ -2198,7 +2237,7 @@ public class GuiSkyBlockData extends GuiScreen
                 }
                 else
                 {
-                    this.parent.drawString(this.parent.mc.fontRendererObj, stat.getText(), this.right - this.parent.mc.fontRendererObj.getStringWidth(stat.getText()) - 60, top, 16777215);
+                    this.parent.drawString(this.parent.mc.fontRendererObj, stat.getText(), this.right - this.parent.mc.fontRendererObj.getStringWidth(stat.getText()) - 30, top, 16777215);
                 }
                 break;
             }
