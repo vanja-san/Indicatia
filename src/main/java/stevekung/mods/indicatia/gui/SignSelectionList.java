@@ -22,20 +22,27 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ResourceLocation;
 import stevekung.mods.indicatia.utils.IEditSign;
 
-public class AuctionPriceSelectionList extends GuiListExtended
+public class SignSelectionList extends GuiListExtended
 {
-    private static final List<AuctionPrice> AUCTION_PRICES = new ArrayList<>();
+    public static final List<Entry> AUCTION_PRICES = new ArrayList<>();
+    public static final List<Entry> AUCTION_QUERIES = new ArrayList<>();
+    public static final List<Entry> BANK_WITHDRAW = new ArrayList<>();
+    public static final List<Entry> BANK_DEPOSIT = new ArrayList<>();
     private int selectedSlotIndex = -1;
+    private final List<SignSelectionList.Entry> list;
+    private final String title;
 
-    public AuctionPriceSelectionList(Minecraft mc, int width, int height, int top, int bottom)
+    public SignSelectionList(Minecraft mc, int width, int height, int top, int bottom, List<SignSelectionList.Entry> list, String title)
     {
         super(mc, width, height, top, bottom, 16);
+        this.list = list;
+        this.title = title;
 
         if (this.getSize() > 5)
         {
-            AuctionPriceSelectionList.AUCTION_PRICES.remove(0);
+            this.list.remove(0);
         }
-        Collections.reverse(AUCTION_PRICES);
+        Collections.reverse(this.list);
     }
 
     @Override
@@ -47,13 +54,13 @@ public class AuctionPriceSelectionList extends GuiListExtended
     @Override
     public IGuiListEntry getListEntry(int index)
     {
-        return AUCTION_PRICES.stream().distinct().collect(Collectors.toList()).get(index);
+        return this.list.stream().distinct().collect(Collectors.toList()).get(index);
     }
 
     @Override
     protected int getSize()
     {
-        return AUCTION_PRICES.stream().distinct().collect(Collectors.toList()).size();
+        return this.list.stream().distinct().collect(Collectors.toList()).size();
     }
 
     @Override
@@ -71,12 +78,12 @@ public class AuctionPriceSelectionList extends GuiListExtended
     @Override
     public int getListWidth()
     {
-        if (AUCTION_PRICES.isEmpty())
+        if (this.list.isEmpty())
         {
             return 0;
         }
-        AuctionPrice max = Collections.max(AUCTION_PRICES, Comparator.comparing(text -> text.getPrice().length()));
-        int length = this.mc.fontRendererObj.getStringWidth(max.getPrice()) + 16;
+        Entry max = Collections.max(this.list, Comparator.comparing(text -> text.getValue().length()));
+        int length = this.mc.fontRendererObj.getStringWidth(max.getValue()) + 24;
         return length;
     }
 
@@ -108,7 +115,7 @@ public class AuctionPriceSelectionList extends GuiListExtended
             }
 
             this.drawSelectionBox(k, l, mouseX, mouseY);
-            this.mc.fontRendererObj.drawString("Select price:", k, l - 12, 16777215);
+            this.mc.fontRendererObj.drawString(this.title + ":", k, l - 12, 16777215);
             GlStateManager.disableDepth();
             this.overlayBackground(0, this.top, 255, 255);
             this.overlayBackground(this.bottom, this.height, 255, 255);
@@ -117,26 +124,49 @@ public class AuctionPriceSelectionList extends GuiListExtended
         GlStateManager.enableDepth();
     }
 
-    public void add(String price)
+    public void add(String value)
     {
-        AuctionPriceSelectionList.AUCTION_PRICES.add(new AuctionPrice(price));
+        this.list.add(new Entry(value));
     }
 
-    public static List<AuctionPrice> getAuctionPrice()
+    public static void clearAll()
     {
-        return AuctionPriceSelectionList.AUCTION_PRICES;
+        SignSelectionList.AUCTION_PRICES.clear();
+        SignSelectionList.AUCTION_QUERIES.clear();
+        SignSelectionList.BANK_WITHDRAW.clear();
+        SignSelectionList.BANK_DEPOSIT.clear();
     }
 
-    private class AuctionPrice implements GuiListExtended.IGuiListEntry
+    public static List<Entry> getAuctionPrice()
+    {
+        return SignSelectionList.AUCTION_PRICES;
+    }
+
+    public static List<Entry> getAuctionQuery()
+    {
+        return SignSelectionList.AUCTION_QUERIES;
+    }
+
+    public static List<Entry> getBankWithdraw()
+    {
+        return SignSelectionList.BANK_WITHDRAW;
+    }
+
+    public static List<Entry> getBankDeposit()
+    {
+        return SignSelectionList.BANK_DEPOSIT;
+    }
+
+    private class Entry implements GuiListExtended.IGuiListEntry
     {
         private final Minecraft mc;
-        private final String price;
+        private final String value;
         private long lastClicked;
 
-        public AuctionPrice(String price)
+        public Entry(String value)
         {
             this.mc = Minecraft.getMinecraft();
-            this.price = price;
+            this.value = value;
         }
 
         @Override
@@ -145,7 +175,7 @@ public class AuctionPriceSelectionList extends GuiListExtended
         @Override
         public void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected)
         {
-            this.mc.fontRendererObj.drawString(this.price, x + 2, y + 2, 16777215);
+            this.mc.fontRendererObj.drawString(this.value, x + 2, y + 2, 16777215);
         }
 
         @Override
@@ -167,7 +197,7 @@ public class AuctionPriceSelectionList extends GuiListExtended
                 this.mc.displayGuiScreen(null);
             }
 
-            sign.signText[0] = new ChatComponentText(this.price);
+            sign.signText[0] = new ChatComponentText(this.value);
 
             if ((IEditSign)(GuiEditSign)this.mc.currentScreen != null)
             {
@@ -183,7 +213,7 @@ public class AuctionPriceSelectionList extends GuiListExtended
         @Override
         public boolean equals(Object obj)
         {
-            if (!(obj instanceof AuctionPrice))
+            if (!(obj instanceof Entry))
             {
                 return false;
             }
@@ -191,19 +221,19 @@ public class AuctionPriceSelectionList extends GuiListExtended
             {
                 return true;
             }
-            AuctionPrice other = (AuctionPrice) obj;
-            return new EqualsBuilder().append(this.price, other.price).isEquals();
+            Entry other = (Entry) obj;
+            return new EqualsBuilder().append(this.value, other.value).isEquals();
         }
 
         @Override
         public int hashCode()
         {
-            return new HashCodeBuilder().append(this.price).toHashCode();
+            return new HashCodeBuilder().append(this.value).toHashCode();
         }
 
-        public String getPrice()
+        public String getValue()
         {
-            return this.price;
+            return this.value;
         }
     }
 }

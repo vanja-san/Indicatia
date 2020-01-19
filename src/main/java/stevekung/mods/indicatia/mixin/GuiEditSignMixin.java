@@ -19,8 +19,7 @@ import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.StringUtils;
-import stevekung.mods.indicatia.gui.AuctionPriceSelectionList;
-import stevekung.mods.indicatia.gui.AuctionQuerySelectionList;
+import stevekung.mods.indicatia.gui.SignSelectionList;
 import stevekung.mods.indicatia.utils.IEditSign;
 import stevekung.mods.indicatia.utils.IModifiedSign;
 import stevekung.mods.indicatia.utils.LangUtils;
@@ -31,8 +30,10 @@ public abstract class GuiEditSignMixin extends GuiScreen implements IEditSign
 {
     private final GuiEditSign that = (GuiEditSign) (Object) this;
     private TextInputUtil textInputUtil;
-    private AuctionPriceSelectionList auctionPriceSelector;
-    private AuctionQuerySelectionList auctionQuerySelector;
+    private SignSelectionList auctionPriceSelector;
+    private SignSelectionList auctionQuerySelector;
+    private SignSelectionList withdrawSelector;
+    private SignSelectionList depositSelector;
 
     @Shadow
     private int editLine;
@@ -47,20 +48,39 @@ public abstract class GuiEditSignMixin extends GuiScreen implements IEditSign
 
         if (this.isAuctionSign())
         {
-            this.auctionPriceSelector = new AuctionPriceSelectionList(this.mc, this.width + 200, this.height, 64, this.height - 64);
+            this.auctionPriceSelector = new SignSelectionList(this.mc, this.width + 200, this.height, 64, this.height - 64, SignSelectionList.AUCTION_PRICES, "Select price");
         }
         if (this.isAuctionQuery())
         {
-            this.auctionQuerySelector = new AuctionQuerySelectionList(this.mc, this.width + 200, this.height, 64, this.height - 64);
+            this.auctionQuerySelector = new SignSelectionList(this.mc, this.width + 200, this.height, 64, this.height - 64, SignSelectionList.AUCTION_QUERIES, "Select query");
+        }
+        if (this.isBankWithdraw())
+        {
+            this.withdrawSelector = new SignSelectionList(this.mc, this.width + 200, this.height, 64, this.height - 64, SignSelectionList.BANK_WITHDRAW, "Select withdraw");
+        }
+        if (this.isBankDeposit())
+        {
+            this.depositSelector = new SignSelectionList(this.mc, this.width + 200, this.height, 64, this.height - 64, SignSelectionList.BANK_DEPOSIT, "Select deposit");
         }
     }
 
     @Inject(method = "onGuiClosed()V", at = @At("RETURN"))
     private void onGuiClosed(CallbackInfo info)
     {
-        if (this.isAuctionSign() && !StringUtils.isNullOrEmpty(this.that.tileSign.signText[0].getUnformattedText()) && NumberUtils.isNumber(this.that.tileSign.signText[0].getUnformattedText()))
+        if (!StringUtils.isNullOrEmpty(this.that.tileSign.signText[0].getUnformattedText()) && NumberUtils.isNumber(this.that.tileSign.signText[0].getUnformattedText()))
         {
-            this.auctionPriceSelector.add(this.that.tileSign.signText[0].getUnformattedText());
+            if (this.isAuctionSign())
+            {
+                this.auctionPriceSelector.add(this.that.tileSign.signText[0].getUnformattedText());
+            }
+            if (this.isBankWithdraw())
+            {
+                this.withdrawSelector.add(this.that.tileSign.signText[0].getUnformattedText());
+            }
+            if (this.isBankDeposit())
+            {
+                this.depositSelector.add(this.that.tileSign.signText[0].getUnformattedText());
+            }
         }
         if (this.isAuctionQuery() && !StringUtils.isNullOrEmpty(this.that.tileSign.signText[0].getUnformattedText()))
         {
@@ -81,6 +101,14 @@ public abstract class GuiEditSignMixin extends GuiScreen implements IEditSign
         {
             this.auctionQuerySelector.mouseClicked(mouseX, mouseY, mouseButton);
         }
+        if (this.isBankWithdraw())
+        {
+            this.withdrawSelector.mouseClicked(mouseX, mouseY, mouseButton);
+        }
+        if (this.isBankDeposit())
+        {
+            this.depositSelector.mouseClicked(mouseX, mouseY, mouseButton);
+        }
     }
 
     @Override
@@ -96,6 +124,14 @@ public abstract class GuiEditSignMixin extends GuiScreen implements IEditSign
         {
             this.auctionQuerySelector.mouseReleased(mouseX, mouseY, state);
         }
+        if (this.isBankWithdraw())
+        {
+            this.withdrawSelector.mouseReleased(mouseX, mouseY, state);
+        }
+        if (this.isBankDeposit())
+        {
+            this.depositSelector.mouseReleased(mouseX, mouseY, state);
+        }
     }
 
     @Override
@@ -110,6 +146,14 @@ public abstract class GuiEditSignMixin extends GuiScreen implements IEditSign
         if (this.isAuctionQuery())
         {
             this.auctionQuerySelector.handleMouseInput();
+        }
+        if (this.isBankWithdraw())
+        {
+            this.withdrawSelector.handleMouseInput();
+        }
+        if (this.isBankDeposit())
+        {
+            this.depositSelector.handleMouseInput();
         }
     }
 
@@ -169,13 +213,21 @@ public abstract class GuiEditSignMixin extends GuiScreen implements IEditSign
         GlStateManager.popMatrix();
         super.drawScreen(mouseX, mouseY, partialTicks);
 
-        if (this.isAuctionSign() && AuctionPriceSelectionList.getAuctionPrice().size() > 0)
+        if (this.isAuctionSign() && SignSelectionList.getAuctionPrice().size() > 0)
         {
             this.auctionPriceSelector.drawScreen(mouseX, mouseY, partialTicks);
         }
-        if (this.isAuctionQuery() && AuctionQuerySelectionList.getAuctionQuery().size() > 0)
+        if (this.isAuctionQuery() && SignSelectionList.getAuctionQuery().size() > 0)
         {
             this.auctionQuerySelector.drawScreen(mouseX, mouseY, partialTicks);
+        }
+        if (this.isBankWithdraw() && SignSelectionList.getBankWithdraw().size() > 0)
+        {
+            this.withdrawSelector.drawScreen(mouseX, mouseY, partialTicks);
+        }
+        if (this.isBankDeposit() && SignSelectionList.getBankDeposit().size() > 0)
+        {
+            this.depositSelector.drawScreen(mouseX, mouseY, partialTicks);
         }
     }
 
@@ -213,5 +265,15 @@ public abstract class GuiEditSignMixin extends GuiScreen implements IEditSign
     private boolean isAuctionQuery()
     {
         return this.that.tileSign.signText[3].getUnformattedText().equals("Enter query");
+    }
+
+    private boolean isBankWithdraw()
+    {
+        return this.that.tileSign.signText[2].getUnformattedText().equals("Enter the amount") && this.that.tileSign.signText[3].getUnformattedText().equals("to withdraw");
+    }
+
+    private boolean isBankDeposit()
+    {
+        return this.that.tileSign.signText[2].getUnformattedText().equals("Enter the amount") && this.that.tileSign.signText[3].getUnformattedText().equals("to deposit");
     }
 }

@@ -42,8 +42,7 @@ import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import stevekung.mods.indicatia.config.ExtendedConfig;
 import stevekung.mods.indicatia.config.RareDropMode;
 import stevekung.mods.indicatia.config.VisitIslandMode;
-import stevekung.mods.indicatia.gui.AuctionPriceSelectionList;
-import stevekung.mods.indicatia.gui.AuctionQuerySelectionList;
+import stevekung.mods.indicatia.gui.SignSelectionList;
 import stevekung.mods.indicatia.gui.api.GuiSkyBlockProfileSelection;
 import stevekung.mods.indicatia.gui.toasts.GiftToast;
 import stevekung.mods.indicatia.gui.toasts.ItemDropsToast;
@@ -483,8 +482,7 @@ public class HypixelEventHandler
     @SubscribeEvent
     public void onDisconnectedFromServerEvent(FMLNetworkEvent.ClientDisconnectionFromServerEvent event)
     {
-        AuctionPriceSelectionList.getAuctionPrice().clear();
-        AuctionQuerySelectionList.getAuctionQuery().clear();
+        SignSelectionList.clearAll();
     }
 
     @SubscribeEvent
