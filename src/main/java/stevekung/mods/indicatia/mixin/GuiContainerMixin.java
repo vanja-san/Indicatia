@@ -64,7 +64,7 @@ public abstract class GuiContainerMixin extends GuiScreen
     {
         if (ExtendedConfig.instance.showItemRarity)
         {
-            RenderUtils.drawRarity(slot);
+            RenderUtils.drawRarity(slot, this.isAuctionBrowser());
         }
     }
 

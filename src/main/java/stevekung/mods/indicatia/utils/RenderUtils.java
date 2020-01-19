@@ -121,8 +121,12 @@ public class RenderUtils
         return itemStack;
     }
 
-    public static void drawRarity(Slot slot)
+    public static void drawRarity(Slot slot, boolean isAuction)
     {
+        if (isAuction && slot.slotNumber >= 0 && slot.slotNumber <= 53)
+        {
+            return;
+        }
         RenderUtils.drawRarity(slot.getStack(), slot.xDisplayPosition, slot.yDisplayPosition);
     }
 

@@ -860,7 +860,7 @@ public class GuiSkyBlockData extends GuiScreen
 
         if (ExtendedConfig.instance.showItemRarity)
         {
-            RenderUtils.drawRarity(slot);
+            RenderUtils.drawRarity(slot, false);
         }
 
         this.itemRender.renderItemAndEffectIntoGUI(itemStack, i, j);
