@@ -37,6 +37,7 @@ public class GuiSBProfileButton extends GuiButton
     {
         super.drawButton(mc, mouseX, mouseY);
         this.drawRegion(this.callback.getLastSave(), mc.currentScreen.width, mouseX, mouseY);
+        GlStateManager.enableDepth();
     }
 
     private void drawRegion(String text, int parentWidth, int mouseX, int mouseY)
