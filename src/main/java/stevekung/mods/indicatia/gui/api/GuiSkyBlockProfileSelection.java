@@ -32,6 +32,7 @@ public class GuiSkyBlockProfileSelection extends GuiScreen
     private boolean loadingApi = true;
     private boolean error = false;
     private String errorMessage;
+    private String statusMessage;
     private GuiButton doneButton;
     private GuiButton backButton;
     private String username;
@@ -86,7 +87,11 @@ public class GuiSkyBlockProfileSelection extends GuiScreen
                     this.watch.start();
                     this.checkAPI();
                     this.watch.stop();
-                    LoggerIN.info("API Download finished in: {}ms", this.watch.getTime());
+
+                    if (this.watch.getTime() > 0)
+                    {
+                        LoggerIN.info("API Download finished in: {}ms", this.watch.getTime());
+                    }
                 }
                 catch (Throwable e)
                 {
@@ -127,6 +132,16 @@ public class GuiSkyBlockProfileSelection extends GuiScreen
     }
 
     @Override
+    protected void keyTyped(char typedChar, int keyCode) throws IOException
+    {
+        if (this.error && (keyCode == 28 || keyCode == 156))
+        {
+            this.mc.displayGuiScreen(new GuiSkyBlockAPIViewer(this.username));
+        }
+        super.keyTyped(typedChar, keyCode);
+    }
+
+    @Override
     protected void actionPerformed(GuiButton button) throws IOException
     {
         if (button.enabled)
@@ -159,6 +174,7 @@ public class GuiSkyBlockProfileSelection extends GuiScreen
             Gui.drawRect(i - 1, k - 1, j + 1, l + 1, -16777216);
             Gui.drawRect(i, k, i + j1, l, ColorUtils.to32BitColor(128, 85, 255, 85));
             this.drawCenteredString(this.fontRendererObj, this.percent + "%", this.width / 2, k + (l - k) / 2 - 9 / 2, 10526880);
+            this.drawCenteredString(this.fontRendererObj, EnumChatFormatting.BLUE + "Status: " + EnumChatFormatting.RESET + this.statusMessage, this.width / 2, k + (l - k) / 2 - 9 / 2 + 20, 10526880);
         }
         else
         {
@@ -180,6 +196,8 @@ public class GuiSkyBlockProfileSelection extends GuiScreen
             this.setErrorMessage("Invalid Username Pattern!");
             return;
         }
+
+        this.statusMessage = "Getting Hypixel API";
 
         URL url = new URL(SkyBlockAPIUtils.PLAYER_NAME + this.username);
         JsonObject obj = new JsonParser().parse(IOUtils.toString(url.openConnection().getInputStream(), StandardCharsets.UTF_8)).getAsJsonObject();
@@ -216,11 +234,14 @@ public class GuiSkyBlockProfileSelection extends GuiScreen
             return;
         }
 
+        this.statusMessage = "Getting SkyBlock profiles";
+
         for (Map.Entry<String, JsonElement> entry : profiles.entrySet())
         {
             String sbProfileId = profiles.get(entry.getKey()).getAsJsonObject().get("profile_id").getAsString();
             String profileName = profiles.get(entry.getKey()).getAsJsonObject().get("cute_name").getAsString();
             String uuid = jsonPlayer.getAsJsonObject().get("uuid").getAsString();
+            this.statusMessage = "Found " + EnumChatFormatting.GOLD + profileName + EnumChatFormatting.RESET + " profile";
             GameProfile profile = TileEntitySkull.updateGameprofile(new GameProfile(UUID.fromString(uuid.replaceFirst("([0-9a-fA-F]{8})([0-9a-fA-F]{4})([0-9a-fA-F]{4})([0-9a-fA-F]{4})([0-9a-fA-F]+)", "$1-$2-$3-$4-$5")), this.username));
             ProfileDataCallback callback = new ProfileDataCallback(sbProfileId, profileName, this.username, uuid, profile, "Last active: " + CommonUtils.getRelativeTime(this.getLastSaveProfile(sbProfileId, uuid)));
             GuiSBProfileButton button = new GuiSBProfileButton(i + 1000, this.width / 2 - 75, 50, 150, 20, callback);

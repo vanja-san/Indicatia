@@ -68,6 +68,7 @@ public class GuiSkyBlockData extends GuiScreen
     private boolean loadingApi = true;
     private boolean error = false;
     private String errorMessage;
+    private String statusMessage;
     private boolean resize;
     private GuiButton doneButton;
     private GuiButton backButton;
@@ -358,6 +359,7 @@ public class GuiSkyBlockData extends GuiScreen
             Gui.drawRect(i - 1, k - 1, j + 1, l + 1, -16777216);
             Gui.drawRect(i, k, i + j1, l, ColorUtils.to32BitColor(128, 85, 255, 85));
             this.drawCenteredString(this.fontRendererObj, this.percent + "%", this.width / 2, k + (l - k) / 2 - 9 / 2, 10526880);
+            this.drawCenteredString(this.fontRendererObj, EnumChatFormatting.BLUE + "Status: " + EnumChatFormatting.RESET + this.statusMessage, this.width / 2, k + (l - k) / 2 - 9 / 2 + 20, 10526880);
         }
         else
         {
@@ -995,6 +997,8 @@ public class GuiSkyBlockData extends GuiScreen
     // Player Data
     private void getPlayerData() throws IOException
     {
+        this.statusMessage = "Getting Player Data";
+
         URL url = new URL(SkyBlockAPIUtils.SKYBLOCK_PROFILE + this.sbProfileId);
         JsonObject obj = new JsonParser().parse(IOUtils.toString(url.openConnection().getInputStream(), StandardCharsets.UTF_8)).getAsJsonObject();
         JsonElement profile = obj.get("profile");
