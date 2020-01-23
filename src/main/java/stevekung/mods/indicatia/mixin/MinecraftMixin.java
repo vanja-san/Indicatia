@@ -27,6 +27,8 @@ import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.boss.EntityDragon;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.util.MathHelper;
@@ -36,6 +38,7 @@ import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import stevekung.mods.indicatia.config.ExtendedConfig;
 import stevekung.mods.indicatia.event.HUDRenderEventHandler;
 import stevekung.mods.indicatia.event.HypixelEventHandler;
 import stevekung.mods.indicatia.utils.LoggerIN;
@@ -634,15 +637,43 @@ public abstract class MinecraftMixin
             }
         }
 
-        while (this.that.gameSettings.keyBindInventory.isPressed())
+        boolean foundDragon = false;
+
+        for (Entity entity : this.that.theWorld.loadedEntityList)
         {
-            if (this.that.playerController.isRidingHorse())
+            if (entity instanceof EntityDragon)
             {
-                this.that.thePlayer.sendHorseInventory();
+                foundDragon = true;
+                break;
             }
-            else
+        }
+
+        if (ExtendedConfig.instance.sneakToOpenInventoryWhileFightDragon && foundDragon)
+        {
+            while (this.that.gameSettings.keyBindInventory.isPressed() && this.that.thePlayer.isSneaking())
             {
-                this.that.displayGuiScreen(new GuiInventory(this.that.thePlayer));
+                if (this.that.playerController.isRidingHorse())
+                {
+                    this.that.thePlayer.sendHorseInventory();
+                }
+                else
+                {
+                    this.that.displayGuiScreen(new GuiInventory(this.that.thePlayer));
+                }
+            }
+        }
+        else
+        {
+            while (this.that.gameSettings.keyBindInventory.isPressed())
+            {
+                if (this.that.playerController.isRidingHorse())
+                {
+                    this.that.thePlayer.sendHorseInventory();
+                }
+                else
+                {
+                    this.that.displayGuiScreen(new GuiInventory(this.that.thePlayer));
+                }
             }
         }
 

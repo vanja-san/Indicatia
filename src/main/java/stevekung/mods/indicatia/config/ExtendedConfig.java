@@ -136,6 +136,7 @@ public class ExtendedConfig
     public boolean showItemRarity = true;
     public boolean showDragonHitboxOnly = false;
     public boolean showHitboxWhenDragonSpawned = false;
+    public boolean sneakToOpenInventoryWhileFightDragon = false;
     public int itemRarityOpacity = 75;
 
     private ExtendedConfig() {}
@@ -262,6 +263,7 @@ public class ExtendedConfig
             this.showItemRarity = ExtendedConfig.getBoolean(nbt, "ShowItemRarity", this.showItemRarity);
             this.showDragonHitboxOnly = ExtendedConfig.getBoolean(nbt, "ShowDragonHitboxOnly", this.showDragonHitboxOnly);
             this.showHitboxWhenDragonSpawned = ExtendedConfig.getBoolean(nbt, "ShowHitboxWhenDragonSpawned", this.showHitboxWhenDragonSpawned);
+            this.sneakToOpenInventoryWhileFightDragon = ExtendedConfig.getBoolean(nbt, "SneakToOpenInventoryWhileFightDragon", this.sneakToOpenInventoryWhileFightDragon);
 
             LoggerIN.info("Loading extended config {}", ExtendedConfig.file.getPath());
         }
@@ -377,6 +379,7 @@ public class ExtendedConfig
             nbt.setBoolean("ShowItemRarity", this.showItemRarity);
             nbt.setBoolean("ShowDragonHitboxOnly", this.showDragonHitboxOnly);
             nbt.setBoolean("ShowHitboxWhenDragonSpawned", this.showHitboxWhenDragonSpawned);
+            nbt.setBoolean("SneakToOpenInventoryWhileFightDragon", this.sneakToOpenInventoryWhileFightDragon);
             nbt.setString("HypixelNickName", this.hypixelNickName);
             nbt.setInteger("SelectedHypixelMinigame", this.selectedHypixelMinigame);
             nbt.setInteger("HypixelMinigameScrollPos", this.hypixelMinigameScrollPos);
@@ -676,6 +679,10 @@ public class ExtendedConfig
         {
             this.showHitboxWhenDragonSpawned = !this.showHitboxWhenDragonSpawned;
         }
+        else if (options == ExtendedConfig.Options.SNEAK_TO_OPEN_INVENTORY_WHILE_FIGHT_DRAGON)
+        {
+            this.sneakToOpenInventoryWhileFightDragon = !this.sneakToOpenInventoryWhileFightDragon;
+        }
     }
 
     public void setOptionFloatValue(ExtendedConfig.Options options, float value)
@@ -967,6 +974,8 @@ public class ExtendedConfig
             return this.showDragonHitboxOnly;
         case SHOW_HITBOX_WHEN_DRAGON_SPAWNED:
             return this.showHitboxWhenDragonSpawned;
+        case SNEAK_TO_OPEN_INVENTORY_WHILE_FIGHT_DRAGON:
+            return this.sneakToOpenInventoryWhileFightDragon;
         default:
             return false;
         }
@@ -1146,6 +1155,7 @@ public class ExtendedConfig
         SHOW_ITEM_RARITY(false, true),
         SHOW_DRAGON_HITBOX_ONLY(false, true),
         SHOW_HITBOX_WHEN_DRAGON_SPAWNED(false, true),
+        SNEAK_TO_OPEN_INVENTORY_WHILE_FIGHT_DRAGON(false, true),
         JUNGLE_AXE_DELAY(true, false, 1500.0F, 2000.0F, 50.0F),
         GRAPPLING_HOOK_DELAY(true, false, 1500.0F, 2000.0F, 50.0F),
         ZEALOT_RESPAWN_DELAY(true, false, 10000.0F, 15000.0F, 50.0F),

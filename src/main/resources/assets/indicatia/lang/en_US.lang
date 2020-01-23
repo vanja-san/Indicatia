@@ -162,6 +162,7 @@ show_item_rarity.extended_config=Show Item Rarity
 item_rarity_opacity.extended_config=Item Rarity Opacity
 show_hitbox_when_dragon_spawned.extended_config=Show Hitbox when Dragon Spawned
 show_dragon_hitbox_only.extended_config=Show Only Dragon Hitbox
+sneak_to_open_inventory_while_fight_dragon.extended_config=Sneak to Open Inventory while Fighting Dragon
 
 # MESSAGE
 message.toggle_sprint_enabled=Enabled Toggle Sprint
