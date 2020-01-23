@@ -328,7 +328,7 @@ public class HypixelEventHandler
                         if (!name.isEmpty())
                         {
                             IChatComponent chat = event.message.createCopy();
-                            chat.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/p " + name));
+                            chat.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/p " + name));
                             event.message = chat;
                         }
                     }
