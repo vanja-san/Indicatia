@@ -659,9 +659,10 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
 
     private boolean isAuctionBrowser()
     {
-        return this.lowerChestInventory.getDisplayName().getUnformattedText().equals("Auctions Browser");
+        String name = this.lowerChestInventory.getDisplayName().getUnformattedText();
+        return name.equals("Auctions Browser") || name.endsWith(" Auctions");
     }
-    
+
     private boolean canViewSeller()
     {
         String name = this.lowerChestInventory.getDisplayName().getUnformattedText();
