@@ -520,7 +520,7 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
     @Override
     protected void handleMouseClick(Slot slot, int slotId, int clickedButton, int clickType)
     {
-        if (slot != null && clickedButton == 2 && clickType == 3 && this.isAuctionBrowser())
+        if (slot != null && clickedButton == 2 && clickType == 3 && this.canViewSeller())
         {
             if (slot.getStack() != null && slot.getStack().hasTagCompound())
             {
@@ -660,6 +660,12 @@ public abstract class GuiChestMixin extends GuiContainer implements ITradeGUI
     private boolean isAuctionBrowser()
     {
         return this.lowerChestInventory.getDisplayName().getUnformattedText().equals("Auctions Browser");
+    }
+    
+    private boolean canViewSeller()
+    {
+        String name = this.lowerChestInventory.getDisplayName().getUnformattedText();
+        return name.equals("Auctions Browser") || name.equals("Your Bids");
     }
 
     private boolean isOnSkyBlockOrModLoaded()
