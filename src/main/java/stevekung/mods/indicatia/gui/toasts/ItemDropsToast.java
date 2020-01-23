@@ -106,7 +106,7 @@ public class ItemDropsToast implements IToast
 
             RenderHelper.disableStandardItemLighting();
             toastGui.mc.fontRendererObj.drawString(drop.getType().getColor() + JsonUtils.create(drop.getType().getName()).setChatStyle(JsonUtils.style().setBold(true)).getFormattedText(), 30, 7, 16777215);
-            GuiToast.drawLongItemName(toastGui, delta, this.firstDrawTime, this.buffer, itemName);
+            GuiToast.drawLongItemName(toastGui, delta, this.firstDrawTime, this.buffer, itemName, 15000L, 5000L);
             RenderHelper.enableGUIStandardItemLighting();
 
             HUDInfo.renderItem(itemStack, 8, 8);

@@ -50,13 +50,13 @@ public class GuiToast extends Gui
         }
     }
 
-    public static void drawLongItemName(GuiToast toastGui, long delta, long firstDrawTime, FloatBuffer buffer, String itemName)
+    public static void drawLongItemName(GuiToast toastGui, long delta, long firstDrawTime, FloatBuffer buffer, String itemName, long maxDraw, long timeUntilGone)
     {
         int x = 30;
         int textWidth = toastGui.mc.fontRendererObj.getStringWidth(itemName);
         int maxSize = textWidth - 135;
         long timeElapsed = delta - firstDrawTime - 500L;
-        long timeElapsed2 = 15000L - delta - 5000L;
+        long timeElapsed2 = maxDraw - delta - timeUntilGone;
         long textSpeed = 8000L;
         int maxTextLength = 125;
 
