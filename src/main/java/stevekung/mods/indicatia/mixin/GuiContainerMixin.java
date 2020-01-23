@@ -97,7 +97,8 @@ public abstract class GuiContainerMixin extends GuiScreen
         if (gui != null && gui instanceof GuiChest)
         {
             GuiChest chest = (GuiChest)gui;
-            return chest.lowerChestInventory.getDisplayName().getUnformattedText().equals("Auctions Browser");
+            String invName = chest.lowerChestInventory.getDisplayName().getUnformattedText();
+            return invName.equals("Auctions Browser") || invName.endsWith(" Auctions");
         }
         else
         {
