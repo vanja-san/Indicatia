@@ -43,6 +43,7 @@
         "NetHandlerPlayClientMixin",
         "GuiChestMixin",
         "RenderManagerMixin",
-        "NetworkPlayerInfoMixin"
+        "NetworkPlayerInfoMixin",
+        "RenderDragonMixin"
     ]
 }

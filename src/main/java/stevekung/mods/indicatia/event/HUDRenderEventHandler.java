@@ -331,7 +331,6 @@ public class HUDRenderEventHandler
                     if (ConfigManagerIN.enableRenderBossHealthBar)
                     {
                         this.mc.ingameGUI.drawTexturedModalRect(k, i1, 0, 74, j, 5);
-                        this.mc.ingameGUI.drawTexturedModalRect(k, i1, 0, 74, j, 5);
 
                         if (l > 0)
                         {

@@ -87,6 +87,7 @@ public class HypixelEventHandler
     public static SkyBlockLocation SKY_BLOCK_LOCATION = SkyBlockLocation.YOUR_ISLAND;
     private static final List<String> PARTY_LIST = new ArrayList<>();
     public static String SKYBLOCK_AMPM = "";
+    public static float dragonHealth;
     public static final List<ToastUtils.ItemDropCheck> ITEM_DROP_CHECK_LIST = new ArrayList<>();
     private List<ItemStack> previousInventory;
     private Minecraft mc;
@@ -138,6 +139,10 @@ public class HypixelEventHandler
                         else if (scoreText.endsWith("pm"))
                         {
                             HypixelEventHandler.SKYBLOCK_AMPM = " PM";
+                        }
+                        else if (scoreText.startsWith("Dragon Health: "))
+                        {
+                            HypixelEventHandler.dragonHealth = Float.valueOf(scoreText.replaceAll("[^\\d]", ""));
                         }
 
                         for (SkyBlockLocation location : CachedEnum.locationValues)
@@ -475,6 +480,7 @@ public class HypixelEventHandler
         if (event.entity == this.mc.thePlayer)
         {
             this.previousInventory = null;
+            HypixelEventHandler.dragonHealth = 0;
             ITEM_DROP_CHECK_LIST.clear();
         }
     }
@@ -483,6 +489,7 @@ public class HypixelEventHandler
     public void onDisconnectedFromServerEvent(FMLNetworkEvent.ClientDisconnectionFromServerEvent event)
     {
         SignSelectionList.clearAll();
+        HypixelEventHandler.dragonHealth = 0;
     }
 
     @SubscribeEvent
