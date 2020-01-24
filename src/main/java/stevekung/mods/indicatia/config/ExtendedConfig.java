@@ -137,6 +137,7 @@ public class ExtendedConfig
     public boolean showDragonHitboxOnly = false;
     public boolean showHitboxWhenDragonSpawned = false;
     public boolean sneakToOpenInventoryWhileFightDragon = false;
+    public boolean leavePartyWhenLastEyePlaced = false;
     public int itemRarityOpacity = 75;
 
     private ExtendedConfig() {}
@@ -264,6 +265,7 @@ public class ExtendedConfig
             this.showDragonHitboxOnly = ExtendedConfig.getBoolean(nbt, "ShowDragonHitboxOnly", this.showDragonHitboxOnly);
             this.showHitboxWhenDragonSpawned = ExtendedConfig.getBoolean(nbt, "ShowHitboxWhenDragonSpawned", this.showHitboxWhenDragonSpawned);
             this.sneakToOpenInventoryWhileFightDragon = ExtendedConfig.getBoolean(nbt, "SneakToOpenInventoryWhileFightDragon", this.sneakToOpenInventoryWhileFightDragon);
+            this.leavePartyWhenLastEyePlaced = ExtendedConfig.getBoolean(nbt, "LeavePartyWhenLastEyePlaced", this.leavePartyWhenLastEyePlaced);
 
             LoggerIN.info("Loading extended config {}", ExtendedConfig.file.getPath());
         }
@@ -380,6 +382,7 @@ public class ExtendedConfig
             nbt.setBoolean("ShowDragonHitboxOnly", this.showDragonHitboxOnly);
             nbt.setBoolean("ShowHitboxWhenDragonSpawned", this.showHitboxWhenDragonSpawned);
             nbt.setBoolean("SneakToOpenInventoryWhileFightDragon", this.sneakToOpenInventoryWhileFightDragon);
+            nbt.setBoolean("LeavePartyWhenLastEyePlaced", this.leavePartyWhenLastEyePlaced);
             nbt.setString("HypixelNickName", this.hypixelNickName);
             nbt.setInteger("SelectedHypixelMinigame", this.selectedHypixelMinigame);
             nbt.setInteger("HypixelMinigameScrollPos", this.hypixelMinigameScrollPos);
@@ -683,6 +686,10 @@ public class ExtendedConfig
         {
             this.sneakToOpenInventoryWhileFightDragon = !this.sneakToOpenInventoryWhileFightDragon;
         }
+        else if (options == ExtendedConfig.Options.LEAVE_PARTY_WHEN_LAST_EYE_PLACED)
+        {
+            this.leavePartyWhenLastEyePlaced = !this.leavePartyWhenLastEyePlaced;
+        }
     }
 
     public void setOptionFloatValue(ExtendedConfig.Options options, float value)
@@ -976,6 +983,8 @@ public class ExtendedConfig
             return this.showHitboxWhenDragonSpawned;
         case SNEAK_TO_OPEN_INVENTORY_WHILE_FIGHT_DRAGON:
             return this.sneakToOpenInventoryWhileFightDragon;
+        case LEAVE_PARTY_WHEN_LAST_EYE_PLACED:
+            return this.leavePartyWhenLastEyePlaced;
         default:
             return false;
         }
@@ -1156,6 +1165,7 @@ public class ExtendedConfig
         SHOW_DRAGON_HITBOX_ONLY(false, true),
         SHOW_HITBOX_WHEN_DRAGON_SPAWNED(false, true),
         SNEAK_TO_OPEN_INVENTORY_WHILE_FIGHT_DRAGON(false, true),
+        LEAVE_PARTY_WHEN_LAST_EYE_PLACED(false, true),
         JUNGLE_AXE_DELAY(true, false, 1500.0F, 2000.0F, 50.0F),
         GRAPPLING_HOOK_DELAY(true, false, 1500.0F, 2000.0F, 50.0F),
         ZEALOT_RESPAWN_DELAY(true, false, 10000.0F, 15000.0F, 50.0F),

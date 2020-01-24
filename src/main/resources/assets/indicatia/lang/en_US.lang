@@ -163,6 +163,7 @@ item_rarity_opacity.extended_config=Item Rarity Opacity
 show_hitbox_when_dragon_spawned.extended_config=Show Hitbox when Dragon Spawned
 show_dragon_hitbox_only.extended_config=Show Only Dragon Hitbox
 sneak_to_open_inventory_while_fight_dragon.extended_config=Sneak to Open Inventory while Fighting Dragon
+leave_party_when_last_eye_placed.extended_config=Leave Party when Last Eye placed
 
 # MESSAGE
 message.toggle_sprint_enabled=Enabled Toggle Sprint

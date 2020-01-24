@@ -280,6 +280,10 @@ public class HypixelEventHandler
                     ExtendedConfig.instance.chatMode = 0;
                     ExtendedConfig.instance.save();
                 }
+                if (ExtendedConfig.instance.leavePartyWhenLastEyePlaced && message.contains(" Brace yourselves! (8/8)"))
+                {
+                    this.mc.thePlayer.sendChatMessage("/p leave");
+                }
 
                 if (visitIslandMatcher.matches())
                 {

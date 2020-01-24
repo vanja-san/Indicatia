@@ -34,6 +34,7 @@ public class GuiHypixelSettings extends GuiScreen
         OPTIONS.add(ExtendedConfig.Options.SHOW_HITBOX_WHEN_DRAGON_SPAWNED);
         OPTIONS.add(ExtendedConfig.Options.SHOW_DRAGON_HITBOX_ONLY);
         OPTIONS.add(ExtendedConfig.Options.SNEAK_TO_OPEN_INVENTORY_WHILE_FIGHT_DRAGON);
+        OPTIONS.add(ExtendedConfig.Options.LEAVE_PARTY_WHEN_LAST_EYE_PLACED);
     }
 
     public GuiHypixelSettings(GuiScreen parent)
