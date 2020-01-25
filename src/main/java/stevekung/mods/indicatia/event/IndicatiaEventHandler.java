@@ -177,8 +177,6 @@ public class IndicatiaEventHandler
     {
         if (event.phase == TickEvent.Phase.START)
         {
-            InfoUtils.INSTANCE.processMouseOverEntity(this.mc);
-
             if (ConfigManagerIN.enableSmoothSneakingView)
             {
                 if (this.mc.thePlayer != null)

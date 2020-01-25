@@ -12,21 +12,18 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import stevekung.mods.indicatia.config.ExtendedConfig;
-import stevekung.mods.indicatia.utils.ClientUtils;
 import stevekung.mods.indicatia.utils.CommonUtils;
 import stevekung.mods.indicatia.utils.LangUtils;
 
 public class GuiExtendedConfig extends GuiScreen
 {
     private static final List<ExtendedConfig.Options> OPTIONS = new ArrayList<>();
-    public static boolean preview = false;
     private GuiButton resetButton;
     private GuiButton doneButton;
 
     static
     {
         OPTIONS.add(ExtendedConfig.Options.SWAP_INFO_POS);
-        OPTIONS.add(ExtendedConfig.Options.HEALTH_STATUS);
         OPTIONS.add(ExtendedConfig.Options.EQUIPMENT_ORDERING);
         OPTIONS.add(ExtendedConfig.Options.EQUIPMENT_DIRECTION);
         OPTIONS.add(ExtendedConfig.Options.EQUIPMENT_STATUS);
@@ -51,7 +48,6 @@ public class GuiExtendedConfig extends GuiScreen
     @Override
     public void initGui()
     {
-        GuiExtendedConfig.preview = false;
         int i = 0;
 
         for (ExtendedConfig.Options options : OPTIONS)
@@ -72,29 +68,8 @@ public class GuiExtendedConfig extends GuiScreen
         this.buttonList.add(new GuiButton(102, this.width / 2 - 155, this.height / 6 + 151, 150, 20, LangUtils.translate("extended_config.offset.title")));
         this.buttonList.add(new GuiButton(103, this.width / 2 + 10, this.height / 6 + 151, 150, 20, LangUtils.translate("extended_config.hypixel.title")));
 
-        this.buttonList.add(new GuiConfigButton(150, this.width / 2 - 160, this.height / 6 + 175, 160, ExtendedConfig.Options.PREVIEW, ExtendedConfig.instance.getKeyBinding(ExtendedConfig.Options.PREVIEW)));
         this.buttonList.add(this.doneButton = new GuiButton(200, this.width / 2 + 5, this.height / 6 + 175, 160, 20, LangUtils.translate("gui.done")));
-        this.buttonList.add(this.resetButton = new GuiButton(201, this.width / 2 + 87, this.height / 6 + 175, 78, 20, LangUtils.translate("extended_config.reset_config")));
-        this.resetButton.visible = false;
-    }
-
-    @Override
-    public void updateScreen()
-    {
-        boolean shift = ClientUtils.isShiftKeyDown();
-
-        if (shift)
-        {
-            this.doneButton.width = 78;
-            this.doneButton.xPosition = this.width / 2 + 5;
-            this.resetButton.visible = true;
-        }
-        else
-        {
-            this.doneButton.width = 160;
-            this.doneButton.xPosition = this.width / 2 + 5;
-            this.resetButton.visible = false;
-        }
+        this.buttonList.add(this.resetButton = new GuiButton(201, this.width / 2 - 160, this.height / 6 + 175, 160, 20, LangUtils.translate("extended_config.reset_config")));
     }
 
     @Override
@@ -130,11 +105,11 @@ public class GuiExtendedConfig extends GuiScreen
         {
             ExtendedConfig.instance.save();
 
-            if ((button.id < 100 || button.id == 150) && button instanceof GuiConfigButton)
+            if (button.id < 100 && button instanceof GuiConfigButton)
             {
                 ExtendedConfig.Options options = ((GuiConfigButton)button).getOption();
                 ExtendedConfig.instance.setOptionValue(options, 1);
-                button.displayString = ExtendedConfig.instance.getKeyBinding(button.id == 150 ? ExtendedConfig.Options.PREVIEW : ExtendedConfig.Options.byOrdinal(button.id));
+                button.displayString = ExtendedConfig.instance.getKeyBinding(ExtendedConfig.Options.byOrdinal(button.id));
             }
             if (button.id == 100)
             {
@@ -166,10 +141,7 @@ public class GuiExtendedConfig extends GuiScreen
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
-        if (!GuiExtendedConfig.preview)
-        {
-            this.drawDefaultBackground();
-        }
+        this.drawDefaultBackground();
         this.drawCenteredString(this.fontRendererObj, LangUtils.translate("extended_config.main.title") + " : " + LangUtils.translate("extended_config.current_profile.info", EnumChatFormatting.YELLOW + ExtendedConfig.currentProfile + EnumChatFormatting.RESET), this.width / 2, 10, 16777215);
         super.drawScreen(mouseX, mouseY, partialTicks);
     }

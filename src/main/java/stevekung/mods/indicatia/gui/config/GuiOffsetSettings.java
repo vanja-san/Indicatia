@@ -33,8 +33,8 @@ public class GuiOffsetSettings extends GuiScreen
     public void initGui()
     {
         this.buttonList.clear();
-        this.buttonList.add(new GuiButton(200, this.width / 2 - 105, this.height - 27, 100, 20, LangUtils.translate("gui.done")));
-        this.buttonList.add(new GuiButton(201, this.width / 2 + 5, this.height - 27, 100, 20, LangUtils.translate("message.preview")));
+        this.buttonList.add(new GuiButton(200, this.width / 2 + 5, this.height - 25, 100, 20, LangUtils.translate("gui.done")));
+        this.buttonList.add(new GuiButton(201, this.width / 2 - 105, this.height - 25, 100, 20, LangUtils.translate("message.preview")));
 
         ExtendedConfig.Options[] options = new ExtendedConfig.Options[OPTIONS.size()];
         options = OPTIONS.toArray(options);

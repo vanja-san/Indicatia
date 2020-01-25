@@ -42,8 +42,6 @@ commands.indicatia.togglesprint.mode.usage=/indicatia toggle_sprint mode <key_bi
 commands.indicatia.togglesneak.mode.usage=/indicatia toggle_sneak mode <key_binding|command>
 
 # EXTENDED CONFIG VALUE
-health_status.always=Always
-health_status.pointed=Pointed
 indicatia.disabled=Disabled
 indicatia.left=Left
 indicatia.right=Right
@@ -79,9 +77,7 @@ extended_config.offset.title=Offset Settings...
 extended_config.hypixel.title=Hypixel Settings...
 extended_config.reset_config=Reset Config
 extended_config.render_info_custom_color.title=Render Info Custom Color
-preview.extended_config=Preview
 swap_info_pos.extended_config=Swap Render Info
-health_status.extended_config=Health Status
 equipment_ordering.extended_config=Equipment Ordering
 equipment_direction.extended_config=Equipment Direction
 equipment_status.extended_config=Equipment Status

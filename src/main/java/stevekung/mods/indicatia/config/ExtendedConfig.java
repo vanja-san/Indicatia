@@ -8,7 +8,6 @@ import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
-import stevekung.mods.indicatia.gui.config.GuiExtendedConfig;
 import stevekung.mods.indicatia.utils.ClientUtils;
 import stevekung.mods.indicatia.utils.GameProfileUtils;
 import stevekung.mods.indicatia.utils.LangUtils;
@@ -22,7 +21,6 @@ public class ExtendedConfig
     public static final File userDir = new File(indicatiaDir, GameProfileUtils.getUUID().toString());
     public static final File defaultConfig = new File(userDir, "default.dat");
     public static String currentProfile = "";
-    private static final String[] HEALTH_STATUS = new String[] {"indicatia.disabled", "health_status.always", "health_status.pointed"};
     private static final String[] EQUIPMENT_ORDERING = new String[] {"indicatia.default", "equipment.reverse"};
     private static final String[] EQUIPMENT_DIRECTION = new String[] {"equipment.vertical", "equipment.horizontal"};
     private static final String[] EQUIPMENT_STATUS = new String[] {"equipment.damage_and_max_damage", "equipment.percent", "equipment.only_damage", "indicatia.none", "equipment.count", "equipment.count_and_stack"};
@@ -58,7 +56,6 @@ public class ExtendedConfig
 
     // Main
     public boolean swapRenderInfo = false;
-    public int healthStatusMode = 0;
     public int equipmentOrdering = 0;
     public int equipmentDirection = 0;
     public int equipmentStatus = 0;
@@ -181,7 +178,6 @@ public class ExtendedConfig
 
             // Main
             this.swapRenderInfo = ExtendedConfig.getBoolean(nbt, "SwapRenderInfo", this.swapRenderInfo);
-            this.healthStatusMode = ExtendedConfig.getInteger(nbt, "HealthStatusMode", this.healthStatusMode);
             this.equipmentOrdering = ExtendedConfig.getInteger(nbt, "EquipmentOrdering", this.equipmentOrdering);
             this.equipmentDirection = ExtendedConfig.getInteger(nbt, "EquipmentDirection", this.equipmentDirection);
             this.equipmentStatus = ExtendedConfig.getInteger(nbt, "EquipmentStatus", this.equipmentStatus);
@@ -305,7 +301,6 @@ public class ExtendedConfig
 
             // Main
             nbt.setBoolean("SwapRenderInfo", this.swapRenderInfo);
-            nbt.setInteger("HealthStatusMode", this.healthStatusMode);
             nbt.setInteger("EquipmentOrdering", this.equipmentOrdering);
             nbt.setInteger("EquipmentDirection", this.equipmentDirection);
             nbt.setInteger("EquipmentStatus", this.equipmentStatus);
@@ -466,15 +461,11 @@ public class ExtendedConfig
         else if (options.isBoolean())
         {
             boolean flag = this.getOptionOrdinalValue(options);
-            return flag ? name + EnumChatFormatting.GREEN + "true" : name + EnumChatFormatting.RED + "false";
+            return flag ? name + EnumChatFormatting.GREEN + (options == ExtendedConfig.Options.SWAP_INFO_POS ? LangUtils.translate("gui.yes") : "ON") : name + EnumChatFormatting.RED + (options == ExtendedConfig.Options.SWAP_INFO_POS ? LangUtils.translate("gui.no") : "OFF");
         }
         else if (options.isTextbox())
         {
             return this.getOptionStringValue(options);
-        }
-        else if (options == ExtendedConfig.Options.HEALTH_STATUS)
-        {
-            return name + this.getTranslation(HEALTH_STATUS, this.healthStatusMode);
         }
         else if (options == ExtendedConfig.Options.EQUIPMENT_ORDERING)
         {
@@ -520,17 +511,9 @@ public class ExtendedConfig
 
     public void setOptionValue(ExtendedConfig.Options options, int value)
     {
-        if (options == ExtendedConfig.Options.PREVIEW)
-        {
-            GuiExtendedConfig.preview = !GuiExtendedConfig.preview;
-        }
-        else if (options == ExtendedConfig.Options.SWAP_INFO_POS)
+        if (options == ExtendedConfig.Options.SWAP_INFO_POS)
         {
             this.swapRenderInfo = !this.swapRenderInfo;
-        }
-        else if (options == ExtendedConfig.Options.HEALTH_STATUS)
-        {
-            this.healthStatusMode = (this.healthStatusMode + value) % 3;
         }
         else if (options == ExtendedConfig.Options.EQUIPMENT_ORDERING)
         {
@@ -920,8 +903,6 @@ public class ExtendedConfig
     {
         switch (options)
         {
-        case PREVIEW:
-            return GuiExtendedConfig.preview;
         case SWAP_INFO_POS:
             return this.swapRenderInfo;
         case FPS:
@@ -1079,10 +1060,7 @@ public class ExtendedConfig
 
     public static enum Options
     {
-        PREVIEW(false, true),
-
         SWAP_INFO_POS(false, true),
-        HEALTH_STATUS(false, false),
         EQUIPMENT_ORDERING(false, false),
         EQUIPMENT_DIRECTION(false, false),
         EQUIPMENT_STATUS(false, false),

@@ -10,23 +10,18 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockEndPortalFrame;
 import net.minecraft.block.BlockLog;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.entity.RendererLivingEntity;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.boss.BossStatus;
 import net.minecraft.entity.boss.EntityDragon;
-import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.monster.EntityEnderman;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.*;
 import net.minecraftforge.client.GuiIngameForge;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -36,14 +31,15 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import stevekung.mods.indicatia.config.ConfigManagerIN;
 import stevekung.mods.indicatia.config.EnumEquipment;
 import stevekung.mods.indicatia.config.ExtendedConfig;
-import stevekung.mods.indicatia.config.HealthStatusMode;
 import stevekung.mods.indicatia.gui.config.GuiRenderPreview;
 import stevekung.mods.indicatia.gui.toasts.GuiToast;
 import stevekung.mods.indicatia.handler.ClientBlockBreakEvent;
 import stevekung.mods.indicatia.handler.GrapplingHookEvent;
 import stevekung.mods.indicatia.renderer.HUDInfo;
-import stevekung.mods.indicatia.utils.*;
-import stevekung.mods.indicatia.utils.JsonUtils;
+import stevekung.mods.indicatia.utils.ColorUtils;
+import stevekung.mods.indicatia.utils.CoordsPair;
+import stevekung.mods.indicatia.utils.InfoUtils;
+import stevekung.mods.indicatia.utils.SkyBlockLocation;
 
 public class HUDRenderEventHandler
 {
@@ -343,30 +339,6 @@ public class HUDRenderEventHandler
                     this.mc.getTextureManager().bindTexture(Gui.icons);
                 }
                 GlStateManager.disableBlend();
-            }
-        }
-    }
-
-    @SubscribeEvent
-    public void onRenderHealthStatus(RenderLivingEvent.Specials.Post event)
-    {
-        EntityLivingBase entity = event.entity;
-        float health = entity.getHealth();
-        boolean halfHealth = health <= entity.getMaxHealth() / 2F;
-        boolean halfHealth1 = health <= entity.getMaxHealth() / 4F;
-        float range = entity.isSneaking() ? RendererLivingEntity.NAME_TAG_RANGE_SNEAK : RendererLivingEntity.NAME_TAG_RANGE;
-        double distance = entity.getDistanceSqToEntity(this.mc.getRenderViewEntity());
-        String mode = HealthStatusMode.getById(ExtendedConfig.instance.healthStatusMode);
-        boolean flag = mode.equals("disable") ? false : mode.equals("pointed") ? entity == InfoUtils.INSTANCE.extendedPointedEntity : true;
-        ChatStyle color = halfHealth ? JsonUtils.red() : halfHealth1 ? JsonUtils.darkRed() : JsonUtils.green();
-
-        if (distance < range * range)
-        {
-            if (!this.mc.gameSettings.hideGUI && !entity.isInvisible() && flag && !(entity instanceof EntityPlayerSP || entity instanceof EntityArmorStand) && !InfoUtils.INSTANCE.isHypixel())
-            {
-                String heart = JsonUtils.create("\u2764 ").setChatStyle(color).getFormattedText();
-                GlStateManager.alphaFunc(516, 0.1F);
-                RenderUtils.renderEntityHealth(entity, heart + String.format("%.1f", health), event.x, event.y, event.z);
             }
         }
     }

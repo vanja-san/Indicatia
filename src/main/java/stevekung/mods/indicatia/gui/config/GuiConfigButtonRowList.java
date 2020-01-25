@@ -69,6 +69,7 @@ public class GuiConfigButtonRowList extends GuiListExtended
         private final Minecraft mc = Minecraft.getMinecraft();
         private final GuiButton buttonA;
         private final GuiButton buttonB;
+
         public Row(GuiButton buttonA, GuiButton buttonB)
         {
             this.buttonA = buttonA;
