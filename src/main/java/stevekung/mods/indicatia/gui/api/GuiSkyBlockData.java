@@ -39,6 +39,7 @@ import net.minecraft.entity.monster.EntitySpider;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.event.ClickEvent;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.InventoryBasic;
@@ -55,6 +56,7 @@ import net.minecraftforge.fml.client.GuiScrollingList;
 import stevekung.mods.indicatia.config.ExtendedConfig;
 import stevekung.mods.indicatia.core.IndicatiaMod;
 import stevekung.mods.indicatia.event.ClientEventHandler;
+import stevekung.mods.indicatia.handler.KeyBindingHandler;
 import stevekung.mods.indicatia.integration.SkyblockAddonsGuiChest;
 import stevekung.mods.indicatia.utils.*;
 
@@ -292,6 +294,19 @@ public class GuiSkyBlockData extends GuiScreen
     @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
+        if (keyCode == KeyBindingHandler.KEY_SB_VIEW_RECIPE.getKeyCode())
+        {
+            if (this.theSlot != null && this.theSlot.getHasStack() && this.theSlot.getStack().hasTagCompound())
+            {
+                NBTTagCompound extraAttrib = this.theSlot.getStack().getTagCompound().getCompoundTag("ExtraAttributes");
+
+                if (extraAttrib.hasKey("id"))
+                {
+                    String itemId = extraAttrib.getString("id");
+                    ClientUtils.printClientMessage(JsonUtils.create("Click to view ").appendSibling(JsonUtils.create(this.theSlot.getStack().getDisplayName()).setChatStyle(JsonUtils.gold()).appendSibling(JsonUtils.create(" recipe").setChatStyle(JsonUtils.green()))).setChatStyle(JsonUtils.green().setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/viewrecipe " + itemId))));
+                }
+            }
+        }
         if (keyCode == 1)
         {
             this.mc.displayGuiScreen(null);
