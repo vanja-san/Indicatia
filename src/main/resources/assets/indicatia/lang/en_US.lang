@@ -203,6 +203,7 @@ gui.sb_other_stats.deaths=Deaths
 gui.sb_other_stats.others=Others
 gui.sb_basic_info=Basic Info
 gui.sb_inventory=Inventory
+gui.close=Close
 
 # SKYBLOCK INVENTORY
 skyblock_tab.inventory=Inventory

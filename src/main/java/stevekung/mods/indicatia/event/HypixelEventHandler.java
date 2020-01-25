@@ -43,7 +43,7 @@ import stevekung.mods.indicatia.config.ExtendedConfig;
 import stevekung.mods.indicatia.config.RareDropMode;
 import stevekung.mods.indicatia.config.VisitIslandMode;
 import stevekung.mods.indicatia.gui.SignSelectionList;
-import stevekung.mods.indicatia.gui.api.GuiSkyBlockProfileSelection;
+import stevekung.mods.indicatia.gui.api.GuiSkyBlockAPIViewer;
 import stevekung.mods.indicatia.gui.toasts.GiftToast;
 import stevekung.mods.indicatia.gui.toasts.ItemDropsToast;
 import stevekung.mods.indicatia.gui.toasts.ToastUtils;
@@ -205,7 +205,7 @@ public class HypixelEventHandler
                     {
                         if (this.mc.thePlayer.sendQueue.getPlayerInfoMap().stream().anyMatch(info -> info.getGameProfile().getName().equals(player.getName())))
                         {
-                            this.mc.displayGuiScreen(new GuiSkyBlockProfileSelection(player.getDisplayNameString()));
+                            this.mc.displayGuiScreen(new GuiSkyBlockAPIViewer(player.getDisplayNameString()));
                             event.setCanceled(true);
                         }
                     }

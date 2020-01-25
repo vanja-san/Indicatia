@@ -9,9 +9,9 @@ public class ProfileDataCallback
     private final String username;
     private final String uuid;
     private final GameProfile profile;
-    private final String lastSave;
+    private final long lastSave;
 
-    public ProfileDataCallback(String sbProfileId, String profileName, String username, String uuid, GameProfile profile, String lastSave)
+    public ProfileDataCallback(String sbProfileId, String profileName, String username, String uuid, GameProfile profile, long lastSave)
     {
         this.sbProfileId = sbProfileId;
         this.profileName = profileName;
@@ -46,7 +46,7 @@ public class ProfileDataCallback
         return this.profile;
     }
 
-    public String getLastSave()
+    public long getLastSave()
     {
         return this.lastSave;
     }

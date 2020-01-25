@@ -2,13 +2,16 @@ package stevekung.mods.indicatia.gui;
 
 import java.util.List;
 
+import org.apache.commons.lang3.builder.CompareToBuilder;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import stevekung.mods.indicatia.gui.api.GuiSkyBlockData;
 import stevekung.mods.indicatia.gui.api.ProfileDataCallback;
+import stevekung.mods.indicatia.utils.CommonUtils;
 
-public class GuiSBProfileButton extends GuiButton
+public class GuiSBProfileButton extends GuiButton implements Comparable<GuiSBProfileButton>
 {
     private List<ProfileDataCallback> profiles;
     private final ProfileDataCallback callback;
@@ -33,15 +36,20 @@ public class GuiSBProfileButton extends GuiButton
     }
 
     @Override
-    public void drawButton(Minecraft mc, int mouseX, int mouseY)
+    public int compareTo(GuiSBProfileButton other)
     {
-        super.drawButton(mc, mouseX, mouseY);
-        this.drawRegion(this.callback.getLastSave(), mc.currentScreen.width, mouseX, mouseY);
-        GlStateManager.enableDepth();
+        return new CompareToBuilder().append(this.getLastSave(), other.getLastSave()).build();
     }
 
-    private void drawRegion(String text, int parentWidth, int mouseX, int mouseY)
+    public long getLastSave()
     {
+        return this.callback.getLastSave();
+    }
+
+    public void drawRegion(int parentWidth, int mouseX, int mouseY)
+    {
+        String text = this.getLastActive();
+
         if (this.visible)
         {
             boolean isHover = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
@@ -81,10 +89,16 @@ public class GuiSBProfileButton extends GuiButton
             GlStateManager.enableDepth();
             }
         }
+        GlStateManager.enableDepth();
     }
 
     public void setProfileList(List<ProfileDataCallback> profiles)
     {
         this.profiles = profiles;
+    }
+
+    private String getLastActive()
+    {
+        return "Last active: " + CommonUtils.getRelativeTime(this.callback.getLastSave());
     }
 }

@@ -183,7 +183,7 @@ public class GuiSkyBlockData extends GuiScreen
             });
         }
 
-        this.buttonList.add(this.doneButton = new GuiButton(0, this.width / 2 - 154, this.height - 27, 150, 20, LangUtils.translate("gui.done")));
+        this.buttonList.add(this.doneButton = new GuiButton(0, this.width / 2 - 154, this.height - 27, 150, 20, LangUtils.translate("gui.close")));
         this.buttonList.add(this.backButton = new GuiButton(1, this.width / 2 + 4, this.height - 27, 150, 20, LangUtils.translate("gui.back")));
         GuiButton infoButton = new GuiButton(ViewButton.INFO.id, this.width / 2 - 185, 10, 80, 20, LangUtils.translate("gui.sb_view_info"));
         infoButton.enabled = false;
@@ -280,11 +280,11 @@ public class GuiSkyBlockData extends GuiScreen
 
             if (button.id == 0)
             {
-                this.mc.displayGuiScreen(this.error ? new GuiSkyBlockProfileSelection(this.username, this.profiles) : null);
+                this.mc.displayGuiScreen(this.error ? new GuiSkyBlockAPIViewer(this.username, this.profiles) : null);
             }
             else if (button.id == 1)
             {
-                this.mc.displayGuiScreen(new GuiSkyBlockProfileSelection(this.username, this.profiles));
+                this.mc.displayGuiScreen(new GuiSkyBlockAPIViewer(this.username, this.profiles));
             }
         }
     }
