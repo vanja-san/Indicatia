@@ -10,6 +10,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.commons.lang3.time.StopWatch;
 import org.lwjgl.input.Keyboard;
 
@@ -25,6 +26,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.tileentity.TileEntitySkull;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
+import net.minecraft.util.StringUtils;
 import stevekung.mods.indicatia.gui.GuiButtonSearch;
 import stevekung.mods.indicatia.gui.GuiRightClickTextField;
 import stevekung.mods.indicatia.gui.GuiSBProfileButton;
@@ -67,9 +69,9 @@ public class GuiSkyBlockAPIViewer extends GuiScreen
     {
         Keyboard.enableRepeatEvents(true);
         this.buttonList.clear();
-        this.buttonList.add(this.checkButton = new GuiButtonSearch(0, this.width / 2 + 78, 61));
+        this.buttonList.add(this.checkButton = new GuiButtonSearch(0, this.width / 2 + 78, 46));
         this.buttonList.add(this.closeButton = new GuiButton(1, this.width / 2 - 75, this.height / 4 + 152, 150, 20, LangUtils.translate("gui.close")));
-        this.usernameTextField = new GuiRightClickTextField(2, this.fontRendererObj, this.width / 2 - 75, 60, 150, 20);
+        this.usernameTextField = new GuiRightClickTextField(2, this.fontRendererObj, this.width / 2 - 75, 45, 150, 20);
         this.usernameTextField.setMaxStringLength(32767);
         this.usernameTextField.setFocused(true);
         this.usernameTextField.setText(this.username);
@@ -102,18 +104,29 @@ public class GuiSkyBlockAPIViewer extends GuiScreen
         if (!this.profiles.isEmpty())
         {
             int i = 0;
+            List<GuiSBProfileButton> buttons = new ArrayList<>();
 
             for (ProfileDataCallback data : this.profiles)
             {
-                GuiSBProfileButton button = new GuiSBProfileButton(i + 1000, this.width / 2 - 75, 90, 150, 20, data);
-                button.yPosition += i * 22;
-                this.profileButtonList.add(button);
+                GuiSBProfileButton button = new GuiSBProfileButton(i + 1000, this.width / 2 - 75, 75, 150, 20, data);
+                buttons.add(button);
                 ++i;
             }
 
-            for (GuiSBProfileButton button : this.profileButtonList)
+            buttons.sort((button1, button2) -> new CompareToBuilder().append(button2.getLastSave(), button1.getLastSave()).build());
+
+            int i2 = 0;
+
+            for (GuiSBProfileButton button : buttons)
             {
+                if (i2 == 0)
+                {
+                    button.displayString = EnumChatFormatting.YELLOW + "" + EnumChatFormatting.BOLD + button.displayString;
+                }
+                button.yPosition += i2 * 22;
                 button.setProfileList(this.profiles);
+                this.profileButtonList.add(button);
+                ++i2;
             }
         }
     }
@@ -256,8 +269,13 @@ public class GuiSkyBlockAPIViewer extends GuiScreen
                 {
                     this.drawCenteredString(this.fontRendererObj, EnumChatFormatting.GOLD + this.username + "'s Profile(s)", this.width / 2, 30, 16777215);
                 }
-                this.drawString(this.fontRendererObj, "Enter Username", this.width / 2 - 75, 45, 10526880);
+
                 this.usernameTextField.drawTextBox();
+
+                if (StringUtils.isNullOrEmpty(this.usernameTextField.getText()))
+                {
+                    this.drawString(this.fontRendererObj, "Enter username", this.width / 2 - 71, 51, 10526880);
+                }
 
                 for (GuiSBProfileButton button : this.profileButtonList)
                 {
@@ -327,6 +345,7 @@ public class GuiSkyBlockAPIViewer extends GuiScreen
         }
 
         this.statusMessage = "Getting SkyBlock profiles";
+        List<GuiSBProfileButton> buttons = new ArrayList<>();
 
         for (Map.Entry<String, JsonElement> entry : profiles.entrySet())
         {
@@ -336,16 +355,26 @@ public class GuiSkyBlockAPIViewer extends GuiScreen
             this.statusMessage = "Found " + EnumChatFormatting.GOLD + profileName + EnumChatFormatting.RESET + " profile";
             GameProfile profile = TileEntitySkull.updateGameprofile(new GameProfile(UUID.fromString(uuid.replaceFirst("([0-9a-fA-F]{8})([0-9a-fA-F]{4})([0-9a-fA-F]{4})([0-9a-fA-F]{4})([0-9a-fA-F]+)", "$1-$2-$3-$4-$5")), this.username));
             ProfileDataCallback callback = new ProfileDataCallback(sbProfileId, profileName, this.username, uuid, profile, this.getLastSaveProfile(sbProfileId, uuid));
-            GuiSBProfileButton button = new GuiSBProfileButton(i + 1000, this.width / 2 - 75, 90, 150, 20, callback);
-            button.yPosition += i * 22;
-            this.profileButtonList.add(button);
+            GuiSBProfileButton button = new GuiSBProfileButton(i + 1000, this.width / 2 - 75, 75, 150, 20, callback);
+            buttons.add(button);
             this.profiles.add(callback);
             ++i;
         }
 
-        for (GuiSBProfileButton button : this.profileButtonList)
+        buttons.sort((button1, button2) -> new CompareToBuilder().append(button2.getLastSave(), button1.getLastSave()).build());
+
+        int i2 = 0;
+
+        for (GuiSBProfileButton button : buttons)
         {
+            if (i2 == 0)
+            {
+                button.displayString = EnumChatFormatting.YELLOW + "" + EnumChatFormatting.BOLD + button.displayString;
+            }
+            button.yPosition += i2 * 22;
             button.setProfileList(this.profiles);
+            this.profileButtonList.add(button);
+            ++i2;
         }
         this.usernameTextField.setText(this.username);
         this.loadingApi = false;

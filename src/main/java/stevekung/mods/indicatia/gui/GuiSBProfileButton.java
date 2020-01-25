@@ -2,8 +2,6 @@ package stevekung.mods.indicatia.gui;
 
 import java.util.List;
 
-import org.apache.commons.lang3.builder.CompareToBuilder;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
@@ -11,7 +9,7 @@ import stevekung.mods.indicatia.gui.api.GuiSkyBlockData;
 import stevekung.mods.indicatia.gui.api.ProfileDataCallback;
 import stevekung.mods.indicatia.utils.CommonUtils;
 
-public class GuiSBProfileButton extends GuiButton implements Comparable<GuiSBProfileButton>
+public class GuiSBProfileButton extends GuiButton
 {
     private List<ProfileDataCallback> profiles;
     private final ProfileDataCallback callback;
@@ -33,12 +31,6 @@ public class GuiSBProfileButton extends GuiButton implements Comparable<GuiSBPro
             return true;
         }
         return false;
-    }
-
-    @Override
-    public int compareTo(GuiSBProfileButton other)
-    {
-        return new CompareToBuilder().append(this.getLastSave(), other.getLastSave()).build();
     }
 
     public long getLastSave()
