@@ -62,7 +62,6 @@ public class HypixelEventHandler
     private static final Pattern UUID_PATTERN = Pattern.compile("Your new API key is (?<uuid>" + HypixelEventHandler.UUID_PATTERN_STRING + ")");
     private static final String RANKED_PATTERN = "(?:(?:\\w)|(?:\\[VIP?\\u002B{0,1}\\]|\\[MVP?\\u002B{0,2}\\]|\\[YOUTUBE\\]) \\w)+";
     private static final Pattern CHAT_PATTERN = Pattern.compile("(?:(\\w+)|(?:\\[VIP?\\u002B{0,1}\\]|\\[MVP?\\u002B{0,2}\\]|\\[YOUTUBE\\]) (\\w+))+: (?:.)+");
-    private static final Pattern DRAGON_DEAD_PATTERN = Pattern.compile("                          \\w+ DRAGON DOWN!");
 
     // Item Drop Stuff
     private static final String DROP_PATTERN = "(?<item>[\\w\\u0027\\u25C6 -]+)";
@@ -230,7 +229,6 @@ public class HypixelEventHandler
             Matcher joinedPartyMatcher = HypixelEventHandler.JOINED_PARTY_PATTERN.matcher(message);
             Matcher uuidMatcher = HypixelEventHandler.UUID_PATTERN.matcher(message);
             Matcher chatMatcher = HypixelEventHandler.CHAT_PATTERN.matcher(message);
-            Matcher dragonDeadMatcher = HypixelEventHandler.DRAGON_DEAD_PATTERN.matcher(message);
 
             // Item Drop matcher
             Matcher rareDropPattern = HypixelEventHandler.RARE_DROP_PATTERN.matcher(message);
@@ -345,10 +343,6 @@ public class HypixelEventHandler
                         }
                     }
                     catch (Exception e) {}
-                }
-                else if (dragonDeadMatcher.matches())
-                {
-                    SkyBlockBossStatus.renderBossBar = false;
                 }
 
                 if (RareDropMode.getById(ExtendedConfig.instance.itemDropMode).equalsIgnoreCase("toast"))
@@ -481,6 +475,12 @@ public class HypixelEventHandler
             {
                 this.mc.ingameGUI.displayTitle(JsonUtils.create("Preparing spawn...").setChatStyle(JsonUtils.red()).getFormattedText(), JsonUtils.create("").setChatStyle(JsonUtils.red()).getFormattedText(), 0, 1200, 20);
                 this.mc.getSoundHandler().playSound(new PositionedSoundRecord(new ResourceLocation("random.orb"), 0.75F, 1.0F, (float)this.mc.thePlayer.posX + 0.5F, (float)this.mc.thePlayer.posY + 0.5F, (float)this.mc.thePlayer.posZ + 0.5F));
+            }
+            if (name.equals("mob.enderdragon.end"))
+            {
+                SkyBlockBossStatus.renderBossBar = false;
+                SkyBlockBossStatus.healthScale = 0;
+                SkyBlockBossStatus.bossName = null;
             }
         }
     }
