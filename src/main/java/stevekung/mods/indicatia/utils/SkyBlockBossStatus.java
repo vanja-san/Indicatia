@@ -7,44 +7,52 @@ import stevekung.mods.indicatia.event.HypixelEventHandler;
 
 public class SkyBlockBossStatus
 {
+    public static boolean renderBossBar;
+    public static float healthScale;
+    public static String bossName;
+
     public static void setBossStatus(IBossDisplayData displayData, boolean hasColorModifier)
     {
-        String name = EnumChatFormatting.getTextWithoutFormattingCodes(displayData.getDisplayName().getUnformattedText());
-        DragonType type = DragonType.SUPERIOR;
+        if (HypixelEventHandler.isSkyBlock && HypixelEventHandler.SKY_BLOCK_LOCATION.isTheEnd())
+        {
+            String name = EnumChatFormatting.getTextWithoutFormattingCodes(displayData.getDisplayName().getUnformattedText());
+            DragonType type = DragonType.SUPERIOR;
 
-        if (name.equals("Old Dragon"))
-        {
-            type = DragonType.OLD;
+            if (name.equals("Old Dragon"))
+            {
+                type = DragonType.OLD;
+            }
+            else if (name.equals("Protector Dragon"))
+            {
+                type = DragonType.PROTECTOR;
+            }
+            else if (name.equals("Strong Dragon"))
+            {
+                type = DragonType.STRONG;
+            }
+            else if (name.equals("Superior Dragon"))
+            {
+                type = DragonType.SUPERIOR;
+            }
+            else if (name.equals("Unstable Dragon"))
+            {
+                type = DragonType.UNSTABLE;
+            }
+            else if (name.equals("Wise Dragon"))
+            {
+                type = DragonType.WISE;
+            }
+            else if (name.equals("Young Dragon"))
+            {
+                type = DragonType.YOUNG;
+            }
+            SkyBlockBossStatus.healthScale = HypixelEventHandler.dragonHealth / type.getMaxHealth();
+            SkyBlockBossStatus.bossName = displayData.getDisplayName().getFormattedText();
         }
-        else if (name.equals("Protector Dragon"))
+        else
         {
-            type = DragonType.PROTECTOR;
+            BossStatus.setBossStatus(displayData, false);
         }
-        else if (name.equals("Strong Dragon"))
-        {
-            type = DragonType.STRONG;
-        }
-        else if (name.equals("Superior Dragon"))
-        {
-            type = DragonType.SUPERIOR;
-        }
-        else if (name.equals("Unstable Dragon"))
-        {
-            type = DragonType.UNSTABLE;
-        }
-        else if (name.equals("Wise Dragon"))
-        {
-            type = DragonType.WISE;
-        }
-        else if (name.equals("Young Dragon"))
-        {
-            type = DragonType.YOUNG;
-        }
-
-        BossStatus.healthScale = HypixelEventHandler.dragonHealth / type.getMaxHealth();
-        BossStatus.statusBarTime = 100;
-        BossStatus.bossName = displayData.getDisplayName().getFormattedText();
-        BossStatus.hasColorModifier = hasColorModifier;
     }
 
     enum DragonType

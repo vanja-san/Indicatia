@@ -5,9 +5,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 import net.minecraft.client.renderer.entity.RenderDragon;
-import net.minecraft.entity.boss.BossStatus;
 import net.minecraft.entity.boss.IBossDisplayData;
-import stevekung.mods.indicatia.event.HypixelEventHandler;
 import stevekung.mods.indicatia.utils.SkyBlockBossStatus;
 
 @Mixin(RenderDragon.class)
@@ -16,13 +14,6 @@ public abstract class RenderDragonMixin
     @Redirect(method = "doRender(Lnet/minecraft/entity/boss/EntityDragon;DDDFF)V", at = @At(value = "INVOKE", target = "net/minecraft/entity/boss/BossStatus.setBossStatus(Lnet/minecraft/entity/boss/IBossDisplayData;Z)V"))
     private void setBossStatus(IBossDisplayData displayData, boolean hasColorModifier)
     {
-        if (HypixelEventHandler.isSkyBlock && HypixelEventHandler.SKY_BLOCK_LOCATION.isTheEnd())
-        {
-            SkyBlockBossStatus.setBossStatus(displayData, hasColorModifier);
-        }
-        else
-        {
-            BossStatus.setBossStatus(displayData, false);
-        }
+        SkyBlockBossStatus.setBossStatus(displayData, false);
     }
 }

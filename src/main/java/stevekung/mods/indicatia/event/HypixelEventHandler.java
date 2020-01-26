@@ -62,6 +62,7 @@ public class HypixelEventHandler
     private static final Pattern UUID_PATTERN = Pattern.compile("Your new API key is (?<uuid>" + HypixelEventHandler.UUID_PATTERN_STRING + ")");
     private static final String RANKED_PATTERN = "(?:(?:\\w)|(?:\\[VIP?\\u002B{0,1}\\]|\\[MVP?\\u002B{0,2}\\]|\\[YOUTUBE\\]) \\w)+";
     private static final Pattern CHAT_PATTERN = Pattern.compile("(?:(\\w+)|(?:\\[VIP?\\u002B{0,1}\\]|\\[MVP?\\u002B{0,2}\\]|\\[YOUTUBE\\]) (\\w+))+: (?:.)+");
+    private static final Pattern DRAGON_DEAD_PATTERN = Pattern.compile("                          \\w+ DRAGON DOWN!");
 
     // Item Drop Stuff
     private static final String DROP_PATTERN = "(?<item>[\\w\\u0027\\u25C6 -]+)";
@@ -143,6 +144,7 @@ public class HypixelEventHandler
                         else if (scoreText.startsWith("Dragon Health: "))
                         {
                             HypixelEventHandler.dragonHealth = Float.valueOf(scoreText.replaceAll("[^\\d]", ""));
+                            SkyBlockBossStatus.renderBossBar = true;
                         }
 
                         for (SkyBlockLocation location : CachedEnum.locationValues)
@@ -228,6 +230,7 @@ public class HypixelEventHandler
             Matcher joinedPartyMatcher = HypixelEventHandler.JOINED_PARTY_PATTERN.matcher(message);
             Matcher uuidMatcher = HypixelEventHandler.UUID_PATTERN.matcher(message);
             Matcher chatMatcher = HypixelEventHandler.CHAT_PATTERN.matcher(message);
+            Matcher dragonDeadMatcher = HypixelEventHandler.DRAGON_DEAD_PATTERN.matcher(message);
 
             // Item Drop matcher
             Matcher rareDropPattern = HypixelEventHandler.RARE_DROP_PATTERN.matcher(message);
@@ -342,6 +345,10 @@ public class HypixelEventHandler
                         }
                     }
                     catch (Exception e) {}
+                }
+                else if (dragonDeadMatcher.matches())
+                {
+                    SkyBlockBossStatus.renderBossBar = false;
                 }
 
                 if (RareDropMode.getById(ExtendedConfig.instance.itemDropMode).equalsIgnoreCase("toast"))

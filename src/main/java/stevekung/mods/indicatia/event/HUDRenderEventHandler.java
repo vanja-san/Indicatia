@@ -36,10 +36,7 @@ import stevekung.mods.indicatia.gui.toasts.GuiToast;
 import stevekung.mods.indicatia.handler.ClientBlockBreakEvent;
 import stevekung.mods.indicatia.handler.GrapplingHookEvent;
 import stevekung.mods.indicatia.renderer.HUDInfo;
-import stevekung.mods.indicatia.utils.ColorUtils;
-import stevekung.mods.indicatia.utils.CoordsPair;
-import stevekung.mods.indicatia.utils.InfoUtils;
-import stevekung.mods.indicatia.utils.SkyBlockLocation;
+import stevekung.mods.indicatia.utils.*;
 
 public class HUDRenderEventHandler
 {
@@ -308,20 +305,19 @@ public class HUDRenderEventHandler
         {
             event.setCanceled(true);
 
-            if (ConfigManagerIN.enableRenderBossHealthStatus)
+            if (HypixelEventHandler.isSkyBlock && HypixelEventHandler.SKY_BLOCK_LOCATION.isTheEnd())
             {
                 this.mc.getTextureManager().bindTexture(Gui.icons);
                 GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
                 GlStateManager.enableBlend();
 
-                if (BossStatus.bossName != null && BossStatus.statusBarTime > 0)
+                if (SkyBlockBossStatus.bossName != null && SkyBlockBossStatus.renderBossBar)
                 {
-                    --BossStatus.statusBarTime;
                     ScaledResolution res = new ScaledResolution(this.mc);
                     int i = res.getScaledWidth();
                     int j = 182;
                     int k = i / 2 - j / 2;
-                    int l = (int)(BossStatus.healthScale * (j + 1));
+                    int l = (int)(SkyBlockBossStatus.healthScale * (j + 1));
                     int i1 = 12;
 
                     if (ConfigManagerIN.enableRenderBossHealthBar)
@@ -333,12 +329,47 @@ public class HUDRenderEventHandler
                             this.mc.ingameGUI.drawTexturedModalRect(k, i1, 0, 79, l, 5);
                         }
                     }
-                    String name = BossStatus.bossName;
+                    String name = SkyBlockBossStatus.bossName;
                     this.mc.ingameGUI.getFontRenderer().drawStringWithShadow(name, i / 2 - this.mc.ingameGUI.getFontRenderer().getStringWidth(name) / 2, i1 - 10, 16777215);
                     GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
                     this.mc.getTextureManager().bindTexture(Gui.icons);
                 }
                 GlStateManager.disableBlend();
+            }
+            else
+            {
+                if (ConfigManagerIN.enableRenderBossHealthStatus)
+                {
+                    this.mc.getTextureManager().bindTexture(Gui.icons);
+                    GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+                    GlStateManager.enableBlend();
+
+                    if (BossStatus.bossName != null && BossStatus.statusBarTime > 0)
+                    {
+                        --BossStatus.statusBarTime;
+                        ScaledResolution res = new ScaledResolution(this.mc);
+                        int i = res.getScaledWidth();
+                        int j = 182;
+                        int k = i / 2 - j / 2;
+                        int l = (int)(BossStatus.healthScale * (j + 1));
+                        int i1 = 12;
+
+                        if (ConfigManagerIN.enableRenderBossHealthBar)
+                        {
+                            this.mc.ingameGUI.drawTexturedModalRect(k, i1, 0, 74, j, 5);
+
+                            if (l > 0)
+                            {
+                                this.mc.ingameGUI.drawTexturedModalRect(k, i1, 0, 79, l, 5);
+                            }
+                        }
+                        String name = BossStatus.bossName;
+                        this.mc.ingameGUI.getFontRenderer().drawStringWithShadow(name, i / 2 - this.mc.ingameGUI.getFontRenderer().getStringWidth(name) / 2, i1 - 10, 16777215);
+                        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+                        this.mc.getTextureManager().bindTexture(Gui.icons);
+                    }
+                    GlStateManager.disableBlend();
+                }
             }
         }
     }
