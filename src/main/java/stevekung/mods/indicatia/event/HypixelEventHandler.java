@@ -491,6 +491,9 @@ public class HypixelEventHandler
         if (event.entity == this.mc.thePlayer)
         {
             this.previousInventory = null;
+            SkyBlockBossStatus.renderBossBar = false;
+            SkyBlockBossStatus.bossName = null;
+            SkyBlockBossStatus.healthScale = 0;
             HypixelEventHandler.dragonHealth = 0;
             ITEM_DROP_CHECK_LIST.clear();
         }
@@ -501,6 +504,9 @@ public class HypixelEventHandler
     {
         SignSelectionList.clearAll();
         HypixelEventHandler.dragonHealth = 0;
+        SkyBlockBossStatus.renderBossBar = false;
+        SkyBlockBossStatus.bossName = null;
+        SkyBlockBossStatus.healthScale = 0;
     }
 
     @SubscribeEvent
