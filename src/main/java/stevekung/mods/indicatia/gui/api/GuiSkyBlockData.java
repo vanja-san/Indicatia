@@ -1367,7 +1367,7 @@ public class GuiSkyBlockData extends GuiScreen
 
         this.infoList.add(new SkyBlockInfo("Joined", firstJoinMillis != -1 ? CommonUtils.getRelativeTime(firstJoinDate.getTime()) : EnumChatFormatting.RED + "No first join data!"));
         this.infoList.add(new SkyBlockInfo("Joined (Date)", firstJoinMillis != -1 ? firstJoinDateFormat : EnumChatFormatting.RED + "No first join data!"));
-        this.infoList.add(new SkyBlockInfo("Last Updated", lastSaveMillis != -1 ? CommonUtils.getRelativeTime(lastSaveDate.getTime()) : EnumChatFormatting.RED + "No last save data!"));
+        this.infoList.add(new SkyBlockInfo("Last Updated", lastSaveMillis != -1 ? String.valueOf(lastSaveDate.getTime()) : EnumChatFormatting.RED + "No last save data!"));
         this.infoList.add(new SkyBlockInfo("Last Updated (Date)", lastSaveMillis != -1 ? lastLogout : EnumChatFormatting.RED + "No last save data!"));
 
         this.infoList.add(new SkyBlockInfo("Death Count", String.valueOf(deathCounts)));
@@ -1649,6 +1649,7 @@ public class GuiSkyBlockData extends GuiScreen
         {
             this.mc.getNetHandler().playerInfoMap.put(this.profile.getId(), ((IViewerLoader)new NetworkPlayerInfo(this.profile)).setLoadedFromViewer(true)); // hack into map to show their skin :D
         }
+
         this.player = new EntityOtherFakePlayer(this.mc.theWorld, this.profile);
         GuiSkyBlockData.renderSecondLayer = true;
 
@@ -1977,6 +1978,17 @@ public class GuiSkyBlockData extends GuiScreen
 
         public String getValue()
         {
+            if (this.title.equals("Last Updated"))
+            {
+                try
+                {
+                    return CommonUtils.getRelativeTime(Long.valueOf(this.value));
+                }
+                catch (Exception e)
+                {
+                    return this.value;
+                }
+            }
             return this.value;
         }
     }
