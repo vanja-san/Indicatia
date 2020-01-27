@@ -291,6 +291,16 @@ public class IndicatiaEventHandler
             event.buttonList.add(new GuiButton(200, width - 155 + 160, event.gui.height - 29, 150, 20, LangUtils.translate("gui.done")));
             event.buttonList.add(new GuiButton(201, width - 155, event.gui.height - 29, 150, 20, LangUtils.translate("controls.resetAll")));
         }
+        if (event.gui instanceof GuiOptions)
+        {
+            event.buttonList.removeIf(button -> button.id == 107);
+        }
+        if (event.gui instanceof GuiMainMenu)
+        {
+            int j = event.gui.height / 4 + 48;
+            event.buttonList.removeIf(button -> button.id == 14 || button.id == 6);
+            event.buttonList.add(new GuiButton(6, width - 100, j + 24 * 2, LangUtils.translate("fml.menu.mods")));
+        }
     }
 
     @SubscribeEvent
