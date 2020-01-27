@@ -113,6 +113,7 @@ public class HypixelEventHandler
                 if (this.mc.theWorld != null)
                 {
                     boolean found = false;
+                    boolean foundDrag = false;
                     ScoreObjective scoreObj = this.mc.theWorld.getScoreboard().getObjectiveInDisplaySlot(1);
                     Scoreboard scoreboard = this.mc.theWorld.getScoreboard();
                     Collection<Score> collection = scoreboard.getSortedScores(scoreObj);
@@ -143,9 +144,9 @@ public class HypixelEventHandler
                         else if (scoreText.startsWith("Dragon Health: "))
                         {
                             HypixelEventHandler.dragonHealth = Float.valueOf(scoreText.replaceAll("[^\\d]", ""));
+                            foundDrag = true;
+                            break;
                         }
-
-                        SkyBlockBossStatus.renderBossBar = scoreText.startsWith("Dragon Health: "); 
 
                         for (SkyBlockLocation location : CachedEnum.locationValues)
                         {
@@ -171,6 +172,7 @@ public class HypixelEventHandler
                     {
                         HypixelEventHandler.SKY_BLOCK_LOCATION = SkyBlockLocation.NONE;
                     }
+                    SkyBlockBossStatus.renderBossBar = foundDrag;
                 }
             }
         }
