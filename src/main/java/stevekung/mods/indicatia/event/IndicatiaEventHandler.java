@@ -12,10 +12,7 @@ import org.lwjgl.input.Keyboard;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiIngameMenu;
-import net.minecraft.client.gui.GuiMainMenu;
-import net.minecraft.client.gui.GuiMultiplayer;
+import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.multiplayer.ServerAddress;
@@ -287,6 +284,12 @@ public class IndicatiaEventHandler
                     event.buttonList.add(new GuiButtonItem(1001, width + 88, height + (HypixelEventHandler.SKY_BLOCK_LOCATION.isHub() ? 65 : 47), Items.nether_star, "SkyBlock Menu"));
                 }
             }
+        }
+        if (event.gui instanceof GuiControls)
+        {
+            event.buttonList.removeIf(button -> button.id == 200 || button.id == 201);
+            event.buttonList.add(new GuiButton(200, width - 155 + 160, event.gui.height - 29, 150, 20, LangUtils.translate("gui.done")));
+            event.buttonList.add(new GuiButton(201, width - 155, event.gui.height - 29, 150, 20, LangUtils.translate("controls.resetAll")));
         }
     }
 
