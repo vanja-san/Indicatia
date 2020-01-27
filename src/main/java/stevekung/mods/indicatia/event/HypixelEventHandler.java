@@ -143,8 +143,9 @@ public class HypixelEventHandler
                         else if (scoreText.startsWith("Dragon Health: "))
                         {
                             HypixelEventHandler.dragonHealth = Float.valueOf(scoreText.replaceAll("[^\\d]", ""));
-                            SkyBlockBossStatus.renderBossBar = true;
                         }
+
+                        SkyBlockBossStatus.renderBossBar = scoreText.startsWith("Dragon Health: "); 
 
                         for (SkyBlockLocation location : CachedEnum.locationValues)
                         {
@@ -475,12 +476,6 @@ public class HypixelEventHandler
             {
                 this.mc.ingameGUI.displayTitle(JsonUtils.create("Preparing spawn...").setChatStyle(JsonUtils.red()).getFormattedText(), JsonUtils.create("").setChatStyle(JsonUtils.red()).getFormattedText(), 0, 1200, 20);
                 this.mc.getSoundHandler().playSound(new PositionedSoundRecord(new ResourceLocation("random.orb"), 0.75F, 1.0F, (float)this.mc.thePlayer.posX + 0.5F, (float)this.mc.thePlayer.posY + 0.5F, (float)this.mc.thePlayer.posZ + 0.5F));
-            }
-            if (name.equals("mob.enderdragon.end"))
-            {
-                SkyBlockBossStatus.renderBossBar = false;
-                SkyBlockBossStatus.healthScale = 0;
-                SkyBlockBossStatus.bossName = null;
             }
         }
     }
