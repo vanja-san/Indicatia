@@ -67,11 +67,11 @@ public class GuiSkyBlockData extends GuiScreen
     private static final String[] REVENANT_HORROR_HEAD = new String[] {"0862e0b0-a14f-3f93-894f-013502936b59", "eyJ0aW1lc3RhbXAiOjE1Njg0NTc0MjAxMzcsInByb2ZpbGVJZCI6IjQxZDNhYmMyZDc0OTQwMGM5MDkwZDU0MzRkMDM4MzFiIiwicHJvZmlsZU5hbWUiOiJNZWdha2xvb24iLCJzaWduYXR1cmVSZXF1aXJlZCI6dHJ1ZSwidGV4dHVyZXMiOnsiU0tJTiI6eyJ1cmwiOiJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlL2RiYWQ5OWVkM2M4MjBiNzk3ODE5MGFkMDhhOTM0YTY4ZGZhOTBkOTk4NjgyNWRhMWM5N2Y2ZjIxZjQ5YWQ2MjYifX19"};
 
     // Based stuff
+    private boolean firstLoad;
     private boolean loadingApi = true;
     private boolean error = false;
     private String errorMessage;
     private String statusMessage;
-    private boolean resize;
     private GuiButton doneButton;
     private GuiButton backButton;
     private final List<ProfileDataCallback> profiles;
@@ -82,6 +82,14 @@ public class GuiSkyBlockData extends GuiScreen
     private final GameProfile profile;
     private final StopWatch watch = new StopWatch();
     private int percent;
+    private GuiScrollingList currentSlot;
+    private int currentSlotId = -1;
+    private int currentBasicSlotId = -1;
+    private int currentOthersSlotId = -1;
+    private ViewButton viewButton = ViewButton.INFO;
+    private OtherStatsViewButton otherStatsButton = OtherStatsViewButton.KILLS;
+    private BasicInfoViewButton basicInfoButton = BasicInfoViewButton.INFO;
+    private boolean updated;
 
     // API
     private static final Pattern STATS_PATTERN = Pattern.compile("(?<type>Strength|Crit Chance|Crit Damage|Health|Defense|Speed|Intelligence|True Defense): (?<value>(?:\\+|\\-)[0-9,]+)?(?:\\%){0,1}(?:(?: HP(?: \\(\\+[0-9,]+ HP\\)){0,1}(?: \\(\\w+ \\+[0-9,]+ HP\\)){0,1})|(?: \\(\\+[0-9,]+\\))|(?: \\(\\w+ \\+[0-9,]+(?:\\%){0,1}\\))){0,1}");
@@ -89,7 +97,6 @@ public class GuiSkyBlockData extends GuiScreen
     private static final DecimalFormat NUMBER_FORMAT_WITH_SYMBOL = new DecimalFormat("+#;-#");
     private static final DecimalFormat SKILL_AVG = new DecimalFormat("##.#");
     public static boolean renderSecondLayer;
-    private GuiScrollingList currentSlot;
     private static final int MAX_FAIRY_SOULS = 190;
     private final List<SkyBlockInfo> infoList = new ArrayList<>();
     private final List<SkyBlockSkillInfo> skillLeftList = new ArrayList<>();
@@ -147,6 +154,7 @@ public class GuiSkyBlockData extends GuiScreen
 
     public GuiSkyBlockData(List<ProfileDataCallback> profiles, ProfileDataCallback callback)
     {
+        this.firstLoad = true;
         this.allowUserInput = true;
         this.skyBlockContainer = new ContainerSkyBlock();
         this.skyBlockArmorContainer = new ContainerArmor();
@@ -166,8 +174,10 @@ public class GuiSkyBlockData extends GuiScreen
     {
         this.buttonList.clear();
 
-        if (!this.resize)
+        if (this.firstLoad)
         {
+            this.firstLoad = false;
+
             CommonUtils.runAsync(() ->
             {
                 try
@@ -221,6 +231,30 @@ public class GuiSkyBlockData extends GuiScreen
             }
         }
 
+        if (!this.updated)
+        {
+            for (GuiButton button : this.buttonList)
+            {
+                ViewButton viewType = ViewButton.getTypeForButton(button);
+                BasicInfoViewButton basicInfoType = BasicInfoViewButton.getTypeForButton(button);
+                OtherStatsViewButton otherStatsType = OtherStatsViewButton.getTypeForButton(button);
+
+                if (viewType != null)
+                {
+                    button.enabled = this.viewButton != viewType;
+                }
+                if (basicInfoType != null)
+                {
+                    button.enabled = this.basicInfoButton != basicInfoType;
+                }
+                if (otherStatsType != null)
+                {
+                    button.enabled = this.otherStatsButton != otherStatsType;
+                }
+            }
+            this.updated = true;
+        }
+
         int i = this.selectedTabIndex;
         this.selectedTabIndex = -1;
         this.setCurrentTab(SkyBlockInventoryTabs.tabArray[i]);
@@ -228,8 +262,65 @@ public class GuiSkyBlockData extends GuiScreen
         this.guiLeft = (this.width - this.xSize) / 2 + 50;
         this.guiTop = (this.height - this.ySize) / 2 + 10;
 
-        this.currentSlot = new InfoStats(this, this.width - 119, this.height, 44, this.height - 54, 59, 12, this.width, this.height, this.infoList);
-        this.resize = false;
+        if (this.currentSlotId == -1 || this.currentSlotId == ViewButton.INFO.id)
+        {
+            if (this.currentBasicSlotId == -1 || this.currentBasicSlotId == BasicInfoViewButton.INFO.id)
+            {
+                this.currentSlot = new InfoStats(this, this.width - 119, this.height, 44, this.height - 54, 59, 12, this.width, this.height, this.infoList);
+            }
+            else if (this.currentBasicSlotId == BasicInfoViewButton.INVENTORY.id)
+            {
+                this.currentSlot = new EmptyStats(this.mc, this.width - 119, this.height, 44, this.height - 54, 59, 12, this.width, this.height, EmptyStats.Type.INVENTORY);
+                this.setCurrentTab(SkyBlockInventoryTabs.tabArray[this.selectedTabIndex]);
+            }
+        }
+        else if (this.currentSlotId == ViewButton.SKILLS.id)
+        {
+            this.currentSlot = new EmptyStats(this.mc, this.width - 119, this.height, 44, this.height - 30, 59, 12, this.width, this.height, EmptyStats.Type.SKILL);
+            this.hideOtherStatsButton();
+            this.hideBasicInfoButton();
+        }
+        else if (this.currentSlotId == ViewButton.SLAYERS.id)
+        {
+            this.currentSlot = new SlayerStats(this, this.width - 119, this.height, 44, this.height - 42, 59, 16, this.width, this.height, this.slayerInfo);
+            this.hideOtherStatsButton();
+            this.hideBasicInfoButton();
+        }
+        else if (this.currentSlotId == ViewButton.OTHER_STATS.id)
+        {
+            SkyBlockStats.Type statType = SkyBlockStats.Type.KILLS;
+            List<SkyBlockStats> list = this.sbKillStats;
+
+            if (this.currentOthersSlotId == -1 || this.currentOthersSlotId == OtherStatsViewButton.KILLS.id)
+            {
+                statType = SkyBlockStats.Type.KILLS;
+                list = this.sbKillStats;
+            }
+            else if (this.currentOthersSlotId == OtherStatsViewButton.DEATHS.id)
+            {
+                statType = SkyBlockStats.Type.DEATHS;
+                list = this.sbDeathStats;
+            }
+            else if (this.currentOthersSlotId == OtherStatsViewButton.OTHER_STATS.id)
+            {
+                statType = SkyBlockStats.Type.OTHERS;
+                list = this.sbOtherStats;
+            }
+
+            this.currentSlot = new OtherStats(this, this.width - 119, this.height, 44, this.height - 54, 59, 12, this.width, this.height, list, statType);
+            this.hideBasicInfoButton();
+
+            for (GuiButton viewButton : this.buttonList)
+            {
+                OtherStatsViewButton type2 = OtherStatsViewButton.getTypeForButton(viewButton);
+
+                if (type2 != null)
+                {
+                    viewButton.visible = true;
+                    viewButton.enabled = this.otherStatsButton != type2;
+                }
+            }
+        }
     }
 
     @Override
@@ -252,12 +343,7 @@ public class GuiSkyBlockData extends GuiScreen
     @Override
     public void onResize(Minecraft mc, int width, int height)
     {
-        this.resize = true;
-
-        if (!this.resize)
-        {
-            this.watch.reset();
-        }
+        this.updated = false;
         super.onResize(mc, width, height);
     }
 
@@ -553,53 +639,93 @@ public class GuiSkyBlockData extends GuiScreen
 
         if (type != null)
         {
+            this.viewButton = type;
+
             for (GuiButton viewButton : this.buttonList)
             {
-                if (ViewButton.getTypeForButton(viewButton) != null)
+                ViewButton type2 = ViewButton.getTypeForButton(viewButton);
+
+                if (type2 != null)
                 {
-                    viewButton.enabled = true;
+                    viewButton.enabled = this.viewButton != type2;
                 }
             }
 
-            button.enabled = false;
+            this.updated = false;
 
             if (type.id == ViewButton.INFO.id)
             {
-                this.currentSlot = new InfoStats(this, this.width - 119, this.height, 44, this.height - 54, 59, 12, this.width, this.height, this.infoList);
+                if (this.currentBasicSlotId == -1 || this.currentBasicSlotId == BasicInfoViewButton.INFO.id)
+                {
+                    this.currentSlot = new InfoStats(this, this.width - 119, this.height, 44, this.height - 54, 59, 12, this.width, this.height, this.infoList);
+                }
+                else if (this.currentBasicSlotId == BasicInfoViewButton.INVENTORY.id)
+                {
+                    this.currentSlot = new EmptyStats(this.mc, this.width - 119, this.height, 44, this.height - 54, 59, 12, this.width, this.height, EmptyStats.Type.INVENTORY);
+                    this.setCurrentTab(SkyBlockInventoryTabs.tabArray[this.selectedTabIndex]);
+                }
+
+                this.currentSlotId = ViewButton.INFO.id;
                 this.hideOtherStatsButton();
 
                 for (GuiButton viewButton : this.buttonList)
                 {
-                    if (BasicInfoViewButton.getTypeForButton(viewButton) != null)
+                    BasicInfoViewButton type2 = BasicInfoViewButton.getTypeForButton(viewButton);
+
+                    if (type2 != null)
                     {
                         viewButton.visible = true;
-                        viewButton.enabled = viewButton.id != BasicInfoViewButton.INFO.id;
+                        viewButton.enabled = this.basicInfoButton != type2;
                     }
                 }
             }
             else if (type.id == ViewButton.SKILLS.id)
             {
                 this.currentSlot = new EmptyStats(this.mc, this.width - 119, this.height, 44, this.height - 30, 59, 12, this.width, this.height, EmptyStats.Type.SKILL);
+                this.currentSlotId = ViewButton.SKILLS.id;
                 this.hideOtherStatsButton();
                 this.hideBasicInfoButton();
             }
             else if (type.id == ViewButton.SLAYERS.id)
             {
                 this.currentSlot = new SlayerStats(this, this.width - 119, this.height, 44, this.height - 42, 59, 16, this.width, this.height, this.slayerInfo);
+                this.currentSlotId = ViewButton.SLAYERS.id;
                 this.hideOtherStatsButton();
                 this.hideBasicInfoButton();
             }
             else if (type.id == ViewButton.OTHER_STATS.id)
             {
-                this.currentSlot = new OtherStats(this, this.width - 119, this.height, 44, this.height - 54, 59, 12, this.width, this.height, this.sbKillStats, SkyBlockStats.Type.KILLS);
+                SkyBlockStats.Type statType = SkyBlockStats.Type.KILLS;
+                List<SkyBlockStats> list = this.sbKillStats;
+
+                if (this.currentOthersSlotId == -1 || this.currentOthersSlotId == OtherStatsViewButton.KILLS.id)
+                {
+                    statType = SkyBlockStats.Type.KILLS;
+                    list = this.sbKillStats;
+                }
+                else if (this.currentOthersSlotId == OtherStatsViewButton.DEATHS.id)
+                {
+                    statType = SkyBlockStats.Type.DEATHS;
+                    list = this.sbDeathStats;
+                }
+                else
+                {
+                    statType = SkyBlockStats.Type.OTHERS;
+                    list = this.sbOtherStats;
+                }
+
+                this.currentSlot = new OtherStats(this, this.width - 119, this.height, 44, this.height - 54, 59, 12, this.width, this.height, list, statType);
+                this.currentSlotId = ViewButton.OTHER_STATS.id;
                 this.hideBasicInfoButton();
 
                 for (GuiButton viewButton : this.buttonList)
                 {
-                    if (OtherStatsViewButton.getTypeForButton(viewButton) != null)
+                    OtherStatsViewButton type2 = OtherStatsViewButton.getTypeForButton(viewButton);
+
+                    if (type2 != null)
                     {
                         viewButton.visible = true;
-                        viewButton.enabled = viewButton.id != OtherStatsViewButton.KILLS.id;
+                        viewButton.enabled = this.otherStatsButton != type2;
                     }
                 }
             }
@@ -618,11 +744,15 @@ public class GuiSkyBlockData extends GuiScreen
 
         if (type != null)
         {
+            this.otherStatsButton = type;
+
             for (GuiButton viewButton : this.buttonList)
             {
-                if (OtherStatsViewButton.getTypeForButton(viewButton) != null)
+                OtherStatsViewButton type2 = OtherStatsViewButton.getTypeForButton(viewButton);
+
+                if (type2 != null)
                 {
-                    viewButton.enabled = true;
+                    viewButton.enabled = this.otherStatsButton != type2;
                 }
             }
 
@@ -632,20 +762,22 @@ public class GuiSkyBlockData extends GuiScreen
             if (type.id == OtherStatsViewButton.KILLS.id)
             {
                 statType = SkyBlockStats.Type.KILLS;
+                this.currentOthersSlotId = OtherStatsViewButton.KILLS.id;
                 list = this.sbKillStats;
             }
             else if (type.id == OtherStatsViewButton.DEATHS.id)
             {
                 statType = SkyBlockStats.Type.DEATHS;
+                this.currentOthersSlotId = OtherStatsViewButton.DEATHS.id;
                 list = this.sbDeathStats;
             }
             else
             {
                 statType = SkyBlockStats.Type.OTHERS;
+                this.currentOthersSlotId = OtherStatsViewButton.OTHER_STATS.id;
                 list = this.sbOtherStats;
             }
             this.currentSlot = new OtherStats(this, this.width - 119, this.height, 44, this.height - 54, 59, 12, this.width, this.height, list, statType);
-            button.enabled = false;
         }
     }
 
@@ -655,24 +787,29 @@ public class GuiSkyBlockData extends GuiScreen
 
         if (type != null)
         {
+            this.basicInfoButton = type;
+
             for (GuiButton viewButton : this.buttonList)
             {
-                if (BasicInfoViewButton.getTypeForButton(viewButton) != null)
+                BasicInfoViewButton type2 = BasicInfoViewButton.getTypeForButton(viewButton);
+
+                if (type2 != null)
                 {
-                    viewButton.enabled = true;
+                    viewButton.enabled = this.basicInfoButton != type2;
                 }
             }
 
             if (type.id == BasicInfoViewButton.INFO.id)
             {
                 this.currentSlot = new InfoStats(this, this.width - 119, this.height, 44, this.height - 54, 59, 12, this.width, this.height, this.infoList);
+                this.currentBasicSlotId = BasicInfoViewButton.INFO.id;
             }
             else
             {
                 this.currentSlot = new EmptyStats(this.mc, this.width - 119, this.height, 44, this.height - 54, 59, 12, this.width, this.height, EmptyStats.Type.INVENTORY);
-                this.setCurrentTab(SkyBlockInventoryTabs.INVENTORY);
+                this.currentBasicSlotId = BasicInfoViewButton.INVENTORY.id;
+                this.setCurrentTab(SkyBlockInventoryTabs.tabArray[this.selectedTabIndex]);
             }
-            button.enabled = false;
         }
     }
 
