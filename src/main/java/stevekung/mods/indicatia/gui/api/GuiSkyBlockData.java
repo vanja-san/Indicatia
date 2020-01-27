@@ -340,8 +340,8 @@ public class GuiSkyBlockData extends GuiScreen
                         return;
                     }
                 }
-                super.mouseClicked(mouseX, mouseY, state);
             }
+            super.mouseClicked(mouseX, mouseY, state);
         }
     }
 
@@ -962,7 +962,7 @@ public class GuiSkyBlockData extends GuiScreen
         if (tab != null)
         {
             GlStateManager.disableBlend();
-            this.fontRendererObj.drawString(tab.getTranslatedTabLabel(), this.guiLeft + 12, this.guiTop + 6, 4210752);
+            this.fontRendererObj.drawString(tab.getTranslatedTabLabel(), this.guiLeft + 11, this.guiTop + 6, 4210752);
         }
     }
 
@@ -1893,7 +1893,7 @@ public class GuiSkyBlockData extends GuiScreen
             {
                 for (int rows = 0; rows < 9; ++rows)
                 {
-                    this.addSlotToContainer(new Slot(GuiSkyBlockData.TEMP_INVENTORY, columns * 9 + rows, 13 + rows * 18, 18 + columns * 18));
+                    this.addSlotToContainer(new Slot(GuiSkyBlockData.TEMP_INVENTORY, columns * 9 + rows, 12 + rows * 18, 18 + columns * 18));
                 }
             }
             this.scrollTo(0.0F);
