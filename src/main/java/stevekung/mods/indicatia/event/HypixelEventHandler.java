@@ -133,6 +133,19 @@ public class HypixelEventHandler
                         ScorePlayerTeam scorePlayerTeam = scoreboard.getPlayersTeam(score1.getPlayerName());
                         String scoreText = this.keepLettersAndNumbersOnly(EnumChatFormatting.getTextWithoutFormattingCodes(ScorePlayerTeam.formatPlayerName(scorePlayerTeam, score1.getPlayerName())));
 
+                        if (scoreText.startsWith("Dragon Health: "))
+                        {
+                            HypixelEventHandler.dragonHealth = Float.valueOf(scoreText.replaceAll("[^\\d]", ""));
+                            foundDrag = true;
+                            break;
+                        }
+                    }
+
+                    for (Score score1 : collection)
+                    {
+                        ScorePlayerTeam scorePlayerTeam = scoreboard.getPlayersTeam(score1.getPlayerName());
+                        String scoreText = this.keepLettersAndNumbersOnly(EnumChatFormatting.getTextWithoutFormattingCodes(ScorePlayerTeam.formatPlayerName(scorePlayerTeam, score1.getPlayerName())));
+
                         if (scoreText.endsWith("am"))
                         {
                             HypixelEventHandler.SKYBLOCK_AMPM = " AM";
@@ -140,12 +153,6 @@ public class HypixelEventHandler
                         else if (scoreText.endsWith("pm"))
                         {
                             HypixelEventHandler.SKYBLOCK_AMPM = " PM";
-                        }
-                        else if (scoreText.startsWith("Dragon Health: "))
-                        {
-                            HypixelEventHandler.dragonHealth = Float.valueOf(scoreText.replaceAll("[^\\d]", ""));
-                            foundDrag = true;
-                            break;
                         }
 
                         for (SkyBlockLocation location : CachedEnum.locationValues)
