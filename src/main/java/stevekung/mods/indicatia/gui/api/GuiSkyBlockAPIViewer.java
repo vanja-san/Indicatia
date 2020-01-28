@@ -39,6 +39,7 @@ public class GuiSkyBlockAPIViewer extends GuiScreen implements GuiYesNoCallback
     private boolean openFromPlayer;
     private boolean loadingApi;
     private boolean error = false;
+    private boolean showWeb;
     private String errorMessage;
     private String statusMessage;
     private List<ProfileDataCallback> profiles = new ArrayList<>();
@@ -46,8 +47,15 @@ public class GuiSkyBlockAPIViewer extends GuiScreen implements GuiYesNoCallback
     private int percent;
     private List<GuiSBProfileButton> profileButtonList = new ArrayList<>();
     private final String skyblockStats = "https://sky.lea.moe/";
+    private boolean fromError;
 
     public GuiSkyBlockAPIViewer() {}
+
+    public GuiSkyBlockAPIViewer(String username, boolean fromError)
+    {
+        this.username = username;
+        this.fromError = fromError;
+    }
 
     public GuiSkyBlockAPIViewer(String username)
     {
@@ -60,7 +68,6 @@ public class GuiSkyBlockAPIViewer extends GuiScreen implements GuiYesNoCallback
     {
         this.username = username;
         this.profiles = profiles;
-        this.loadingApi = false;
     }
 
     @Override
@@ -76,6 +83,15 @@ public class GuiSkyBlockAPIViewer extends GuiScreen implements GuiYesNoCallback
         this.usernameTextField.setText(this.username);
         this.checkButton.enabled = this.usernameTextField.getText().trim().length() > 0;
         this.checkButton.visible = !this.error;
+
+        if (this.error)
+        {
+            this.closeButton.displayString = LangUtils.translate("gui.back");
+        }
+        if (this.fromError)
+        {
+            this.usernameTextField.setText(this.username);
+        }
 
         if (this.openFromPlayer)
         {
@@ -188,7 +204,7 @@ public class GuiSkyBlockAPIViewer extends GuiScreen implements GuiYesNoCallback
             }
             else if (button.id == 1)
             {
-                this.mc.displayGuiScreen(this.error ? new GuiSkyBlockAPIViewer() : null);
+                this.mc.displayGuiScreen(this.error ? new GuiSkyBlockAPIViewer(this.username, true) : null);
             }
         }
     }
@@ -231,15 +247,18 @@ public class GuiSkyBlockAPIViewer extends GuiScreen implements GuiYesNoCallback
                     }
                 }
 
-                String url = "Click here to open SkyBlock Stats: " + this.skyblockStats;
-                int minX = this.width / 2 - this.fontRendererObj.getStringWidth(url) / 2 - 2;
-                int minY = 119;
-                int maxX = minX + this.fontRendererObj.getStringWidth(url) + 2;
-                int maxY = minY + this.fontRendererObj.FONT_HEIGHT + 1;
-
-                if (mouseX >= minX && mouseX <= maxX && mouseY >= minY && mouseY <= maxY)
+                if (this.showWeb)
                 {
-                    this.mc.displayGuiScreen(new GuiConfirmOpenLink(this, this.skyblockStats, 500, false));
+                    String url = "Click here to open SkyBlock Stats: " + this.skyblockStats;
+                    int minX = this.width / 2 - this.fontRendererObj.getStringWidth(url) / 2 - 2;
+                    int minY = 119;
+                    int maxX = minX + this.fontRendererObj.getStringWidth(url) + 2;
+                    int maxY = minY + this.fontRendererObj.FONT_HEIGHT + 1;
+
+                    if (mouseX >= minX && mouseX <= maxX && mouseY >= minY && mouseY <= maxY)
+                    {
+                        this.mc.displayGuiScreen(new GuiConfirmOpenLink(this, this.skyblockStats, 500, false));
+                    }
                 }
             }
         }
@@ -272,21 +291,22 @@ public class GuiSkyBlockAPIViewer extends GuiScreen implements GuiYesNoCallback
             {
                 this.drawCenteredString(this.fontRendererObj, EnumChatFormatting.RED + this.errorMessage, this.width / 2, 100, 16777215);
 
-                String url = "Click here to open SkyBlock Stats: " + this.skyblockStats;
-                boolean hover = false;
-                int minX = this.width / 2 - this.fontRendererObj.getStringWidth(url) / 2 - 2;
-                int minY = 119;
-                int maxX = minX + this.fontRendererObj.getStringWidth(url) + 2;
-                int maxY = minY + this.fontRendererObj.FONT_HEIGHT + 1;
-
-                if (mouseX >= minX && mouseX <= maxX && mouseY >= minY && mouseY <= maxY)
+                if (this.showWeb)
                 {
-                    hover = true;
+                    String url = "Click here to open SkyBlock Stats: " + this.skyblockStats;
+                    boolean hover = false;
+                    int minX = this.width / 2 - this.fontRendererObj.getStringWidth(url) / 2 - 2;
+                    int minY = 119;
+                    int maxX = minX + this.fontRendererObj.getStringWidth(url) + 2;
+                    int maxY = minY + this.fontRendererObj.FONT_HEIGHT + 1;
+
+                    if (mouseX >= minX && mouseX <= maxX && mouseY >= minY && mouseY <= maxY)
+                    {
+                        hover = true;
+                    }
+                    Gui.drawRect(minX, minY, maxX, maxY, ColorUtils.to32BitColor(hover ? 128 : 60, 255, 255, 255));
+                    this.drawCenteredString(this.fontRendererObj, EnumChatFormatting.YELLOW + url, this.width / 2, 120, 16777215);
                 }
-
-                Gui.drawRect(minX, minY, maxX, maxY, ColorUtils.to32BitColor(hover ? 128 : 60, 255, 255, 255));
-                this.drawCenteredString(this.fontRendererObj, EnumChatFormatting.YELLOW + url, this.width / 2, 120, 16777215);
-
                 super.drawScreen(mouseX, mouseY, partialTicks);
             }
             else
@@ -379,7 +399,7 @@ public class GuiSkyBlockAPIViewer extends GuiScreen implements GuiYesNoCallback
 
         if (profiles.entrySet().isEmpty())
         {
-            this.setErrorMessage("Empty profile data! Please check on website instead");
+            this.setErrorMessage("Empty profile data! Please check on website instead", true);
             return;
         }
 
@@ -442,8 +462,14 @@ public class GuiSkyBlockAPIViewer extends GuiScreen implements GuiYesNoCallback
 
     private void setErrorMessage(String message)
     {
+        this.setErrorMessage(message, false);
+    }
+
+    private void setErrorMessage(String message, boolean showWeb)
+    {
         this.error = true;
         this.loadingApi = false;
+        this.showWeb = showWeb;
         this.errorMessage = message;
         this.checkButton.visible = !this.error;
         this.closeButton.displayString = LangUtils.translate("gui.back");
