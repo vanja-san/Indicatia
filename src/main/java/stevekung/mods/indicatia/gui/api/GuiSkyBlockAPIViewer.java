@@ -20,9 +20,7 @@ import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.*;
 import net.minecraft.tileentity.TileEntitySkull;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
@@ -32,7 +30,7 @@ import stevekung.mods.indicatia.gui.GuiRightClickTextField;
 import stevekung.mods.indicatia.gui.GuiSBProfileButton;
 import stevekung.mods.indicatia.utils.*;
 
-public class GuiSkyBlockAPIViewer extends GuiScreen
+public class GuiSkyBlockAPIViewer extends GuiScreen implements GuiYesNoCallback
 {
     private GuiRightClickTextField usernameTextField;
     private GuiButtonSearch checkButton;
@@ -47,6 +45,7 @@ public class GuiSkyBlockAPIViewer extends GuiScreen
     private final StopWatch watch = new StopWatch();
     private int percent;
     private List<GuiSBProfileButton> profileButtonList = new ArrayList<>();
+    private final String skyblockStats = "https://sky.lea.moe/";
 
     public GuiSkyBlockAPIViewer() {}
 
@@ -231,6 +230,17 @@ public class GuiSkyBlockAPIViewer extends GuiScreen
                         button.playPressSound(this.mc.getSoundHandler());
                     }
                 }
+
+                String url = "Click here to open SkyBlock Stats: " + this.skyblockStats;
+                int minX = this.width / 2 - this.fontRendererObj.getStringWidth(url) / 2 - 2;
+                int minY = 119;
+                int maxX = minX + this.fontRendererObj.getStringWidth(url) + 2;
+                int maxY = minY + this.fontRendererObj.FONT_HEIGHT + 1;
+
+                if (mouseX >= minX && mouseX <= maxX && mouseY >= minY && mouseY <= maxY)
+                {
+                    this.mc.displayGuiScreen(new GuiConfirmOpenLink(this, this.skyblockStats, 500, false));
+                }
             }
         }
     }
@@ -261,6 +271,22 @@ public class GuiSkyBlockAPIViewer extends GuiScreen
             if (this.error)
             {
                 this.drawCenteredString(this.fontRendererObj, EnumChatFormatting.RED + this.errorMessage, this.width / 2, 100, 16777215);
+
+                String url = "Click here to open SkyBlock Stats: " + this.skyblockStats;
+                boolean hover = false;
+                int minX = this.width / 2 - this.fontRendererObj.getStringWidth(url) / 2 - 2;
+                int minY = 119;
+                int maxX = minX + this.fontRendererObj.getStringWidth(url) + 2;
+                int maxY = minY + this.fontRendererObj.FONT_HEIGHT + 1;
+
+                if (mouseX >= minX && mouseX <= maxX && mouseY >= minY && mouseY <= maxY)
+                {
+                    hover = true;
+                }
+
+                Gui.drawRect(minX, minY, maxX, maxY, ColorUtils.to32BitColor(hover ? 128 : 60, 255, 255, 255));
+                this.drawCenteredString(this.fontRendererObj, EnumChatFormatting.YELLOW + url, this.width / 2, 120, 16777215);
+
                 super.drawScreen(mouseX, mouseY, partialTicks);
             }
             else
@@ -297,6 +323,19 @@ public class GuiSkyBlockAPIViewer extends GuiScreen
     {
         this.profileButtonList.clear();
         super.setWorldAndResolution(mc, width, height);
+    }
+
+    @Override
+    public void confirmClicked(boolean result, int id)
+    {
+        if (id == 500)
+        {
+            if (result)
+            {
+                CommonUtils.openLink(this.skyblockStats);
+            }
+            this.mc.displayGuiScreen(this);
+        }
     }
 
     private void checkAPI() throws IOException
@@ -340,7 +379,7 @@ public class GuiSkyBlockAPIViewer extends GuiScreen
 
         if (profiles.entrySet().isEmpty())
         {
-            this.setErrorMessage("Empty profile data! Please check to this website instead\nhttps://sky.lea.moe/");//TODO Split string + click handler
+            this.setErrorMessage("Empty profile data! Please check on website instead");
             return;
         }
 
