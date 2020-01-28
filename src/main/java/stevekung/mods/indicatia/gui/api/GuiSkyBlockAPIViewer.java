@@ -38,7 +38,7 @@ public class GuiSkyBlockAPIViewer extends GuiScreen implements GuiYesNoCallback
     private String username = "";
     private boolean openFromPlayer;
     private boolean loadingApi;
-    private boolean error = false;
+    private boolean error;
     private boolean showWeb;
     private String errorMessage;
     private String statusMessage;
@@ -49,25 +49,26 @@ public class GuiSkyBlockAPIViewer extends GuiScreen implements GuiYesNoCallback
     private final String skyblockStats = "https://sky.lea.moe/";
     private boolean fromError;
 
-    public GuiSkyBlockAPIViewer() {}
-
-    public GuiSkyBlockAPIViewer(String username, boolean fromError)
+    public GuiSkyBlockAPIViewer(GuiState state)
     {
-        this.username = username;
-        this.fromError = fromError;
+        this(state, "");
     }
 
-    public GuiSkyBlockAPIViewer(String username)
+    public GuiSkyBlockAPIViewer(GuiState state, String username)
     {
-        this.username = username;
-        this.loadingApi = true;
-        this.openFromPlayer = true;
+        this(state, username, null);
     }
 
-    public GuiSkyBlockAPIViewer(String username, List<ProfileDataCallback> profiles)
+    public GuiSkyBlockAPIViewer(GuiState state, String username, List<ProfileDataCallback> profiles)
     {
+        if (state == GuiState.SEARCH)
+        {
+            this.profiles = profiles;
+        }
+        this.loadingApi = state == GuiState.PLAYER;
+        this.openFromPlayer = state == GuiState.PLAYER;
+        this.fromError = state == GuiState.ERROR;
         this.username = username;
-        this.profiles = profiles;
     }
 
     @Override
@@ -204,7 +205,7 @@ public class GuiSkyBlockAPIViewer extends GuiScreen implements GuiYesNoCallback
             }
             else if (button.id == 1)
             {
-                this.mc.displayGuiScreen(this.error ? new GuiSkyBlockAPIViewer(this.username, true) : null);
+                this.mc.displayGuiScreen(this.error ? new GuiSkyBlockAPIViewer(GuiState.ERROR, this.username) : null);
             }
         }
     }
@@ -473,5 +474,10 @@ public class GuiSkyBlockAPIViewer extends GuiScreen implements GuiYesNoCallback
         this.errorMessage = message;
         this.checkButton.visible = !this.error;
         this.closeButton.displayString = LangUtils.translate("gui.back");
+    }
+
+    public enum GuiState
+    {
+        EMPTY, ERROR, PLAYER, SEARCH;
     }
 }

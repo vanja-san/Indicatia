@@ -368,11 +368,11 @@ public class GuiSkyBlockData extends GuiScreen
 
             if (button.id == 0)
             {
-                this.mc.displayGuiScreen(this.error ? new GuiSkyBlockAPIViewer(this.username, this.profiles) : null);
+                this.mc.displayGuiScreen(this.error ? new GuiSkyBlockAPIViewer(GuiSkyBlockAPIViewer.GuiState.SEARCH, this.username, this.profiles) : null);
             }
             else if (button.id == 1)
             {
-                this.mc.displayGuiScreen(new GuiSkyBlockAPIViewer(this.username, this.profiles));
+                this.mc.displayGuiScreen(new GuiSkyBlockAPIViewer(GuiSkyBlockAPIViewer.GuiState.SEARCH, this.username, this.profiles));
             }
         }
     }

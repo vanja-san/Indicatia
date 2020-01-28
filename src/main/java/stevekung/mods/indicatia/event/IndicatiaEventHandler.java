@@ -204,7 +204,7 @@ public class IndicatiaEventHandler
                 ClientUtils.printClientMessage("Invalid UUID for Hypixel API Key!", JsonUtils.red());
                 return;
             }
-            this.mc.displayGuiScreen(new GuiSkyBlockAPIViewer());
+            this.mc.displayGuiScreen(new GuiSkyBlockAPIViewer(GuiSkyBlockAPIViewer.GuiState.EMPTY));
         }
 
         if (ExtendedConfig.instance.toggleSprintUseMode.equals("key_binding"))

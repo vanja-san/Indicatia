@@ -216,7 +216,7 @@ public class HypixelEventHandler
                     {
                         if (this.mc.thePlayer.sendQueue.getPlayerInfoMap().stream().anyMatch(info -> info.getGameProfile().getName().equals(player.getName())))
                         {
-                            this.mc.displayGuiScreen(new GuiSkyBlockAPIViewer(player.getDisplayNameString()));
+                            this.mc.displayGuiScreen(new GuiSkyBlockAPIViewer(GuiSkyBlockAPIViewer.GuiState.PLAYER, player.getDisplayNameString()));
                             event.setCanceled(true);
                         }
                     }
