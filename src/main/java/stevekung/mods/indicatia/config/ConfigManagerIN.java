@@ -35,6 +35,7 @@ public class ConfigManagerIN
     public static boolean enableAlternatePlayerModel;
     public static boolean enableTransparentSkullRender;
     public static boolean enableChatMode;
+    public static boolean enableSkinRenderingFix;
     public static boolean disableHurtCameraEffect;
 
     // Key Binding Settings
@@ -143,6 +144,10 @@ public class ConfigManagerIN
 
         prop = ConfigManagerIN.getProperty(ConfigManagerIN.MAIN_SETTINGS, "Enable Chat Mode", true);
         ConfigManagerIN.enableChatMode = prop.getBoolean();
+        propOrder.add(prop.getName());
+
+        prop = ConfigManagerIN.getProperty(ConfigManagerIN.MAIN_SETTINGS, "Enable Skin Rendering Fix (EXPERIMENTAL)", false);
+        ConfigManagerIN.enableSkinRenderingFix = prop.getBoolean();
         propOrder.add(prop.getName());
 
         prop = ConfigManagerIN.getProperty(ConfigManagerIN.MAIN_SETTINGS, "Disable Hurt Camera Effect", false);
