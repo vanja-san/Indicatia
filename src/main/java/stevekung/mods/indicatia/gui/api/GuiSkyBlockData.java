@@ -109,6 +109,7 @@ public class GuiSkyBlockData extends GuiScreen
     private final List<ItemStack> inventoryToStats = new ArrayList<>();
     private SkyBlockSkillInfo carpentrySkill;
     private int slayerTotalAmountSpent;
+    private int totalSlayerXp;
     private EntityOtherFakePlayer player;
     private String skillAvg;
     private boolean hasDayNightCrystal;
@@ -282,7 +283,7 @@ public class GuiSkyBlockData extends GuiScreen
         }
         else if (this.currentSlotId == ViewButton.SLAYERS.id)
         {
-            this.currentSlot = new SlayerStats(this, this.width - 119, this.height, 44, this.height - 42, 59, 16, this.width, this.height, this.slayerInfo);
+            this.currentSlot = new SlayerStats(this, this.width - 119, this.height, 44, this.height - 51, 59, 16, this.width, this.height, this.slayerInfo);
             this.hideOtherStatsButton();
             this.hideBasicInfoButton();
         }
@@ -599,8 +600,10 @@ public class GuiSkyBlockData extends GuiScreen
                 }
                 else if (this.currentSlot instanceof SlayerStats)
                 {
-                    String total = EnumChatFormatting.GRAY + "Total Amount Spent: " + EnumChatFormatting.YELLOW + FORMAT.format(this.slayerTotalAmountSpent);
-                    this.drawString(this.fontRendererObj, total, this.width - this.fontRendererObj.getStringWidth(total) - 60, this.height - 38, 16777215);
+                    String total1 = EnumChatFormatting.GRAY + "Total Amount Spent: " + EnumChatFormatting.YELLOW + FORMAT.format(this.slayerTotalAmountSpent);
+                    String total2 = EnumChatFormatting.GRAY + "Total Slayer XP: " + EnumChatFormatting.YELLOW + FORMAT.format(this.totalSlayerXp);
+                    this.drawString(this.fontRendererObj, total1, this.width - this.fontRendererObj.getStringWidth(total1) - 60, this.height - 38, 16777215);
+                    this.drawString(this.fontRendererObj, total2, this.width - this.fontRendererObj.getStringWidth(total2) - 60, this.height - 48, 16777215);
                 }
                 GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
                 GlStateManager.enableDepth();
@@ -688,7 +691,7 @@ public class GuiSkyBlockData extends GuiScreen
             }
             else if (type.id == ViewButton.SLAYERS.id)
             {
-                this.currentSlot = new SlayerStats(this, this.width - 119, this.height, 44, this.height - 42, 59, 16, this.width, this.height, this.slayerInfo);
+                this.currentSlot = new SlayerStats(this, this.width - 119, this.height, 44, this.height - 51, 59, 16, this.width, this.height, this.slayerInfo);
                 this.currentSlotId = ViewButton.SLAYERS.id;
                 this.hideOtherStatsButton();
                 this.hideBasicInfoButton();
@@ -1870,6 +1873,7 @@ public class GuiSkyBlockData extends GuiScreen
                 list.add(new SkyBlockSlayerInfo(EnumChatFormatting.GRAY + "Tier " + i + ": " + EnumChatFormatting.YELLOW + this.formatSlayerKill(this.getSlayerKill(kill))));
             }
             this.slayerTotalAmountSpent += amount;
+            this.totalSlayerXp += playerSlayerXp;
             list.add(new SkyBlockSlayerInfo(EnumChatFormatting.GRAY + "Amount Spent: " + EnumChatFormatting.YELLOW + FORMAT.format(amount)));
             list.add(SkyBlockSlayerInfo.empty());
             return list;
