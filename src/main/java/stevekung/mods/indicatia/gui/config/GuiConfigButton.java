@@ -53,7 +53,7 @@ public class GuiConfigButton extends GuiButton
                     color = 16777120;
                 }
             }
-            boolean smallText = this.displayString.length() > 32;
+            boolean smallText = this.displayString.length() > 30;
             this.drawCenteredString(smallText ? ColorUtils.unicodeFontRenderer : mc.fontRendererObj, this.displayString, this.xPosition + this.width / 2, this.yPosition + (this.height - 8) / 2, color);
         }
     }

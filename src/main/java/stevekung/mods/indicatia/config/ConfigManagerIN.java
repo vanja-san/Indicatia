@@ -20,7 +20,6 @@ public class ConfigManagerIN
 
     // Main Settings
     public static String hypixelApiKey;
-    public static String confirmDisconnectMode;
     public static boolean enableRenderInfo;
     public static boolean enableBlockhitAnimation;
     public static boolean enableAdditionalBlockhitAnimation;
@@ -28,7 +27,7 @@ public class ConfigManagerIN
     public static boolean enableFastChatRender;
     public static boolean enableCustomPlayerList;
     public static boolean enableCustomServerSelectionGui;
-    public static boolean enableConfirmDisconnectButton;
+    public static boolean enableConfirmToDisconnect;
     public static boolean enableRenderBossHealthBar;
     public static boolean enableRenderBossHealthStatus;
     public static boolean enableRenderScoreboard;
@@ -41,7 +40,6 @@ public class ConfigManagerIN
     // Key Binding Settings
     public static String keyToggleSprint;
     public static String keyToggleSneak;
-    public static String keyAutoSwim;
 
     public static void init(File file)
     {
@@ -81,11 +79,6 @@ public class ConfigManagerIN
         ConfigManagerIN.hypixelApiKey = prop.getString();
         propOrder.add(prop.getName());
 
-        prop = ConfigManagerIN.getProperty(ConfigManagerIN.MAIN_SETTINGS, "Confirm Disconnect Mode", "gui");
-        prop.setValidValues(new String[] { "gui", "click" });
-        ConfigManagerIN.confirmDisconnectMode = prop.getString();
-        propOrder.add(prop.getName());
-
         prop = ConfigManagerIN.getProperty(ConfigManagerIN.MAIN_SETTINGS, "Enable Blockhit Animation", false);
         ConfigManagerIN.enableBlockhitAnimation = prop.getBoolean();
         prop.comment = LangUtils.translate("gui.config.indicatia.blockhit_animation");
@@ -116,9 +109,9 @@ public class ConfigManagerIN
         prop.comment = LangUtils.translate("gui.config.indicatia.custom_server_selection");
         propOrder.add(prop.getName());
 
-        prop = ConfigManagerIN.getProperty(ConfigManagerIN.MAIN_SETTINGS, "Enable Confirm Disconnect Button", false);
-        ConfigManagerIN.enableConfirmDisconnectButton = prop.getBoolean();
-        prop.comment = LangUtils.translate("gui.config.indicatia.confirm_disconnect_button");
+        prop = ConfigManagerIN.getProperty(ConfigManagerIN.MAIN_SETTINGS, "Enable Confirm to Disconnect", false);
+        ConfigManagerIN.enableConfirmToDisconnect = prop.getBoolean();
+        prop.comment = LangUtils.translate("gui.config.indicatia.confirm_to_disconnect");
         propOrder.add(prop.getName());
 
         prop = ConfigManagerIN.getProperty(ConfigManagerIN.MAIN_SETTINGS, "Enable Boss Health Bar", true);
@@ -169,10 +162,6 @@ public class ConfigManagerIN
 
         prop = ConfigManagerIN.getProperty(ConfigManagerIN.KEY_BINDING_SETTINGS, "Key Toggle Sneak (Ctrl) + (Key)", "29,42");
         ConfigManagerIN.keyToggleSneak = prop.getString();
-        propOrder.add(prop.getName());
-
-        prop = ConfigManagerIN.getProperty(ConfigManagerIN.KEY_BINDING_SETTINGS, "Key Auto Swim (Ctrl) + (Key)", "29,19");
-        ConfigManagerIN.keyAutoSwim = prop.getString();
         propOrder.add(prop.getName());
         return propOrder;
     }

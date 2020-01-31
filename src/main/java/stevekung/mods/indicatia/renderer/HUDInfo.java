@@ -233,7 +233,6 @@ public class HUDInfo
 
     public static void renderHorizontalEquippedItems(Minecraft mc)
     {
-        String ordering = EnumEquipment.Ordering.getById(ExtendedConfig.instance.equipmentOrdering);
         ScaledResolution res = new ScaledResolution(mc);
         boolean isRightSide = EnumEquipment.Position.getById(ExtendedConfig.instance.equipmentPosition).equalsIgnoreCase("right");
         int baseXOffset = 2;
@@ -244,53 +243,23 @@ public class HUDInfo
         int rightWidth = 0;
         element.clear();
 
-        if (ExtendedConfig.instance.equipmentHandItems)
-        {
-            // held item stuff
-            if (ordering.equals("reverse"))
-            {
-                if (mainHandItem != null)
-                {
-                    element.add(new HorizontalEquipment(mainHandItem, false));
-                }
-            }
-        }
-
         if (ExtendedConfig.instance.equipmentArmorItems)
         {
-            // armor stuff
-            switch (ordering)
+            for (int i = 3; i >= 0; i--)
             {
-            case "default":
-                for (int i = 3; i >= 0; i--)
+                if (mc.thePlayer.inventory.armorInventory[i] != null)
                 {
-                    if (mc.thePlayer.inventory.armorInventory[i] != null)
-                    {
-                        element.add(new HorizontalEquipment(mc.thePlayer.inventory.armorInventory[i], mc.thePlayer.inventory.armorInventory[i].isItemStackDamageable()));
-                    }
+                    element.add(new HorizontalEquipment(mc.thePlayer.inventory.armorInventory[i], mc.thePlayer.inventory.armorInventory[i].isItemStackDamageable()));
                 }
-                break;
-            case "reverse":
-                for (int i = 0; i <= 3; i++)
-                {
-                    if (mc.thePlayer.inventory.armorInventory[i] != null)
-                    {
-                        element.add(new HorizontalEquipment(mc.thePlayer.inventory.armorInventory[i], mc.thePlayer.inventory.armorInventory[i].isItemStackDamageable()));
-                    }
-                }
-                break;
             }
         }
 
         if (ExtendedConfig.instance.equipmentHandItems)
         {
             // held item stuff
-            if (ordering.equals("default"))
+            if (mainHandItem != null)
             {
-                if (mainHandItem != null)
-                {
-                    element.add(new HorizontalEquipment(mainHandItem, false));
-                }
+                element.add(new HorizontalEquipment(mainHandItem, false));
             }
         }
 
@@ -308,7 +277,6 @@ public class HUDInfo
 
     public static void renderVerticalEquippedItems(Minecraft mc)
     {
-        String ordering = EnumEquipment.Ordering.getById(ExtendedConfig.instance.equipmentOrdering);
         String status = EnumEquipment.Status.getById(ExtendedConfig.instance.equipmentStatus);
         List<ItemStack> itemStackList = new ArrayList<>();
         List<String> itemStatusList = new ArrayList<>();
@@ -320,80 +288,37 @@ public class HUDInfo
         ItemStack mainHandItem = mc.thePlayer.getHeldItem();
         int arrowCount = HUDInfo.getInventoryArrowCount(mc.thePlayer.inventory);
 
-        if (ExtendedConfig.instance.equipmentHandItems)
-        {
-            // held item stuff
-            if (ordering.equals("reverse"))
-            {
-                if (mainHandItem != null)
-                {
-                    itemStackList.add(mainHandItem);
-                    String itemCount = HUDInfo.getInventoryItemCount(mc.thePlayer.inventory, mainHandItem);
-                    itemStatusList.add(mainHandItem.isItemStackDamageable() ? HUDInfo.getArmorDurabilityStatus(mainHandItem) : status.equals("none") ? "" : HUDInfo.getItemStackCount(mainHandItem, Integer.parseInt(itemCount)));
-
-                    if (mainHandItem.getItem() == Items.bow)
-                    {
-                        arrowCountList.add(HUDInfo.getArrowStackCount(arrowCount));
-                    }
-                    else
-                    {
-                        arrowCountList.add(""); // dummy bow arrow count list size
-                    }
-                }
-            }
-        }
-
         if (ExtendedConfig.instance.equipmentArmorItems)
         {
             // armor stuff
-            switch (ordering)
+            for (int i = 3; i >= 0; i--)
             {
-            case "default":
-                for (int i = 3; i >= 0; i--)
+                if (mc.thePlayer.inventory.armorInventory[i] != null)
                 {
-                    if (mc.thePlayer.inventory.armorInventory[i] != null)
-                    {
-                        String itemCount = HUDInfo.getInventoryItemCount(mc.thePlayer.inventory, mc.thePlayer.inventory.armorInventory[i]);
-                        itemStackList.add(mc.thePlayer.inventory.armorInventory[i]);
-                        itemStatusList.add(mc.thePlayer.inventory.armorInventory[i].isItemStackDamageable() ? HUDInfo.getArmorDurabilityStatus(mc.thePlayer.inventory.armorInventory[i]) : HUDInfo.getItemStackCount(mc.thePlayer.inventory.armorInventory[i], Integer.parseInt(itemCount)));
-                        arrowCountList.add(""); // dummy bow arrow count list size
-                    }
+                    String itemCount = HUDInfo.getInventoryItemCount(mc.thePlayer.inventory, mc.thePlayer.inventory.armorInventory[i]);
+                    itemStackList.add(mc.thePlayer.inventory.armorInventory[i]);
+                    itemStatusList.add(mc.thePlayer.inventory.armorInventory[i].isItemStackDamageable() ? HUDInfo.getArmorDurabilityStatus(mc.thePlayer.inventory.armorInventory[i]) : HUDInfo.getItemStackCount(mc.thePlayer.inventory.armorInventory[i], Integer.parseInt(itemCount)));
+                    arrowCountList.add(""); // dummy bow arrow count list size
                 }
-                break;
-            case "reverse":
-                for (int i = 0; i <= 3; i++)
-                {
-                    if (mc.thePlayer.inventory.armorInventory[i] != null)
-                    {
-                        String itemCount = HUDInfo.getInventoryItemCount(mc.thePlayer.inventory, mc.thePlayer.inventory.armorInventory[i]);
-                        itemStackList.add(mc.thePlayer.inventory.armorInventory[i]);
-                        itemStatusList.add(mc.thePlayer.inventory.armorInventory[i].isItemStackDamageable() ? HUDInfo.getArmorDurabilityStatus(mc.thePlayer.inventory.armorInventory[i]) : HUDInfo.getItemStackCount(mc.thePlayer.inventory.armorInventory[i], Integer.parseInt(itemCount)));
-                        arrowCountList.add(""); // dummy bow arrow count list size
-                    }
-                }
-                break;
             }
         }
 
         if (ExtendedConfig.instance.equipmentHandItems)
         {
             // held item stuff
-            if (ordering.equals("default"))
+            if (mainHandItem != null)
             {
-                if (mainHandItem != null)
-                {
-                    itemStackList.add(mainHandItem);
-                    String itemCount = HUDInfo.getInventoryItemCount(mc.thePlayer.inventory, mainHandItem);
-                    itemStatusList.add(mainHandItem.isItemStackDamageable() ? HUDInfo.getArmorDurabilityStatus(mainHandItem) : status.equals("none") ? "" : HUDInfo.getItemStackCount(mainHandItem, Integer.parseInt(itemCount)));
+                itemStackList.add(mainHandItem);
+                String itemCount = HUDInfo.getInventoryItemCount(mc.thePlayer.inventory, mainHandItem);
+                itemStatusList.add(mainHandItem.isItemStackDamageable() ? HUDInfo.getArmorDurabilityStatus(mainHandItem) : status.equals("none") ? "" : HUDInfo.getItemStackCount(mainHandItem, Integer.parseInt(itemCount)));
 
-                    if (mainHandItem.getItem() == Items.bow)
-                    {
-                        arrowCountList.add(HUDInfo.getArrowStackCount(arrowCount));
-                    }
-                    else
-                    {
-                        arrowCountList.add(""); // dummy bow arrow count list size
-                    }
+                if (mainHandItem.getItem() == Items.bow)
+                {
+                    arrowCountList.add(HUDInfo.getArrowStackCount(arrowCount));
+                }
+                else
+                {
+                    arrowCountList.add(""); // dummy bow arrow count list size
                 }
             }
         }

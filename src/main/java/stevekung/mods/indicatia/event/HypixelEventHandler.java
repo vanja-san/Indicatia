@@ -88,9 +88,9 @@ public class HypixelEventHandler
     private static final List<String> PARTY_LIST = new ArrayList<>();
     public static String SKYBLOCK_AMPM = "";
     public static float dragonHealth;
-    public static final List<ToastUtils.ItemDropCheck> ITEM_DROP_CHECK_LIST = new ArrayList<>();
+    private static final List<ToastUtils.ItemDropCheck> ITEM_DROP_CHECK_LIST = new ArrayList<>();
     private List<ItemStack> previousInventory;
-    private Minecraft mc;
+    private final Minecraft mc;
 
     public HypixelEventHandler()
     {

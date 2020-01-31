@@ -24,7 +24,6 @@ public class GuiExtendedConfig extends GuiScreen
     static
     {
         OPTIONS.add(ExtendedConfig.Options.SWAP_INFO_POS);
-        OPTIONS.add(ExtendedConfig.Options.EQUIPMENT_ORDERING);
         OPTIONS.add(ExtendedConfig.Options.EQUIPMENT_DIRECTION);
         OPTIONS.add(ExtendedConfig.Options.EQUIPMENT_STATUS);
         OPTIONS.add(ExtendedConfig.Options.EQUIPMENT_POSITION);

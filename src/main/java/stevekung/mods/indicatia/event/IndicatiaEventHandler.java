@@ -32,7 +32,10 @@ import net.minecraft.network.status.client.C01PacketPing;
 import net.minecraft.network.status.server.S00PacketServerInfo;
 import net.minecraft.network.status.server.S01PacketPong;
 import net.minecraft.potion.Potion;
-import net.minecraft.util.*;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.MovementInput;
+import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.StringUtils;
 import net.minecraftforge.client.GuiIngameForge;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
@@ -51,23 +54,20 @@ import stevekung.mods.indicatia.gui.config.GuiExtendedConfig;
 import stevekung.mods.indicatia.gui.config.GuiRenderPreview;
 import stevekung.mods.indicatia.handler.KeyBindingHandler;
 import stevekung.mods.indicatia.utils.*;
-import stevekung.mods.indicatia.utils.JsonUtils;
 
 public class IndicatiaEventHandler
 {
-    private Minecraft mc;
+    private final Minecraft mc;
     public static int currentServerPing;
-    private static final ThreadPoolExecutor serverPinger = new ScheduledThreadPoolExecutor(5, new ThreadFactoryBuilder().setNameFormat("Real Time Server Pinger #%d").setDaemon(true).build());
-    private static int pendingPingTicks = 100;
-    private int disconnectClickCount;
-    private int disconnectClickCooldown;
+    private static final ThreadPoolExecutor REALTIME_PINGER = new ScheduledThreadPoolExecutor(5, new ThreadFactoryBuilder().setNameFormat("Real Time Server Pinger #%d").setDaemon(true).build());
+    private long lastPinger = -1L;
     private long lastButtonClick = -1;
     private static final List<String> INVENTORY_LIST = new ArrayList<>(Arrays.asList("Trades", "Shop Trading Options", "Runic Pedestal"));
     public static String auctionPrice = "";
     public static final List<String> CHATABLE_LIST = new ArrayList<>(Arrays.asList("You                  Other", "Ender Chest", "Craft Item", "Trades", "Shop Trading Options", "Runic Pedestal", "Your Bids", "Bank", "Bank Deposit", "Bank Withdrawal"));
-    public static boolean showChat = false;
-    private static long sneakTimeOld = 0L;
-    private static boolean sneakingOld = false;
+    public static boolean showChat;
+    private static long sneakTimeOld;
+    private static boolean sneakingOld;
 
     public IndicatiaEventHandler()
     {
@@ -81,46 +81,14 @@ public class IndicatiaEventHandler
         {
             if (event.phase == TickEvent.Phase.START)
             {
-                if (this.disconnectClickCooldown > 0)
+                if (this.mc.getCurrentServerData() != null)
                 {
-                    this.disconnectClickCooldown--;
-                }
-                if (this.mc.currentScreen != null && this.mc.currentScreen instanceof GuiIngameMenu)
-                {
-                    if (ConfigManagerIN.enableConfirmDisconnectButton && !this.mc.isSingleplayer())
-                    {
-                        this.mc.currentScreen.buttonList.forEach(button ->
-                        {
-                            if (button.id == 1 && ConfigManagerIN.confirmDisconnectMode.equals("click"))
-                            {
-                                if (this.disconnectClickCooldown < 60)
-                                {
-                                    int cooldownSec = 1 + this.disconnectClickCooldown / 20;
-                                    button.displayString = EnumChatFormatting.RED + LangUtils.translate("message.confirm_disconnect") + " in " + cooldownSec + "...";
-                                }
-                                if (this.disconnectClickCooldown == 0)
-                                {
-                                    button.displayString = LangUtils.translate("menu.disconnect");
-                                    this.disconnectClickCount = 0;
-                                }
-                            }
-                        });
-                    }
-                }
-                else
-                {
-                    this.disconnectClickCount = 0;
-                    this.disconnectClickCooldown = 0;
-                }
+                    long now = System.currentTimeMillis();
 
-                if (IndicatiaEventHandler.pendingPingTicks > 0 && this.mc.getCurrentServerData() != null)
-                {
-                    IndicatiaEventHandler.pendingPingTicks--;
-
-                    if (IndicatiaEventHandler.pendingPingTicks == 0)
+                    if (this.lastPinger == -1L || now - this.lastPinger > 5000L)
                     {
+                        this.lastPinger = now;
                         IndicatiaEventHandler.getRealTimeServerPing(this.mc.getCurrentServerData());
-                        IndicatiaEventHandler.pendingPingTicks = 100;
                     }
                 }
 
@@ -306,34 +274,13 @@ public class IndicatiaEventHandler
     @SubscribeEvent
     public void onPreActionPerformedGui(GuiScreenEvent.ActionPerformedEvent.Pre event)
     {
-        if (ConfigManagerIN.enableConfirmDisconnectButton && event.gui instanceof GuiIngameMenu && !this.mc.isSingleplayer())
+        if (ConfigManagerIN.enableConfirmToDisconnect && event.gui instanceof GuiIngameMenu && !this.mc.isSingleplayer())
         {
             if (event.button.id == 1)
             {
                 event.setCanceled(true);
                 event.button.playPressSound(this.mc.getSoundHandler());
-
-                if (ConfigManagerIN.confirmDisconnectMode.equals("gui"))
-                {
-                    this.mc.displayGuiScreen(new GuiConfirmDisconnect());
-                }
-                else
-                {
-                    this.disconnectClickCount++;
-                    event.button.displayString = EnumChatFormatting.RED + LangUtils.translate("message.confirm_disconnect");
-
-                    if (this.disconnectClickCount == 1)
-                    {
-                        this.disconnectClickCooldown = 100;
-                    }
-                    if (this.disconnectClickCount == 2)
-                    {
-                        this.mc.theWorld.sendQuittingDisconnectingPacket();
-                        this.mc.loadWorld(null);
-                        this.mc.displayGuiScreen(new GuiMultiplayer(new GuiMainMenu()));
-                        this.disconnectClickCount = 0;
-                    }
-                }
+                this.mc.displayGuiScreen(new GuiConfirmDisconnect());
             }
         }
     }
@@ -387,7 +334,7 @@ public class IndicatiaEventHandler
 
     private static void getRealTimeServerPing(ServerData server)
     {
-        IndicatiaEventHandler.serverPinger.submit(() ->
+        IndicatiaEventHandler.REALTIME_PINGER.submit(() ->
         {
             try
             {

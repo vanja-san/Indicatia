@@ -21,7 +21,6 @@ public class ExtendedConfig
     public static final File userDir = new File(indicatiaDir, GameProfileUtils.getUUID().toString());
     public static final File defaultConfig = new File(userDir, "default.dat");
     public static String currentProfile = "";
-    private static final String[] EQUIPMENT_ORDERING = new String[] {"indicatia.default", "equipment.reverse"};
     private static final String[] EQUIPMENT_DIRECTION = new String[] {"equipment.vertical", "equipment.horizontal"};
     private static final String[] EQUIPMENT_STATUS = new String[] {"equipment.damage_and_max_damage", "equipment.percent", "equipment.only_damage", "indicatia.none", "equipment.count", "equipment.count_and_stack"};
     private static final String[] EQUIPMENT_POSITION = new String[] {"indicatia.left", "indicatia.right", "indicatia.hotbar"};
@@ -56,7 +55,6 @@ public class ExtendedConfig
 
     // Main
     public boolean swapRenderInfo = false;
-    public int equipmentOrdering = 0;
     public int equipmentDirection = 0;
     public int equipmentStatus = 0;
     public int equipmentPosition = 2;
@@ -178,7 +176,6 @@ public class ExtendedConfig
 
             // Main
             this.swapRenderInfo = ExtendedConfig.getBoolean(nbt, "SwapRenderInfo", this.swapRenderInfo);
-            this.equipmentOrdering = ExtendedConfig.getInteger(nbt, "EquipmentOrdering", this.equipmentOrdering);
             this.equipmentDirection = ExtendedConfig.getInteger(nbt, "EquipmentDirection", this.equipmentDirection);
             this.equipmentStatus = ExtendedConfig.getInteger(nbt, "EquipmentStatus", this.equipmentStatus);
             this.equipmentPosition = ExtendedConfig.getInteger(nbt, "EquipmentPosition", this.equipmentPosition);
@@ -301,7 +298,6 @@ public class ExtendedConfig
 
             // Main
             nbt.setBoolean("SwapRenderInfo", this.swapRenderInfo);
-            nbt.setInteger("EquipmentOrdering", this.equipmentOrdering);
             nbt.setInteger("EquipmentDirection", this.equipmentDirection);
             nbt.setInteger("EquipmentStatus", this.equipmentStatus);
             nbt.setInteger("EquipmentPosition", this.equipmentPosition);
@@ -467,10 +463,6 @@ public class ExtendedConfig
         {
             return this.getOptionStringValue(options);
         }
-        else if (options == ExtendedConfig.Options.EQUIPMENT_ORDERING)
-        {
-            return name + this.getTranslation(EQUIPMENT_ORDERING, this.equipmentOrdering);
-        }
         else if (options == ExtendedConfig.Options.EQUIPMENT_DIRECTION)
         {
             return name + this.getTranslation(EQUIPMENT_DIRECTION, this.equipmentDirection);
@@ -514,10 +506,6 @@ public class ExtendedConfig
         if (options == ExtendedConfig.Options.SWAP_INFO_POS)
         {
             this.swapRenderInfo = !this.swapRenderInfo;
-        }
-        else if (options == ExtendedConfig.Options.EQUIPMENT_ORDERING)
-        {
-            this.equipmentOrdering = (this.equipmentOrdering + value) % 2;
         }
         else if (options == ExtendedConfig.Options.EQUIPMENT_DIRECTION)
         {
@@ -1061,7 +1049,6 @@ public class ExtendedConfig
     public static enum Options
     {
         SWAP_INFO_POS(false, true),
-        EQUIPMENT_ORDERING(false, false),
         EQUIPMENT_DIRECTION(false, false),
         EQUIPMENT_STATUS(false, false),
         EQUIPMENT_POSITION(false, false),

@@ -14,7 +14,7 @@ gui.config.key_code_example.tooltip=Copy this URL and set your custom key code.
 gui.config.indicatia.additional_blockhit_animation=When Eating/Blocking/Bowing/Drinking and use left click on the block, your hand will be swing just like in 1.7. (But not start break a block)
 gui.config.indicatia.transparent_skull_render=Same as alternate player model but this is for Skull.
 gui.config.indicatia.custom_server_selection=Show response time as number instead and improved server info.
-gui.config.indicatia.confirm_disconnect_button=This will display confirmation button if you want to disconnect from the server.
+gui.config.indicatia.confirm_to_disconnect=This will display confirmation screen if you want to disconnect from the server.
 
 # KEY BINDING
 key.indicatia.category=Indicatia
@@ -52,17 +52,16 @@ indicatia.default=Default
 indicatia.none=None
 indicatia.chat=Chat
 indicatia.toast=Toast
-equipment.reverse=Reverse
 equipment.vertical=Vertical
 equipment.horizontal=Horizontal
 equipment.damage_and_max_damage=Damage/Max Damage
 equipment.percent=Percent
-equipment.only_damage=Only Damage
-equipment.count=Only Count
-equipment.count_and_stack=Count and Stack
+equipment.only_damage=Damage Only
+equipment.count=Amount
+equipment.count_and_stack=Amount & Stack
 potion_hud.icon_and_time=Icon/Time
-indicatia.only_ping=Only Ping
-indicatia.ping_and_delay=Ping and Delay
+indicatia.only_ping=Ping
+indicatia.ping_and_delay=Ping & Delay
 
 # EXTENDED CONFIG INFO
 extended_config.render_info.rclick.info=Right click on the button to see more info.
@@ -78,7 +77,6 @@ extended_config.hypixel.title=Hypixel Settings...
 extended_config.reset_config=Reset Config
 extended_config.render_info_custom_color.title=Render Info Custom Color
 swap_info_pos.extended_config=Swap Render Info
-equipment_ordering.extended_config=Equipment Ordering
 equipment_direction.extended_config=Equipment Direction
 equipment_status.extended_config=Equipment Status
 equipment_position.extended_config=Equipment Position
@@ -181,7 +179,6 @@ message.cannot_remove_default=Cannot remove default profile!
 message.remove_profile=Remove profile by name '%s'
 message.cant_remove_profile=Cannot remove or find profile by name '%s'!
 message.want_disconnect=Do you want to disconnect?
-message.confirm_disconnect=Click again to Disconnect
 message.refresh=Refresh
 message.check=Check
 message.example=Example
