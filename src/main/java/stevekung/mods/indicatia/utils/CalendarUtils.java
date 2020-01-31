@@ -21,7 +21,7 @@ public class CalendarUtils
 
     public static boolean isSteveKunGBirthDay()
     {
-        return CalendarUtils.getMonth(2) && CalendarUtils.getDay(1, 0);
+        return CalendarUtils.getMonth(2) && CalendarUtils.getDay(2, 0);
     }
 
     private static boolean getMonth(int month)
