@@ -37,6 +37,7 @@ import net.minecraft.util.MovementInput;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.StringUtils;
 import net.minecraftforge.client.GuiIngameForge;
+import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -329,6 +330,20 @@ public class IndicatiaEventHandler
         {
             event.setCanceled(true);
             return;
+        }
+    }
+
+    @SubscribeEvent
+    public void onGuiOpen(GuiOpenEvent event)
+    {
+        if (event.gui instanceof GuiMainMenu)
+        {
+            GuiMainMenu menu = (GuiMainMenu)event.gui;
+
+            if (CalendarUtils.isSteveKunGBirthDay())
+            {
+                menu.splashText = "Happy birthday, SteveKunG!";
+            }
         }
     }
 
