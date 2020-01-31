@@ -45,6 +45,7 @@
         "RenderManagerMixin",
         "NetworkPlayerInfoMixin",
         "RenderDragonMixin",
-        "RenderGuardianMixin"
+        "RenderGuardianMixin",
+        "ImageBufferDownloadMixin"
     ]
 }
