@@ -566,13 +566,14 @@ public class GuiSkyBlockData extends GuiScreen
                     else
                     {
                         int i = 0;
+                        int height = this.height / 7;
 
                         for (SkyBlockSkillInfo info : this.skillLeftList)
                         {
                             int x = this.width / 2 - 120;
-                            int y = 53;
-                            int barY = y + 20 + 32 * i;
-                            int textY = y + 32 * i;
+                            int y = height + 16;
+                            int barY = y + 20 + height * i;
+                            int textY = y + height * i;
                             this.renderSkillBar(info.getName(), x, barY, x + 46, textY, info.getCurrentXp(), info.getXpRequired(), info.getCurrentLvl(), info.isReachLimit());
                             ++i;
                         }
@@ -582,19 +583,20 @@ public class GuiSkyBlockData extends GuiScreen
                         for (SkyBlockSkillInfo info : this.skillRightList)
                         {
                             int x = this.width / 2 + 30;
-                            int y = 53;
-                            int barY = y + 20 + 32 * i;
-                            int textY = y + 32 * i;
+                            int y = height + 16;
+                            int barY = y + 20 + height * i;
+                            int textY = y + height * i;
                             this.renderSkillBar(info.getName(), x, barY, x + 46, textY, info.getCurrentXp(), info.getXpRequired(), info.getCurrentLvl(), info.isReachLimit());
                             ++i;
                         }
                         int x = this.width / 2 - 46;
-                        int y = 172;
+                        int y = this.height - 32 - this.height / 7;
                         this.renderSkillBar(this.carpentrySkill.getName(), x, y + 28, x + 46, y + 8, this.carpentrySkill.getCurrentXp(), this.carpentrySkill.getXpRequired(), this.carpentrySkill.getCurrentLvl(), this.carpentrySkill.isReachLimit());
 
                         if (this.skillAvg != null)
                         {
-                            this.drawCenteredString(this.fontRendererObj, "Average Skill: " + this.skillAvg, this.width / 2 + 104, 199, 16777215);
+                            String avg = "Average Skill: " + this.skillAvg;
+                            this.drawString(this.fontRendererObj, avg, this.width - this.fontRendererObj.getStringWidth(avg) - 63, this.height - 42, 16777215);
                         }
                     }
                 }
