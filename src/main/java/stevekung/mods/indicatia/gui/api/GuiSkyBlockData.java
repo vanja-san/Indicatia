@@ -1189,7 +1189,7 @@ public class GuiSkyBlockData extends GuiScreen
                 this.getItemStats(this.inventoryToStats, false);
                 this.getItemStats(this.armorItems, true);
                 this.applyBonuses();
-                this.allStat.add(new BonusStatTemplate(0, 0, 0, this.allStat.getDefense() <= 0 ? this.allStat.getHealth() : Math.round(this.allStat.getHealth() * (1 + this.allStat.getDefense() / 100)), 0, 0, 0, 0, 0));
+                this.allStat.add(new BonusStatTemplate(0, 0, 0, this.allStat.getDefense() <= 0 ? this.allStat.getHealth() : (int)(this.allStat.getHealth() * (1 + this.allStat.getDefense() / 100.0D)), 0, 0, 0, 0, 0));
                 this.getBasicInfo(currentUserProfile, banking);
                 break;
             }
