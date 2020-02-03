@@ -23,7 +23,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.tileentity.TileEntitySkull;
 import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.MathHelper;
 import net.minecraft.util.StringUtils;
 import stevekung.mods.indicatia.gui.GuiButtonSearch;
 import stevekung.mods.indicatia.gui.GuiRightClickTextField;
@@ -32,6 +31,7 @@ import stevekung.mods.indicatia.utils.*;
 
 public class GuiSkyBlockAPIViewer extends GuiScreen implements GuiYesNoCallback
 {
+    public static final String[] downloadingStates = new String[] {"", ".", "..", "..."};
     private GuiRightClickTextField usernameTextField;
     private GuiButtonSearch checkButton;
     private GuiButton closeButton;
@@ -44,7 +44,6 @@ public class GuiSkyBlockAPIViewer extends GuiScreen implements GuiYesNoCallback
     private String statusMessage;
     private List<ProfileDataCallback> profiles = new ArrayList<>();
     private final StopWatch watch = new StopWatch();
-    private int percent;
     private List<GuiSBProfileButton> profileButtonList = new ArrayList<>();
     private final String skyblockStats = "https://sky.lea.moe/";
     private boolean fromError;
@@ -152,15 +151,6 @@ public class GuiSkyBlockAPIViewer extends GuiScreen implements GuiYesNoCallback
     {
         this.usernameTextField.updateCursorCounter();
         this.checkButton.enabled = this.usernameTextField.getText().trim().length() > 0;
-
-        if (!this.watch.isStopped() && this.percent < 100)
-        {
-            this.percent = (int)(this.watch.getTime() * 100 / 10000L);
-        }
-        if (this.percent > 100)
-        {
-            this.percent = 100;
-        }
     }
 
     @Override
@@ -177,7 +167,6 @@ public class GuiSkyBlockAPIViewer extends GuiScreen implements GuiYesNoCallback
             if (button.id == 0)
             {
                 this.watch.reset();
-                this.percent = 0;
                 this.username = this.usernameTextField.getText();
                 this.profiles.clear();
                 this.profileButtonList.clear();
@@ -272,17 +261,11 @@ public class GuiSkyBlockAPIViewer extends GuiScreen implements GuiYesNoCallback
 
         if (this.loadingApi)
         {
-            this.drawCenteredString(this.fontRendererObj, LangUtils.translate("Downloading SkyBlock stats"), this.width / 2, this.height / 2 - 20, 16777215);
-
-            int i = this.width / 2 - 150;
-            int j = this.width / 2 + 150;
-            int k = this.height / 2 + 10;
-            int l = k + 10;
-            int j1 = MathHelper.floor_float(this.percent / 100.0F * (j - i));
-            Gui.drawRect(i - 1, k - 1, j + 1, l + 1, -16777216);
-            Gui.drawRect(i, k, i + j1, l, ColorUtils.to32BitColor(128, 85, 255, 85));
-            this.drawCenteredString(this.fontRendererObj, this.percent + "%", this.width / 2, k + (l - k) / 2 - 9 / 2, 10526880);
-            this.drawCenteredString(this.fontRendererObj, EnumChatFormatting.BLUE + "Status: " + EnumChatFormatting.RESET + this.statusMessage, this.width / 2, k + (l - k) / 2 - 9 / 2 + 20, 10526880);
+            String text = "Downloading SkyBlock stats";
+            int i = this.fontRendererObj.getStringWidth(text);
+            this.drawCenteredString(this.fontRendererObj, text, this.width / 2, this.height / 2 + this.fontRendererObj.FONT_HEIGHT * 2 - 35, 16777215);
+            this.drawString(this.fontRendererObj, downloadingStates[(int)(Minecraft.getSystemTime() / 500L % downloadingStates.length)], this.width / 2 + i / 2, this.height / 2 + this.fontRendererObj.FONT_HEIGHT * 2 - 35, 16777215);
+            this.drawCenteredString(this.fontRendererObj, "Status: " + EnumChatFormatting.GRAY + this.statusMessage, this.width / 2, this.height / 2 + this.fontRendererObj.FONT_HEIGHT * 2 - 15, 16777215);
         }
         else
         {
@@ -412,7 +395,7 @@ public class GuiSkyBlockAPIViewer extends GuiScreen implements GuiYesNoCallback
             String sbProfileId = profiles.get(entry.getKey()).getAsJsonObject().get("profile_id").getAsString();
             String profileName = profiles.get(entry.getKey()).getAsJsonObject().get("cute_name").getAsString();
             String uuid = jsonPlayer.getAsJsonObject().get("uuid").getAsString();
-            this.statusMessage = "Found " + EnumChatFormatting.GOLD + profileName + EnumChatFormatting.RESET + " profile";
+            this.statusMessage = "Found " + EnumChatFormatting.GOLD + "\"" + profileName + "\"" + EnumChatFormatting.GRAY + " profile";
             GameProfile profile = TileEntitySkull.updateGameprofile(new GameProfile(UUID.fromString(uuid.replaceFirst("([0-9a-fA-F]{8})([0-9a-fA-F]{4})([0-9a-fA-F]{4})([0-9a-fA-F]{4})([0-9a-fA-F]+)", "$1-$2-$3-$4-$5")), this.username));
             ProfileDataCallback callback = new ProfileDataCallback(sbProfileId, profileName, this.username, uuid, profile, this.getLastSaveProfile(sbProfileId, uuid));
             GuiSBProfileButton button = new GuiSBProfileButton(i + 1000, this.width / 2 - 75, 75, 150, 20, callback);

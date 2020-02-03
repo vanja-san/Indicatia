@@ -81,7 +81,6 @@ public class GuiSkyBlockData extends GuiScreen
     private final String uuid;
     private final GameProfile profile;
     private final StopWatch watch = new StopWatch();
-    private int percent;
     private GuiScrollingList currentSlot;
     private int currentSlotId = -1;
     private int currentBasicSlotId = -1;
@@ -327,14 +326,6 @@ public class GuiSkyBlockData extends GuiScreen
     @Override
     public void updateScreen()
     {
-        if (!this.watch.isStopped() && this.percent < 100)
-        {
-            this.percent = (int)(this.watch.getTime() * 100 / 2000);
-        }
-        if (this.percent > 100)
-        {
-            this.percent = 100;
-        }
         if (this.player != null)
         {
             this.player.onUpdate();
@@ -452,17 +443,11 @@ public class GuiSkyBlockData extends GuiScreen
 
         if (this.loadingApi)
         {
-            this.drawCenteredString(this.fontRendererObj, LangUtils.translate("Downloading SkyBlock stats"), this.width / 2, this.height / 2 - 20, 16777215);
-
-            int i = this.width / 2 - 150;
-            int j = this.width / 2 + 150;
-            int k = this.height / 2 + 10;
-            int l = k + 10;
-            int j1 = MathHelper.floor_float(this.percent / 100.0F * (j - i));
-            Gui.drawRect(i - 1, k - 1, j + 1, l + 1, -16777216);
-            Gui.drawRect(i, k, i + j1, l, ColorUtils.to32BitColor(128, 85, 255, 85));
-            this.drawCenteredString(this.fontRendererObj, this.percent + "%", this.width / 2, k + (l - k) / 2 - 9 / 2, 10526880);
-            this.drawCenteredString(this.fontRendererObj, EnumChatFormatting.BLUE + "Status: " + EnumChatFormatting.RESET + this.statusMessage, this.width / 2, k + (l - k) / 2 - 9 / 2 + 20, 10526880);
+            String text = "Downloading SkyBlock stats";
+            int i = this.fontRendererObj.getStringWidth(text);
+            this.drawCenteredString(this.fontRendererObj, text, this.width / 2, this.height / 2 + this.fontRendererObj.FONT_HEIGHT * 2 - 35, 16777215);
+            this.drawString(this.fontRendererObj, GuiSkyBlockAPIViewer.downloadingStates[(int)(Minecraft.getSystemTime() / 500L % GuiSkyBlockAPIViewer.downloadingStates.length)], this.width / 2 + i / 2, this.height / 2 + this.fontRendererObj.FONT_HEIGHT * 2 - 35, 16777215);
+            this.drawCenteredString(this.fontRendererObj, "Status: " + EnumChatFormatting.GRAY + this.statusMessage, this.width / 2, this.height / 2 + this.fontRendererObj.FONT_HEIGHT * 2 - 15, 16777215);
         }
         else
         {
