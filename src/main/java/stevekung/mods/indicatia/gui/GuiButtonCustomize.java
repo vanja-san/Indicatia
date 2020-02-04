@@ -11,7 +11,6 @@ public class GuiButtonCustomize extends GuiButton
     private static final ResourceLocation main = new ResourceLocation("indicatia:textures/gui/main_lobby.png");
     private static final ResourceLocation play = new ResourceLocation("indicatia:textures/gui/play_icon.png");
     private final boolean isPlay;
-    private final int parentWidth;
     private final String tooltips;
     public String command;
     private static int buttonId = 1000;
@@ -20,7 +19,6 @@ public class GuiButtonCustomize extends GuiButton
     {
         super(buttonId++, parentWidth - 130, 20, 20, 20, "");
         this.isPlay = isPlay;
-        this.parentWidth = parentWidth;
         this.tooltips = tooltips;
         this.command = command.startsWith("/") ? command : isPlay ? "/play " + command : "/lobby " + command;
     }
