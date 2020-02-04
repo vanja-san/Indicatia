@@ -111,7 +111,7 @@ public class GuiSkyBlockAPIViewer extends GuiScreen implements GuiYesNoCallback
                 }
                 catch (Throwable e)
                 {
-                    this.setErrorMessage(e.getMessage());
+                    this.setErrorMessage(e.getStackTrace()[0].toString());
                     e.printStackTrace();
                 }
             });
@@ -187,7 +187,7 @@ public class GuiSkyBlockAPIViewer extends GuiScreen implements GuiYesNoCallback
                     }
                     catch (Throwable e)
                     {
-                        this.setErrorMessage(e.getMessage());
+                        this.setErrorMessage(e.getStackTrace()[0].toString());
                         e.printStackTrace();
                     }
                 });
@@ -429,6 +429,12 @@ public class GuiSkyBlockAPIViewer extends GuiScreen implements GuiYesNoCallback
         URL url = new URL(SkyBlockAPIUtils.SKYBLOCK_PROFILE + currentProfileId);
         JsonObject obj = new JsonParser().parse(IOUtils.toString(url.openConnection().getInputStream(), StandardCharsets.UTF_8)).getAsJsonObject();
         JsonElement profile = obj.get("profile");
+
+        if (profile == null)
+        {
+            return lastSave;
+        }
+
         JsonObject profiles = profile.getAsJsonObject().get("members").getAsJsonObject();
 
         for (Map.Entry<String, JsonElement> entry : profiles.entrySet().stream().filter(entry -> entry.getKey().equals(uuid)).collect(Collectors.toList()))

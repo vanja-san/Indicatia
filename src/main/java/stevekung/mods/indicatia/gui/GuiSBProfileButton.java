@@ -89,8 +89,14 @@ public class GuiSBProfileButton extends GuiButton
         this.profiles = profiles;
     }
 
-    private String getLastActive()
+    public String getLastActive()
     {
-        return "Last active: " + CommonUtils.getRelativeTime(this.callback.getLastSave());
+        String time = "Invalid data!";
+
+        if (this.callback.getLastSave() > 0)
+        {
+            time = CommonUtils.getRelativeTime(this.callback.getLastSave());
+        }
+        return "Last active: " + time;
     }
 }

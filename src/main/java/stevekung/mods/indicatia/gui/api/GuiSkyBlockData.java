@@ -189,7 +189,7 @@ public class GuiSkyBlockData extends GuiScreen
                 }
                 catch (Throwable e)
                 {
-                    this.setErrorMessage(e.getMessage());
+                    this.setErrorMessage(e.getStackTrace()[0].toString());
                     e.printStackTrace();
                 }
             });
