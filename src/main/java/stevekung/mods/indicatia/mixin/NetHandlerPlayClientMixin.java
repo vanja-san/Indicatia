@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.network.play.server.S3APacketTabComplete;
-import stevekung.mods.indicatia.utils.ITradeGUI;
+import stevekung.mods.indicatia.utils.ITabComplete;
 
 @Mixin(NetHandlerPlayClient.class)
 public abstract class NetHandlerPlayClientMixin
@@ -20,9 +20,9 @@ public abstract class NetHandlerPlayClientMixin
     @Inject(method = "handleTabComplete(Lnet/minecraft/network/play/server/S3APacketTabComplete;)V", at = @At("RETURN"))
     private void handleTabComplete(S3APacketTabComplete packet, CallbackInfo info)
     {
-        if (this.gameController.currentScreen instanceof ITradeGUI)
+        if (this.gameController.currentScreen instanceof ITabComplete)
         {
-            ITradeGUI chest = (ITradeGUI)this.gameController.currentScreen;
+            ITabComplete chest = (ITabComplete)this.gameController.currentScreen;
             chest.onAutocompleteResponse(packet.func_149630_c());
         }
     }

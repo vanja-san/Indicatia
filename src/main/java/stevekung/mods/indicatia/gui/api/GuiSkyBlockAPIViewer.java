@@ -11,6 +11,7 @@ import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.commons.lang3.time.StopWatch;
 import org.lwjgl.input.Keyboard;
 
+import com.google.common.collect.ObjectArrays;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -18,16 +19,18 @@ import com.mojang.authlib.GameProfile;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.network.play.client.C14PacketTabComplete;
 import net.minecraft.tileentity.TileEntitySkull;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.StringUtils;
+import net.minecraft.util.*;
+import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import stevekung.mods.indicatia.gui.GuiButtonSearch;
 import stevekung.mods.indicatia.gui.GuiRightClickTextField;
 import stevekung.mods.indicatia.gui.GuiSBProfileButton;
 import stevekung.mods.indicatia.utils.*;
 
-public class GuiSkyBlockAPIViewer extends GuiScreen implements GuiYesNoCallback
+public class GuiSkyBlockAPIViewer extends GuiScreen implements GuiYesNoCallback, ITabComplete
 {
     public static final String[] downloadingStates = new String[] {"", ".", "..", "..."};
     private GuiRightClickTextField usernameTextField;
@@ -45,6 +48,10 @@ public class GuiSkyBlockAPIViewer extends GuiScreen implements GuiYesNoCallback
     private List<GuiSBProfileButton> profileButtonList = new ArrayList<>();
     private final String skyblockStats = "https://sky.lea.moe/";
     private boolean fromError;
+    private boolean playerNamesFound;
+    private boolean waitingOnAutocomplete;
+    private int autocompleteIndex;
+    private List<String> foundPlayerNames = new ArrayList<>();
 
     public GuiSkyBlockAPIViewer(GuiState state)
     {
@@ -201,6 +208,16 @@ public class GuiSkyBlockAPIViewer extends GuiScreen implements GuiYesNoCallback
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
         this.usernameTextField.textboxKeyTyped(typedChar, keyCode);
+        this.waitingOnAutocomplete = false;
+
+        if (keyCode == 15)
+        {
+            this.autocompletePlayerNames();
+        }
+        else
+        {
+            this.playerNamesFound = false;
+        }
 
         if (keyCode != 28 && keyCode != 156)
         {
@@ -346,6 +363,46 @@ public class GuiSkyBlockAPIViewer extends GuiScreen implements GuiYesNoCallback
         }
     }
 
+    @Override
+    public void onAutocompleteResponse(String[] list)
+    {
+        if (this.waitingOnAutocomplete)
+        {
+            this.playerNamesFound = false;
+            this.foundPlayerNames.clear();
+
+            String[] complete = ClientCommandHandler.instance.latestAutoComplete;
+
+            if (complete != null)
+            {
+                list = ObjectArrays.concat(complete, list, String.class);
+            }
+
+            for (String s : list)
+            {
+                if (s.length() > 0)
+                {
+                    this.foundPlayerNames.add(s);
+                }
+            }
+
+            String s1 = this.usernameTextField.getText().substring(this.usernameTextField.func_146197_a(-1, this.usernameTextField.getCursorPosition(), false));
+            String s2 = org.apache.commons.lang3.StringUtils.getCommonPrefix(list);
+            s2 = EnumChatFormatting.getTextWithoutFormattingCodes(s2);
+
+            if (s2.length() > 0 && !s1.equalsIgnoreCase(s2))
+            {
+                this.usernameTextField.deleteFromCursor(this.usernameTextField.func_146197_a(-1, this.usernameTextField.getCursorPosition(), false) - this.usernameTextField.getCursorPosition());
+                this.usernameTextField.writeText(s2);
+            }
+            else if (this.foundPlayerNames.size() > 0)
+            {
+                this.playerNamesFound = true;
+                this.autocompletePlayerNames();
+            }
+        }
+    }
+
     private void checkAPI() throws IOException
     {
         if (!this.username.matches("\\w+"))
@@ -467,6 +524,67 @@ public class GuiSkyBlockAPIViewer extends GuiScreen implements GuiYesNoCallback
         this.errorMessage = message;
         this.checkButton.visible = !this.error;
         this.closeButton.displayString = LangUtils.translate("gui.back");
+    }
+
+    private void autocompletePlayerNames()
+    {
+        if (this.playerNamesFound)
+        {
+            this.usernameTextField.deleteFromCursor(this.usernameTextField.func_146197_a(-1, this.usernameTextField.getCursorPosition(), false) - this.usernameTextField.getCursorPosition());
+
+            if (this.autocompleteIndex >= this.foundPlayerNames.size())
+            {
+                this.autocompleteIndex = 0;
+            }
+        }
+        else
+        {
+            int i = this.usernameTextField.func_146197_a(-1, this.usernameTextField.getCursorPosition(), false);
+            this.foundPlayerNames.clear();
+            this.autocompleteIndex = 0;
+            String s = this.usernameTextField.getText().substring(i).toLowerCase();
+            String s1 = this.usernameTextField.getText().substring(0, this.usernameTextField.getCursorPosition());
+            this.sendAutocompleteRequest(s1, s);
+
+            if (this.foundPlayerNames.isEmpty())
+            {
+                return;
+            }
+            this.playerNamesFound = true;
+            this.usernameTextField.deleteFromCursor(i - this.usernameTextField.getCursorPosition());
+        }
+
+        if (this.foundPlayerNames.size() > 1)
+        {
+            StringBuilder stringbuilder = new StringBuilder();
+
+            for (String s2 : this.foundPlayerNames)
+            {
+                if (stringbuilder.length() > 0)
+                {
+                    stringbuilder.append(", ");
+                }
+                stringbuilder.append(s2);
+            }
+            this.mc.ingameGUI.getChatGUI().printChatMessageWithOptionalDeletion(new ChatComponentText(stringbuilder.toString()), 1);
+        }
+        this.usernameTextField.writeText(EnumChatFormatting.getTextWithoutFormattingCodes(this.foundPlayerNames.get(this.autocompleteIndex++)));
+    }
+
+    private void sendAutocompleteRequest(String leftOfCursor, String full)
+    {
+        if (leftOfCursor.length() >= 1)
+        {
+            ClientCommandHandler.instance.autoComplete(leftOfCursor, full);
+            BlockPos blockpos = null;
+
+            if (this.mc.objectMouseOver != null && this.mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK)
+            {
+                blockpos = this.mc.objectMouseOver.getBlockPos();
+            }
+            this.mc.thePlayer.sendQueue.addToSendQueue(new C14PacketTabComplete(leftOfCursor, blockpos));
+            this.waitingOnAutocomplete = true;
+        }
     }
 
     public enum GuiState
