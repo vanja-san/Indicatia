@@ -13,9 +13,9 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ChatStyle;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraftforge.fml.client.config.GuiUtils;
 import stevekung.mods.indicatia.config.ConfigManagerIN;
 import stevekung.mods.indicatia.config.ExtendedConfig;
 import stevekung.mods.indicatia.gui.GuiDropdownMinigames.IDropboxCallback;
@@ -26,6 +26,12 @@ public class GuiIndicatiaChat implements IGuiChat, IDropboxCallback
     private GuiDropdownMinigames dropdown;
     private int prevSelect = -1;
     private ChatMode mode = ChatMode.ALL;
+    private final Minecraft mc;
+
+    public GuiIndicatiaChat()
+    {
+        this.mc = Minecraft.getMinecraft();
+    }
 
     @Override
     public void initGui(List<GuiButton> buttonList, int width, int height)
@@ -42,8 +48,12 @@ public class GuiIndicatiaChat implements IGuiChat, IDropboxCallback
             if (button instanceof GuiButtonCustomize)
             {
                 GuiButtonCustomize customButton = (GuiButtonCustomize) button;
-                customButton.drawRegion(mouseX, mouseY);
-                GlStateManager.enableDepth();
+                boolean isHover = mouseX >= customButton.xPosition && mouseY >= customButton.yPosition && mouseX < customButton.xPosition + customButton.width && mouseY < customButton.yPosition + customButton.height;
+
+                if (isHover)
+                {
+                    GuiUtils.drawHoveringText(Collections.singletonList(customButton.getTooltips()), mouseX, mouseY, this.mc.currentScreen.width, this.mc.currentScreen.height, -1, this.mc.fontRendererObj);
+                }
             }
         });
 

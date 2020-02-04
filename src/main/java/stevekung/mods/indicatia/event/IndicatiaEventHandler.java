@@ -3,9 +3,11 @@ package stevekung.mods.indicatia.event;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.stream.Collectors;
 
 import org.lwjgl.input.Keyboard;
 
@@ -40,6 +42,7 @@ import net.minecraftforge.client.GuiIngameForge;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
+import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -319,6 +322,20 @@ public class IndicatiaEventHandler
             if (event.button.id == 500)
             {
                 IndicatiaEventHandler.showChat = !IndicatiaEventHandler.showChat;
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public void onPostGuiDrawScreen(GuiScreenEvent.DrawScreenEvent.Post event)
+    {
+        for (GuiButton button : event.gui.buttonList.stream().filter(button -> button instanceof GuiButtonItem).collect(Collectors.toList()))
+        {
+            boolean hover = event.mouseX >= button.xPosition && event.mouseY >= button.yPosition && event.mouseX < button.xPosition + button.width && event.mouseY < button.yPosition + button.height;
+
+            if (hover)
+            {
+                GuiUtils.drawHoveringText(Collections.singletonList(((GuiButtonItem)button).getName()), event.mouseX, event.mouseY, event.gui.width, event.gui.height, -1, this.mc.fontRendererObj);
             }
         }
     }

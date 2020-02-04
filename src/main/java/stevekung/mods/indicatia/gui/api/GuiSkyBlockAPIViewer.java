@@ -3,10 +3,7 @@ package stevekung.mods.indicatia.gui.api;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
@@ -24,6 +21,7 @@ import net.minecraft.client.gui.*;
 import net.minecraft.tileentity.TileEntitySkull;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StringUtils;
+import net.minecraftforge.fml.client.config.GuiUtils;
 import stevekung.mods.indicatia.gui.GuiButtonSearch;
 import stevekung.mods.indicatia.gui.GuiRightClickTextField;
 import stevekung.mods.indicatia.gui.GuiSBProfileButton;
@@ -316,7 +314,12 @@ public class GuiSkyBlockAPIViewer extends GuiScreen implements GuiYesNoCallback
 
                 for (GuiSBProfileButton button : this.profileButtonList)
                 {
-                    button.drawRegion(this.mc.displayWidth, mouseX, mouseY);
+                    boolean isHover = mouseX >= button.xPosition && mouseY >= button.yPosition && mouseX < button.xPosition + button.width && mouseY < button.yPosition + button.height;
+
+                    if (isHover)
+                    {
+                        GuiUtils.drawHoveringText(Collections.singletonList(button.getLastActive()), mouseX, mouseY, this.mc.displayWidth, this.mc.displayHeight, -1, this.fontRendererObj);
+                    }
                 }
             }
         }

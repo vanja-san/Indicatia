@@ -37,46 +37,8 @@ public class GuiButtonCustomize extends GuiButton
         }
     }
 
-    public void drawRegion(int mouseX, int mouseY)
+    public String getTooltips()
     {
-        if (this.visible)
-        {
-            boolean isHover = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
-            GlStateManager.disableDepth();
-
-            if (isHover)
-            {
-                int k = 0;
-                int l = Minecraft.getMinecraft().fontRendererObj.getStringWidth(this.tooltips);
-                k = l;
-                int i1 = mouseX + 12;
-                int j1 = mouseY - 12;
-                int k1 = 8;
-                int l1 = -267386864;
-                int i2 = 1347420415;
-                int i3 = i2 & 16711422;
-                int i4 = i2 & -16777216;
-                int j2 = i3 >> 1 | i4;
-
-            if (i1 + k > this.parentWidth)
-            {
-                i1 -= 28 + k;
-            }
-
-            this.zLevel = 300.0F;
-            this.drawGradientRect(i1 - 3, j1 - 4, i1 + k + 3, j1 - 3, l1, l1);
-            this.drawGradientRect(i1 - 3, j1 + k1 + 3, i1 + k + 3, j1 + k1 + 4, l1, l1);
-            this.drawGradientRect(i1 - 3, j1 - 3, i1 + k + 3, j1 + k1 + 3, l1, l1);
-            this.drawGradientRect(i1 - 4, j1 - 3, i1 - 3, j1 + k1 + 3, l1, l1);
-            this.drawGradientRect(i1 + k + 3, j1 - 3, i1 + k + 4, j1 + k1 + 3, l1, l1);
-            this.drawGradientRect(i1 - 3, j1 - 3 + 1, i1 - 3 + 1, j1 + k1 + 3 - 1, i2, j2);
-            this.drawGradientRect(i1 + k + 2, j1 - 3 + 1, i1 + k + 3, j1 + k1 + 3 - 1, i2, j2);
-            this.drawGradientRect(i1 - 3, j1 - 3, i1 + k + 3, j1 - 3 + 1, i2, i2);
-            this.drawGradientRect(i1 - 3, j1 + k1 + 2, i1 + k + 3, j1 + k1 + 3, j2, j2);
-            Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(this.tooltips, i1, j1, -1);
-            this.zLevel = 0.0F;
-            GlStateManager.enableDepth();
-            }
-        }
+        return this.tooltips;
     }
 }
