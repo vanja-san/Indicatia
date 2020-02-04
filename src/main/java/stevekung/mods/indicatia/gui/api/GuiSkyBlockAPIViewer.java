@@ -107,6 +107,7 @@ public class GuiSkyBlockAPIViewer extends GuiScreen implements GuiYesNoCallback,
                     this.watch.start();
                     this.checkAPI();
                     this.watch.stop();
+                    this.watch.reset();
                     this.openFromPlayer = false;
 
                     if (this.watch.getTime() > 0)
@@ -171,7 +172,6 @@ public class GuiSkyBlockAPIViewer extends GuiScreen implements GuiYesNoCallback,
         {
             if (button.id == 0)
             {
-                this.watch.reset();
                 this.username = this.usernameTextField.getText();
                 this.profiles.clear();
                 this.profileButtonList.clear();
@@ -184,6 +184,7 @@ public class GuiSkyBlockAPIViewer extends GuiScreen implements GuiYesNoCallback,
                         this.watch.start();
                         this.checkAPI();
                         this.watch.stop();
+                        this.watch.reset();
 
                         if (this.watch.getTime() > 0)
                         {
