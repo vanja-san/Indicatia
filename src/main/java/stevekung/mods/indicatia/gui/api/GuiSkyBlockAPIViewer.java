@@ -319,6 +319,7 @@ public class GuiSkyBlockAPIViewer extends GuiScreen implements GuiYesNoCallback
                     if (isHover)
                     {
                         GuiUtils.drawHoveringText(Collections.singletonList(button.getLastActive()), mouseX, mouseY, this.mc.displayWidth, this.mc.displayHeight, -1, this.fontRendererObj);
+                        GlStateManager.disableLighting();
                     }
                 }
             }

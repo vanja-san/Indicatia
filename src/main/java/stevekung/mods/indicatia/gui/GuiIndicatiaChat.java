@@ -13,6 +13,7 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ChatStyle;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.fml.client.config.GuiUtils;
@@ -53,6 +54,7 @@ public class GuiIndicatiaChat implements IGuiChat, IDropboxCallback
                 if (isHover)
                 {
                     GuiUtils.drawHoveringText(Collections.singletonList(customButton.getTooltips()), mouseX, mouseY, this.mc.currentScreen.width, this.mc.currentScreen.height, -1, this.mc.fontRendererObj);
+                    GlStateManager.disableLighting();
                 }
             }
         });
