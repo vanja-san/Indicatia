@@ -121,7 +121,7 @@ public class IndicatiaEventHandler
         int keyTGCtrl = InfoUtils.INSTANCE.parseInt(keyTS[0], "Toggle Sprint");
         int keyTGOther = InfoUtils.INSTANCE.parseInt(keyTS[1], "Toggle Sprint");
 
-        if (ExtendedConfig.instance.toggleSprint && this.mc.currentScreen == null && this.mc.gameSettings.keyBindSneak.getKeyCode() != Keyboard.KEY_LCONTROL && keyTGCtrl == Keyboard.KEY_LCONTROL && keyTGOther == Keyboard.KEY_S && Keyboard.isKeyDown(keyTGCtrl) && Keyboard.isKeyDown(keyTGOther))
+        if (this.mc.currentScreen == null && this.mc.gameSettings.keyBindSneak.getKeyCode() != Keyboard.KEY_LCONTROL && keyTGCtrl == Keyboard.KEY_LCONTROL && keyTGOther == Keyboard.KEY_S && Keyboard.isKeyDown(keyTGCtrl) && Keyboard.isKeyDown(keyTGOther))
         {
             ++movement.moveForward;
         }
