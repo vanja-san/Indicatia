@@ -444,10 +444,7 @@ public class HypixelEventHandler
                         cancelMessage = santaGiftPattern.matches();
                     }
                 }
-                if (cancelMessage)
-                {
-                    event.message = null;
-                }
+                event.setCanceled(cancelMessage);
             }
         }
     }
