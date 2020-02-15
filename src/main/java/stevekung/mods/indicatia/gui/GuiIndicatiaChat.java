@@ -208,6 +208,19 @@ public class GuiIndicatiaChat implements IGuiChat, IDropboxCallback
 
         if (InfoUtils.INSTANCE.isHypixel())
         {
+            if (ConfigManagerIN.enableChatMode)
+            {
+                // hypixel chat
+                buttonList.add(new GuiButton(200, width - 23, height - 35, 20, 20, "A"));
+                buttonList.add(new GuiButton(201, width - 23, height - 56, 20, 20, "P"));
+                buttonList.add(new GuiButton(202, width - 23, height - 77, 20, 20, "G"));
+                buttonList.add(new GuiButton(203, width - 31, height - 98, 28, 20, "COOP"));
+            }
+            if (!ConfigManagerIN.enableShortcutGameButton)
+            {
+                return;
+            }
+
             List<String> list = new ArrayList<>();
 
             for (MinigameData data : MinigameData.getMinigameData())
@@ -217,15 +230,6 @@ public class GuiIndicatiaChat implements IGuiChat, IDropboxCallback
 
             String max = Collections.max(list, Comparator.comparing(text -> text.length()));
             int length = mc.fontRendererObj.getStringWidth(max) + 32;
-
-            if (ConfigManagerIN.enableChatMode)
-            {
-                // hypixel chat
-                buttonList.add(new GuiButton(200, width - 23, height - 35, 20, 20, "A"));
-                buttonList.add(new GuiButton(201, width - 23, height - 56, 20, 20, "P"));
-                buttonList.add(new GuiButton(202, width - 23, height - 77, 20, 20, "G"));
-                buttonList.add(new GuiButton(203, width - 31, height - 98, 28, 20, "COOP"));
-            }
 
             buttonList.add(this.dropdown = new GuiDropdownMinigames(this, width - length, 2, list));
             this.dropdown.width = length;

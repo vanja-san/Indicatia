@@ -36,6 +36,7 @@ public class ConfigManagerIN
     public static boolean enableChatMode;
     public static boolean enableSkinRenderingFix;
     public static boolean disableHurtCameraEffect;
+    public static boolean enableShortcutGameButton;
 
     // Key Binding Settings
     public static String keyToggleSprint;
@@ -146,6 +147,10 @@ public class ConfigManagerIN
 
         prop = ConfigManagerIN.getProperty(ConfigManagerIN.MAIN_SETTINGS, "Disable Hurt Camera Effect", false);
         ConfigManagerIN.disableHurtCameraEffect = prop.getBoolean();
+        propOrder.add(prop.getName());
+
+        prop = ConfigManagerIN.getProperty(ConfigManagerIN.MAIN_SETTINGS, "Enable Shortcut Game Button", true);
+        ConfigManagerIN.enableShortcutGameButton = prop.getBoolean();
         propOrder.add(prop.getName());
 
         return propOrder;
