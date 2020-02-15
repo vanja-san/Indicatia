@@ -302,13 +302,13 @@ public class HypixelEventHandler
 
                     if (VisitIslandMode.getById(ExtendedConfig.instance.visitIslandMode).equalsIgnoreCase("disabled"))
                     {
-                        cancelMessage = true;
+                        cancelMessage = !VisitIslandMode.getById(ExtendedConfig.instance.visitIslandMode).equalsIgnoreCase("chat_and_toast");
                     }
                     else if (VisitIslandMode.getById(ExtendedConfig.instance.visitIslandMode).equalsIgnoreCase("toast"))
                     {
                         HypixelEventHandler.addVisitingToast(name);
                         LoggerIN.logToast(message);
-                        cancelMessage = true;
+                        cancelMessage = !VisitIslandMode.getById(ExtendedConfig.instance.visitIslandMode).equalsIgnoreCase("chat_and_toast");
                     }
 
                     if (ExtendedConfig.instance.addPartyVisitIsland && !HypixelEventHandler.PARTY_LIST.stream().anyMatch(pname -> name.equals(pname)))

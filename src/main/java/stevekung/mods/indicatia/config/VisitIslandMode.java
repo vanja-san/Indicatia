@@ -2,7 +2,7 @@ package stevekung.mods.indicatia.config;
 
 public enum VisitIslandMode
 {
-    CHAT, TOAST, DISABLED;
+    CHAT, TOAST, CHAT_AND_TOAST, DISABLED;
 
     private static final VisitIslandMode[] values = values();
 
