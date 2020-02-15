@@ -52,6 +52,7 @@ indicatia.default=Default
 indicatia.none=None
 indicatia.chat=Chat
 indicatia.toast=Toast
+indicatia.chat_and_toast=Chat & Toast
 equipment.vertical=Vertical
 equipment.horizontal=Horizontal
 equipment.damage_and_max_damage=Damage/Max Damage

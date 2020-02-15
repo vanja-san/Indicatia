@@ -2,7 +2,7 @@ package stevekung.mods.indicatia.config;
 
 public enum RareDropMode
 {
-    CHAT, TOAST;
+    CHAT, TOAST, CHAT_AND_TOAST;
 
     private static final RareDropMode[] values = values();
 

@@ -28,7 +28,7 @@ public class ExtendedConfig
     private static final String[] POTION_STATUS_HUD_POSITION = new String[] {"indicatia.left", "indicatia.right", "indicatia.hotbar_left", "indicatia.hotbar_right"};
     private static final String[] PING_MODE = new String[] {"indicatia.only_ping", "indicatia.ping_and_delay"};
     private static final String[] VISIT_ISLAND_MODE = new String[] {"indicatia.chat", "indicatia.toast", "indicatia.disabled"};
-    private static final String[] RARE_DROP_MODE = new String[] {"indicatia.chat", "indicatia.toast"};
+    private static final String[] RARE_DROP_MODE = new String[] {"indicatia.chat", "indicatia.toast", "indicatia.chat_and_toast"};
     private static File file;
 
     // Render Info
@@ -537,7 +537,7 @@ public class ExtendedConfig
         }
         else if (options == ExtendedConfig.Options.RARE_DROP_MODE)
         {
-            this.itemDropMode = (this.itemDropMode + value) % 2;
+            this.itemDropMode = (this.itemDropMode + value) % 3;
         }
 
         else if (options == ExtendedConfig.Options.FPS)
