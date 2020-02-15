@@ -334,7 +334,7 @@ public class IndicatiaEventHandler
         {
             boolean hover = event.mouseX >= button.xPosition && event.mouseY >= button.yPosition && event.mouseX < button.xPosition + button.width && event.mouseY < button.yPosition + button.height;
 
-            if (hover)
+            if (hover && button.visible)
             {
                 GuiUtils.drawHoveringText(Collections.singletonList(((GuiButtonItem)button).getName()), event.mouseX, event.mouseY, event.gui.width, event.gui.height, -1, this.mc.fontRendererObj);
                 GlStateManager.disableLighting();
