@@ -19,12 +19,9 @@ public class GuiHypixelSettings extends GuiScreen
     {
         OPTIONS.add(ExtendedConfig.Options.RIGHT_CLICK_ADD_PARTY);
         OPTIONS.add(ExtendedConfig.Options.ADD_PARTY_VISIT_ISLAND);
-        OPTIONS.add(ExtendedConfig.Options.JUNGLE_AXE_OVERLAY);
-        OPTIONS.add(ExtendedConfig.Options.GRAPPLING_HOOK_OVERLAY);
-        OPTIONS.add(ExtendedConfig.Options.ZEALOT_RESPAWN_OVERLAY);
-        OPTIONS.add(ExtendedConfig.Options.JUNGLE_AXE_DELAY);
-        OPTIONS.add(ExtendedConfig.Options.GRAPPLING_HOOK_DELAY);
-        OPTIONS.add(ExtendedConfig.Options.ZEALOT_RESPAWN_DELAY);
+        OPTIONS.add(ExtendedConfig.Options.JUNGLE_AXE_COOLDOWN);
+        OPTIONS.add(ExtendedConfig.Options.GRAPPLING_HOOK_COOLDOWN);
+        OPTIONS.add(ExtendedConfig.Options.ZEALOT_RESPAWN_COOLDOWN);
         OPTIONS.add(ExtendedConfig.Options.VISIT_ISLAND_MODE);
         OPTIONS.add(ExtendedConfig.Options.RARE_DROP_MODE);
         OPTIONS.add(ExtendedConfig.Options.GLOWING_DRAGON_ARMOR);

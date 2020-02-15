@@ -63,7 +63,7 @@ public class HUDRenderEventHandler
         long now = System.currentTimeMillis();
         boolean isHook = EnumChatFormatting.getTextWithoutFormattingCodes(event.getItemStack().getDisplayName()).equals("Grappling Hook");
 
-        if (now - this.lastGrapplingHookUse > ExtendedConfig.instance.grapplingHookDelay && isHook)
+        if (now - this.lastGrapplingHookUse > 2000L && isHook)
         {
             this.lastGrapplingHookUse = now;
         }
@@ -80,7 +80,7 @@ public class HUDRenderEventHandler
         long now = System.currentTimeMillis();
         Block block = event.getWorld().getBlockState(event.getPos()).getBlock();
 
-        if (now - this.lastBlockBreak > ExtendedConfig.instance.jungleAxeDelay && block instanceof BlockLog)
+        if (now - this.lastBlockBreak > 1500L && block instanceof BlockLog) // actual cooldown is 1.5 seconds :D
         {
             this.lastBlockBreak = now;
         }
@@ -108,17 +108,17 @@ public class HUDRenderEventHandler
         double grapplingHookDelay = 0;
         double zealotRespawnDelay = 0;
 
-        if (ExtendedConfig.instance.jungleAxeOverlay)
+        if (ExtendedConfig.instance.jungleAxeCooldown)
         {
-            jungleAxeDelay = this.getItemDelay(ExtendedConfig.instance.jungleAxeDelay, this.lastBlockBreak);
+            jungleAxeDelay = this.getItemDelay(1500, this.lastBlockBreak);
         }
-        if (ExtendedConfig.instance.grapplingHookOverlay)
+        if (ExtendedConfig.instance.grapplingHookCooldown)
         {
-            grapplingHookDelay = this.getItemDelay(ExtendedConfig.instance.grapplingHookDelay, this.lastGrapplingHookUse);
+            grapplingHookDelay = this.getItemDelay(2000, this.lastGrapplingHookUse);
         }
-        if (ExtendedConfig.instance.zealotRespawnOverlay)
+        if (ExtendedConfig.instance.zealotRespawnCooldown)
         {
-            zealotRespawnDelay = this.getItemDelay(ExtendedConfig.instance.zealotRespawnDelay, this.lastZealotRespawn);
+            zealotRespawnDelay = this.getItemDelay(15000, this.lastZealotRespawn);
         }
 
         if (event.type == RenderGameOverlayEvent.ElementType.HOTBAR || event.type == RenderGameOverlayEvent.ElementType.CROSSHAIRS)
@@ -138,17 +138,17 @@ public class HUDRenderEventHandler
             List<CrosshairOverlay> crosshairInfo = new LinkedList<>();
             int center = 0;
 
-            if (ExtendedConfig.instance.jungleAxeOverlay && jungleAxeDelay >= 0.01D)
+            if (ExtendedConfig.instance.jungleAxeCooldown && jungleAxeDelay >= 0.01D)
             {
-                crosshairInfo.add(new CrosshairOverlay(ExtendedConfig.instance.jungleAxeDelayColor, jungleAxeDelay));
+                crosshairInfo.add(new CrosshairOverlay(ExtendedConfig.instance.jungleAxeCooldownColor, jungleAxeDelay));
             }
-            if (ExtendedConfig.instance.grapplingHookOverlay && grapplingHookDelay >= 0.01D)
+            if (ExtendedConfig.instance.grapplingHookCooldown && grapplingHookDelay >= 0.01D)
             {
-                crosshairInfo.add(new CrosshairOverlay(ExtendedConfig.instance.grapplingHookDelayColor, grapplingHookDelay));
+                crosshairInfo.add(new CrosshairOverlay(ExtendedConfig.instance.grapplingHookCooldownColor, grapplingHookDelay));
             }
-            if (ExtendedConfig.instance.zealotRespawnOverlay && zealotRespawnDelay >= 0.01D && !this.foundDragon)
+            if (ExtendedConfig.instance.zealotRespawnCooldown && zealotRespawnDelay >= 0.01D && !this.foundDragon)
             {
-                crosshairInfo.add(new CrosshairOverlay(ExtendedConfig.instance.zealotRespawnDelayColor, zealotRespawnDelay));
+                crosshairInfo.add(new CrosshairOverlay(ExtendedConfig.instance.zealotRespawnCooldownColor, zealotRespawnDelay));
             }
 
             for (CrosshairOverlay overlay : crosshairInfo)
