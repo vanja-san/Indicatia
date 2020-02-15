@@ -1,5 +1,6 @@
 package stevekung.mods.indicatia.mixin;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,6 +36,7 @@ import stevekung.mods.indicatia.event.IndicatiaEventHandler;
 import stevekung.mods.indicatia.gui.GuiNumberField;
 import stevekung.mods.indicatia.handler.KeyBindingHandler;
 import stevekung.mods.indicatia.utils.*;
+import stevekung.mods.indicatia.utils.JsonUtils;
 
 @Mixin(GuiContainer.class)
 public abstract class GuiContainerMixin extends GuiScreen implements ITradeGUI
@@ -91,6 +93,10 @@ public abstract class GuiContainerMixin extends GuiScreen implements ITradeGUI
                 this.inputField.setMaxStringLength(256);
                 this.inputField.setFocused(false);
                 this.inputField.setCanLoseFocus(true);
+            }
+            if (this.isPeopleAuction(chest.lowerChestInventory))
+            {
+                this.buttonList.add(new GuiButton(155, this.guiLeft + 180, this.guiTop + 70, 70, 20, "Copy Seller"));
             }
         }
     }
@@ -317,6 +323,7 @@ public abstract class GuiContainerMixin extends GuiScreen implements ITradeGUI
         if (this.that instanceof GuiChest)
         {
             GuiChest chest = (GuiChest)this.that;
+
             if (slot != null && clickedButton == 2 && clickType == 3 && this.canViewSeller(chest.lowerChestInventory))
             {
                 if (slot.getStack() != null && slot.getStack().hasTagCompound())
@@ -373,6 +380,22 @@ public abstract class GuiContainerMixin extends GuiScreen implements ITradeGUI
             if (this.isRenderBids(chest.lowerChestInventory))
             {
                 this.drawBids(slot);
+            }
+        }
+    }
+
+    @Override
+    protected void actionPerformed(GuiButton button) throws IOException
+    {
+        if (this.that instanceof GuiChest)
+        {
+            GuiChest chest = (GuiChest)this.that;
+
+            if (button.id == 155)
+            {
+                String text = chest.lowerChestInventory.getDisplayName().getUnformattedText();
+                ClientUtils.printClientMessage(JsonUtils.create("Copied seller auction command!").setChatStyle(JsonUtils.green()));
+                GuiScreen.setClipboardString("/ah " + text.replace(text.substring(text.indexOf('\'')), ""));
             }
         }
     }
@@ -615,6 +638,12 @@ public abstract class GuiContainerMixin extends GuiScreen implements ITradeGUI
     {
         String name = lowerChestInventory.getDisplayName().getUnformattedText();
         return name.equals("Auctions Browser") || name.equals("Manage Auctions") || name.equals("Your Bids") || name.endsWith("'s Auctions");
+    }
+
+    private boolean isPeopleAuction(IInventory lowerChestInventory)
+    {
+        String name = lowerChestInventory.getDisplayName().getUnformattedText();
+        return name.endsWith("'s Auctions");
     }
 
     // GuiChat stuff
