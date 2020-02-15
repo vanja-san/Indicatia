@@ -34,7 +34,7 @@ public abstract class RenderPlayerMixin
     @Inject(method = "doRender(Lnet/minecraft/client/entity/AbstractClientPlayer;DDDFF)V", at = @At(value = "INVOKE", target = "net/minecraft/client/renderer/entity/RenderPlayer.setModelVisibilities(Lnet/minecraft/client/entity/AbstractClientPlayer;)V", shift = At.Shift.AFTER))
     private void renderPre(AbstractClientPlayer entity, double x, double y, double z, float entityYaw, float partialTicks, CallbackInfo info)
     {
-        if (ConfigManagerIN.enableAlternatePlayerModel)
+        if (ConfigManagerIN.enableTransparentSkinRender)
         {
             GlStateManager.enableBlend();
             GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
@@ -44,7 +44,7 @@ public abstract class RenderPlayerMixin
     @Inject(method = "doRender(Lnet/minecraft/client/entity/AbstractClientPlayer;DDDFF)V", at = @At(value = "INVOKE", target = "net/minecraft/client/renderer/entity/RendererLivingEntity.doRender(Lnet/minecraft/entity/EntityLivingBase;DDDFF)V", shift = At.Shift.AFTER))
     private void renderPost(AbstractClientPlayer entity, double x, double y, double z, float entityYaw, float partialTicks, CallbackInfo info)
     {
-        if (ConfigManagerIN.enableAlternatePlayerModel)
+        if (ConfigManagerIN.enableTransparentSkinRender)
         {
             GlStateManager.disableBlend();
         }

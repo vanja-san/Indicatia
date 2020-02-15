@@ -19,7 +19,7 @@ public abstract class EntityRendererMixin
     @Inject(method = "renderHand(FI)V", at = @At("HEAD"))
     private void renderPre(float partialTicks, int xOffset, CallbackInfo info)
     {
-        if (ConfigManagerIN.enableAlternatePlayerModel)
+        if (ConfigManagerIN.enableTransparentSkinRender)
         {
             GlStateManager.enableBlend();
             GlStateManager.blendFunc(770, 771);
@@ -29,7 +29,7 @@ public abstract class EntityRendererMixin
     @Inject(method = "renderHand(FI)V", at = @At("RETURN"))
     private void renderPost(float partialTicks, int xOffset, CallbackInfo info)
     {
-        if (ConfigManagerIN.enableAlternatePlayerModel)
+        if (ConfigManagerIN.enableTransparentSkinRender)
         {
             GlStateManager.disableBlend();
         }

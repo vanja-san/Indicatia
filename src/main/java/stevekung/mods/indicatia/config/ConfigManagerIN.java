@@ -32,8 +32,7 @@ public class ConfigManagerIN
     public static boolean enableRenderBossHealthStatus;
     public static boolean enableRenderScoreboard;
     public static boolean enableSmoothSneakingView;
-    public static boolean enableAlternatePlayerModel;
-    public static boolean enableTransparentSkullRender;
+    public static boolean enableTransparentSkinRender;
     public static boolean enableChatMode;
     public static boolean enableSkinRenderingFix;
     public static boolean disableHurtCameraEffect;
@@ -90,7 +89,7 @@ public class ConfigManagerIN
         prop.comment = LangUtils.translate("gui.config.indicatia.additional_blockhit_animation");
         propOrder.add(prop.getName());
 
-        prop = ConfigManagerIN.getProperty(ConfigManagerIN.MAIN_SETTINGS, "Enable Old Armor Render", false);
+        prop = ConfigManagerIN.getProperty(ConfigManagerIN.MAIN_SETTINGS, "Enable Armor Hurt Overlay", false);
         ConfigManagerIN.enableOldArmorRender = prop.getBoolean();
         prop.comment = LangUtils.translate("gui.config.indicatia.old_armor_render");
         propOrder.add(prop.getName());
@@ -132,14 +131,9 @@ public class ConfigManagerIN
         prop.comment = LangUtils.translate("gui.config.indicatia.smooth_eye_height");
         propOrder.add(prop.getName());
 
-        prop = ConfigManagerIN.getProperty(ConfigManagerIN.MAIN_SETTINGS, "Enable Alternate Player Model", false);
-        ConfigManagerIN.enableAlternatePlayerModel = prop.getBoolean();
+        prop = ConfigManagerIN.getProperty(ConfigManagerIN.MAIN_SETTINGS, "Enable Transparent Skin Render", false);
+        ConfigManagerIN.enableTransparentSkinRender = prop.getBoolean();
         prop.comment = LangUtils.translate("gui.config.indicatia.alternate_player_model");
-        propOrder.add(prop.getName());
-
-        prop = ConfigManagerIN.getProperty(ConfigManagerIN.MAIN_SETTINGS, "Enable Transparent Skull Render", false);
-        ConfigManagerIN.enableTransparentSkullRender = prop.getBoolean();
-        prop.comment = LangUtils.translate("gui.config.indicatia.transparent_skull_render");
         propOrder.add(prop.getName());
 
         prop = ConfigManagerIN.getProperty(ConfigManagerIN.MAIN_SETTINGS, "Enable Chat Mode", true);
