@@ -25,6 +25,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import stevekung.mods.indicatia.command.CommandApiViewer;
 import stevekung.mods.indicatia.command.CommandIndicatia;
 import stevekung.mods.indicatia.command.CommandMojangStatusCheck;
 import stevekung.mods.indicatia.command.CommandProfile;
@@ -127,6 +128,7 @@ public class IndicatiaMod
         ClientUtils.registerCommand(new CommandMojangStatusCheck());
         ClientUtils.registerCommand(new CommandIndicatia());
         ClientUtils.registerCommand(new CommandProfile());
+        ClientUtils.registerCommand(new CommandApiViewer());
     }
 
     @EventHandler
