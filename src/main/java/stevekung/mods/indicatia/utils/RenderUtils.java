@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.init.Items;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -63,11 +64,24 @@ public class RenderUtils
         return itemStack;
     }
 
-    public static void drawRarity(Slot slot, boolean isAuction)
+    public static void drawRarity(Slot slot, IInventory lowerChestInventory)
     {
-        if (isAuction && slot.slotNumber >= 0 && slot.slotNumber <= 53)
+        if (lowerChestInventory != null)
         {
-            return;
+            String name = lowerChestInventory.getDisplayName().getUnformattedText();
+
+            if (name.equals("Auctions Browser") && slot.slotNumber >= 0 && slot.slotNumber <= 53)
+            {
+                return;
+            }
+            else if ((name.equals("Manage Auctions") || name.equals("Your Bids")) && slot.slotNumber >= 0 && slot.slotNumber <= 26)
+            {
+                return;
+            }
+            else if (name.endsWith("'s Auctions") && slot.slotNumber >= 0 && slot.slotNumber <= 35)
+            {
+                return;
+            }
         }
         RenderUtils.drawRarity(slot.getStack(), slot.xDisplayPosition, slot.yDisplayPosition);
     }

@@ -41,7 +41,6 @@
         "GuiInventoryMixin",
         "GuiIngameMixin",
         "NetHandlerPlayClientMixin",
-        "GuiChestMixin",
         "RenderManagerMixin",
         "NetworkPlayerInfoMixin",
         "RenderDragonMixin",

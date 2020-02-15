@@ -1,7 +1,11 @@
 package stevekung.mods.indicatia.integration;
 
 import codes.biscuit.skyblockaddons.SkyblockAddons;
-import codes.biscuit.skyblockaddons.utils.*;
+import codes.biscuit.skyblockaddons.utils.Backpack;
+import codes.biscuit.skyblockaddons.utils.BackpackColor;
+import codes.biscuit.skyblockaddons.utils.EnumUtils;
+import codes.biscuit.skyblockaddons.utils.Feature;
+import codes.biscuit.skyblockaddons.utils.nifty.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
@@ -46,7 +50,7 @@ public class SkyBlockAddonsBackpack
                 {
                     BackpackColor color = backpack.getBackpackColor();
                     GlStateManager.color(color.getR(), color.getG(), color.getB(), 1);
-                    textColor = color.getTextColor();
+                    textColor = color.getInventoryTextColor();
                 }
 
                 this.drawTexturedModalRect(x, y, 0, 0, 176, rows * 18 + 17);
@@ -81,7 +85,7 @@ public class SkyBlockAddonsBackpack
                 GlStateManager.disableLighting();
                 GlStateManager.pushMatrix();
                 GlStateManager.translate(0,0, 300);
-                Gui.drawRect(x, y, x + 16 * 9 + 3, y + 16 * (length / 9) + 3, ConfigColor.DARK_GRAY.getColor(250));
+                Gui.drawRect(x, y, x + 16 * 9 + 3, y + 16 * (length / 9) + 3, ChatFormatting.DARK_GRAY.getColor(250).getRGB());
                 GlStateManager.popMatrix();
                 GlStateManager.enableLighting();
                 RenderHelper.enableGUIStandardItemLighting();

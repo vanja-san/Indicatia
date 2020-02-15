@@ -57,7 +57,7 @@ import stevekung.mods.indicatia.config.ExtendedConfig;
 import stevekung.mods.indicatia.core.IndicatiaMod;
 import stevekung.mods.indicatia.event.ClientEventHandler;
 import stevekung.mods.indicatia.handler.KeyBindingHandler;
-import stevekung.mods.indicatia.integration.SkyblockAddonsGuiChest;
+import stevekung.mods.indicatia.integration.SkyBlockAddonsBackpack;
 import stevekung.mods.indicatia.utils.*;
 
 public class GuiSkyBlockData extends GuiScreen
@@ -129,7 +129,6 @@ public class GuiSkyBlockData extends GuiScreen
     private boolean wasClicking;
     private final ContainerSkyBlock skyBlockContainer;
     private final ContainerArmor skyBlockArmorContainer;
-    private final SkyblockAddonsGuiChest chest = new SkyblockAddonsGuiChest();
 
     // Player Bonus Stats
     private int totalFairySouls;
@@ -546,7 +545,7 @@ public class GuiSkyBlockData extends GuiScreen
                         }
                         if (IndicatiaMod.isSkyblockAddonsLoaded)
                         {
-                            this.chest.drawBackpacks(this, mouseX, mouseY, partialTicks);
+                            SkyBlockAddonsBackpack.INSTANCE.drawBackpacks(mouseX, mouseY, partialTicks);//TODO Waiting for SBA to fix drawBackpacks method from GuiContainer to GuiScreen
                         }
                     }
                     else
@@ -1009,7 +1008,7 @@ public class GuiSkyBlockData extends GuiScreen
 
         if (ExtendedConfig.instance.showItemRarity)
         {
-            RenderUtils.drawRarity(slot, false);
+            RenderUtils.drawRarity(slot, null);
         }
 
         this.itemRender.renderItemAndEffectIntoGUI(itemStack, i, j);
