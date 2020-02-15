@@ -487,7 +487,7 @@ public abstract class GuiContainerMixin extends GuiScreen implements ITradeGUI
                         int green = ColorUtils.to32BitColor(128, 85, 255, 85);
                         int yellow = ColorUtils.to32BitColor(128, 255, 255, 85);
 
-                        if (((ITradeGUI)(GuiChest)this.that).getNumberField().getText().isEmpty())
+                        if (((ITradeGUI)(GuiChest)this.that).getNumberField() == null || ((ITradeGUI)(GuiChest)this.that).getNumberField().getText().isEmpty())
                         {
                             if (lore.startsWith("Starting bid:"))
                             {
@@ -607,7 +607,8 @@ public abstract class GuiContainerMixin extends GuiScreen implements ITradeGUI
 
     private boolean isAuctionBrowser(IInventory lowerChestInventory)
     {
-        return lowerChestInventory.getDisplayName().getUnformattedText().equals("Auctions Browser");
+        String name = lowerChestInventory.getDisplayName().getUnformattedText();
+        return name.equals("Auctions Browser") || name.endsWith("'s Auctions");
     }
 
     private boolean isRenderBids(IInventory lowerChestInventory)
