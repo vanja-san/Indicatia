@@ -461,6 +461,13 @@ public class GuiSkyBlockAPIViewer extends GuiScreen implements GuiYesNoCallback,
             GameProfile profile = TileEntitySkull.updateGameprofile(new GameProfile(UUID.fromString(uuid.replaceFirst("([0-9a-fA-F]{8})([0-9a-fA-F]{4})([0-9a-fA-F]{4})([0-9a-fA-F]{4})([0-9a-fA-F]+)", "$1-$2-$3-$4-$5")), this.username));
             ProfileDataCallback callback = new ProfileDataCallback(sbProfileId, profileName, this.username, uuid, profile, this.getLastSaveProfile(sbProfileId, uuid));
             GuiSBProfileButton button = new GuiSBProfileButton(i + 1000, this.width / 2 - 75, 75, 150, 20, callback);
+
+            if (profiles.entrySet().size() == 1)
+            {
+                this.mc.displayGuiScreen(new GuiSkyBlockData(this.profiles, callback));
+                break;
+            }
+
             buttons.add(button);
             this.profiles.add(callback);
             ++i;
