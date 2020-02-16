@@ -43,7 +43,6 @@ public abstract class GuiContainerMixin extends GuiScreen implements ITradeGUI
 {
     private final GuiContainer that = (GuiContainer) (Object) this;
     private static final List<String> IGNORE_ITEMS = new ArrayList<>(Arrays.asList(" ", "Recipe Required", "Item To Upgrade", "Rune to Sacrifice", "Runic Pedestal", "Final confirmation"));
-    private static final List<String> IGNORE_TOOLTIPS = new ArrayList<>(Arrays.asList(" "));
     private SearchMode mode = SearchMode.SIMPLE;
 
     @Shadow
@@ -398,19 +397,6 @@ public abstract class GuiContainerMixin extends GuiScreen implements ITradeGUI
                 GuiScreen.setClipboardString("/ah " + text.replace(text.substring(text.indexOf('\'')), ""));
             }
         }
-    }
-
-    @Override
-    protected void renderToolTip(ItemStack itemStack, int x, int y)
-    {
-        if (itemStack != null)
-        {
-            if (this.ignoreNullItem(itemStack, IGNORE_TOOLTIPS))
-            {
-                return;
-            }
-        }
-        super.renderToolTip(itemStack, x, y);
     }
 
     @Override
