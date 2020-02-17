@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
+@Deprecated
 public class SkyBlockAddonsBackpack
 {
     public static final SkyBlockAddonsBackpack INSTANCE = new SkyBlockAddonsBackpack();

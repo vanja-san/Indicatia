@@ -42,6 +42,7 @@ import stevekung.mods.indicatia.config.ExtendedConfig;
 import stevekung.mods.indicatia.event.HUDRenderEventHandler;
 import stevekung.mods.indicatia.event.HypixelEventHandler;
 import stevekung.mods.indicatia.utils.LoggerIN;
+import stevekung.mods.indicatia.utils.hack.IUpdateScreen;
 
 @Mixin(Minecraft.class)
 public abstract class MinecraftMixin
@@ -174,6 +175,11 @@ public abstract class MinecraftMixin
                 try
                 {
                     this.that.currentScreen.updateScreen();
+
+                    if (this.that.currentScreen instanceof IUpdateScreen)//TODO Remove later
+                    {
+                        ((IUpdateScreen)this.that.currentScreen).update();
+                    }
                 }
                 catch (Throwable throwable)
                 {

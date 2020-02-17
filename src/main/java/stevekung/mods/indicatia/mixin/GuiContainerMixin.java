@@ -37,9 +37,10 @@ import stevekung.mods.indicatia.gui.GuiNumberField;
 import stevekung.mods.indicatia.handler.KeyBindingHandler;
 import stevekung.mods.indicatia.utils.*;
 import stevekung.mods.indicatia.utils.JsonUtils;
+import stevekung.mods.indicatia.utils.hack.IUpdateScreen;
 
 @Mixin(GuiContainer.class)
-public abstract class GuiContainerMixin extends GuiScreen implements ITradeGUI
+public abstract class GuiContainerMixin extends GuiScreen implements ITradeGUI, IUpdateScreen
 {
     private final GuiContainer that = (GuiContainer) (Object) this;
     private static final List<String> IGNORE_ITEMS = new ArrayList<>(Arrays.asList(" ", "Recipe Required", "Item To Upgrade", "Rune to Sacrifice", "Runic Pedestal", "Final confirmation"));
@@ -136,8 +137,9 @@ public abstract class GuiContainerMixin extends GuiScreen implements ITradeGUI
         }
     }
 
-    @Inject(method = "updateScreen()V", at = @At("RETURN"))
-    private void updateScreen(CallbackInfo info)
+    @Deprecated //TODO Remove later
+    @Override
+    public void update()
     {
         if (this.that instanceof GuiChest)
         {
@@ -154,6 +156,25 @@ public abstract class GuiContainerMixin extends GuiScreen implements ITradeGUI
             }
         }
     }
+
+    /*@Inject(method = "updateScreen()V", at = @At("RETURN"))//TODO Waiting for SBA to fix super() method
+    private void updateScreen(CallbackInfo info)
+    {
+        if (this.that instanceof GuiChest)
+        {
+            GuiChest chest = (GuiChest)this.that;
+
+            if (this.isChatableGui(chest.lowerChestInventory))
+            {
+                this.inputField.updateCursorCounter();
+            }
+            if (this.priceSearch != null && this.isAuctionBrowser(chest.lowerChestInventory))
+            {
+                IndicatiaEventHandler.auctionPrice = this.priceSearch.getText();
+                this.priceSearch.updateCursorCounter();
+            }
+        }
+    }*/
 
     @Inject(method = "drawScreen(IIF)V", at = @At(value = "INVOKE", target = "net/minecraft/client/gui/GuiScreen.drawScreen(IIF)V", shift = Shift.BEFORE))
     private void drawScreen(int mouseX, int mouseY, float partialTicks, CallbackInfo info)
