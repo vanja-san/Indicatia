@@ -8,7 +8,7 @@ import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import stevekung.mods.indicatia.renderer.HUDInfo;
+import stevekung.mods.indicatia.renderer.EquipmentOverlay;
 import stevekung.mods.indicatia.utils.JsonUtils;
 
 public class GiftToast implements IToast
@@ -49,7 +49,7 @@ public class GiftToast implements IToast
             Gui.drawModalRectWithCustomSizedTexture(0, 0, 0, 0, 160, 32, 160, 32);
             toastGui.mc.fontRendererObj.drawString(drop.getType().getColor() + JsonUtils.create(drop.getType().getName()).setChatStyle(JsonUtils.style().setBold(true)).getFormattedText(), 30, 7, 16777215);
             GuiToast.drawLongItemName(toastGui, delta, this.firstDrawTime, this.buffer, itemName, 10000L, 5000L);
-            HUDInfo.renderItem(itemStack, 8, 8);
+            EquipmentOverlay.renderItem(itemStack, 8, 8);
             return delta - this.firstDrawTime >= 10000L ? IToast.Visibility.HIDE : IToast.Visibility.SHOW;
         }
     }

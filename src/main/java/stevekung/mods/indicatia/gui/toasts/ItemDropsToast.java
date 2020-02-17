@@ -12,7 +12,7 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StringUtils;
 import stevekung.mods.indicatia.event.ClientEventHandler;
-import stevekung.mods.indicatia.renderer.HUDInfo;
+import stevekung.mods.indicatia.renderer.EquipmentOverlay;
 import stevekung.mods.indicatia.utils.ColorUtils;
 import stevekung.mods.indicatia.utils.JsonUtils;
 
@@ -109,7 +109,7 @@ public class ItemDropsToast implements IToast
             GuiToast.drawLongItemName(toastGui, delta, this.firstDrawTime, this.buffer, itemName, 15000L, 5000L);
             RenderHelper.enableGUIStandardItemLighting();
 
-            HUDInfo.renderItem(itemStack, 8, 8);
+            EquipmentOverlay.renderItem(itemStack, 8, 8);
             return delta - this.firstDrawTime >= 15000L ? IToast.Visibility.HIDE : IToast.Visibility.SHOW;
         }
     }

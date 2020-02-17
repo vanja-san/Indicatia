@@ -12,7 +12,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.tileentity.TileEntitySkull;
 import net.minecraft.util.ResourceLocation;
-import stevekung.mods.indicatia.renderer.HUDInfo;
+import stevekung.mods.indicatia.renderer.EquipmentOverlay;
 import stevekung.mods.indicatia.utils.ColorUtils;
 import stevekung.mods.indicatia.utils.JsonUtils;
 
@@ -50,7 +50,7 @@ public class VisitIslandToast implements IToast
             Gui.drawModalRectWithCustomSizedTexture(0, 0, 0, 0, 160, 32, 160, 32);
             toastGui.mc.fontRendererObj.drawString(ColorUtils.stringToRGB("255,255,85").toColoredFont() + JsonUtils.create(this.name).setChatStyle(JsonUtils.style().setBold(true)).getFormattedText(), 30, 7, 16777215);
             toastGui.mc.fontRendererObj.drawString("is visiting Your Island!", 30, 18, ColorUtils.rgbToDecimal(255, 255, 255));
-            HUDInfo.renderItem(this.itemStack, 8, 8);
+            EquipmentOverlay.renderItem(this.itemStack, 8, 8);
             return delta - this.firstDrawTime >= 5000L ? IToast.Visibility.HIDE : IToast.Visibility.SHOW;
         }
     }
