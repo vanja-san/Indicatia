@@ -68,7 +68,7 @@ public abstract class GuiContainerMixin extends GuiScreen implements ITradeGUI, 
     private String historyBuffer = "";
 
     // Auction
-    private GuiNumberField priceSearch = null;
+    private GuiNumberField priceSearch;
 
     @Inject(method = "initGui()V", at = @At("RETURN"))
     private void initGui(CallbackInfo info)
@@ -289,6 +289,7 @@ public abstract class GuiContainerMixin extends GuiScreen implements ITradeGUI, 
                 {
                     this.playerNamesFound = false;
                 }
+                info.cancel();
             }
             else if (this.isAuctionBrowser(chest.lowerChestInventory))
             {
@@ -320,6 +321,7 @@ public abstract class GuiContainerMixin extends GuiScreen implements ITradeGUI, 
                     }
                 }
                 this.priceSearch.textboxKeyTyped(typedChar, keyCode);
+                info.cancel();
             }
         }
     }
