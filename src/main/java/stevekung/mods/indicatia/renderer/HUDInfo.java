@@ -385,9 +385,9 @@ public class HUDInfo
             if (equipment.getSide() == HotbarEquipmentOverlay.Side.LEFT)
             {
                 int baseXOffset = res.getScaledWidth() / 2 - 111;
-                int armorYOffset = res.getScaledHeight() - 16 * iLeft - 40;
+                int armorYOffset = res.getScaledHeight() - 16 * iLeft - 18;
                 float infoXOffset = res.getScaledWidth() / 2 - 114 - mc.fontRendererObj.getStringWidth(info);
-                int infoYOffset = res.getScaledHeight() - 16 * iLeft - 36;
+                int infoYOffset = res.getScaledHeight() - 16 * iLeft - 14;
 
                 EquipmentOverlay.renderItem(itemStack, baseXOffset, armorYOffset);
 
@@ -398,7 +398,7 @@ public class HUDInfo
                 if (!StringUtils.isNullOrEmpty(arrowInfo))
                 {
                     float arrowXOffset = res.getScaledWidth() / 2 - 104;
-                    int arrowYOffset = res.getScaledHeight() - 16 * iLeft - 32;
+                    int arrowYOffset = res.getScaledHeight() - 16 * iLeft - 10;
 
                     GlStateManager.disableDepth();
                     ColorUtils.unicodeFontRenderer.drawStringWithShadow(ColorUtils.stringToRGB(ExtendedConfig.instance.arrowCountColor).toColoredFont() + arrowInfo, arrowXOffset, arrowYOffset, 16777215);
@@ -409,9 +409,9 @@ public class HUDInfo
             else
             {
                 int baseXOffset = res.getScaledWidth() / 2 + 95;
-                int armorYOffset = res.getScaledHeight() - 16 * iRight - 40;
+                int armorYOffset = res.getScaledHeight() - 16 * iRight - 18;
                 float infoXOffset = res.getScaledWidth() / 2 + 114;
-                int infoYOffset = res.getScaledHeight() - 16 * iRight - 36;
+                int infoYOffset = res.getScaledHeight() - 16 * iRight - 14;
 
                 EquipmentOverlay.renderItem(itemStack, baseXOffset, armorYOffset);
 
