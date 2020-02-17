@@ -209,7 +209,7 @@ public abstract class GuiContainerMixin extends GuiScreen implements ITradeGUI, 
     }
 
     @Inject(method = "keyTyped(CI)V", cancellable = true, at = @At("HEAD"))
-    private void keyTyped(char typedChar, int keyCode, CallbackInfo info)
+    private void keyTyped(char typedChar, int keyCode, CallbackInfo info) throws IOException
     {
         if (this.that.theSlot != null && keyCode == KeyBindingHandler.KEY_SB_VIEW_RECIPE.getKeyCode())
         {
@@ -223,32 +223,17 @@ public abstract class GuiContainerMixin extends GuiScreen implements ITradeGUI, 
 
             if (this.isChatableGui(chest.lowerChestInventory))
             {
-                if ((keyCode == 1 || keyCode == this.mc.gameSettings.keyBindInventory.getKeyCode()) && !this.inputField.isFocused())
-                {
-                    this.mc.thePlayer.closeScreen();
-                }
                 if (this.inputField.isFocused())
                 {
                     if (keyCode == 1)
                     {
                         this.inputField.setFocused(false);
                     }
+                    info.cancel();
                 }
                 else
                 {
-                    this.checkHotbarKeys(keyCode);
-
-                    if (this.that.theSlot != null && this.that.theSlot.getHasStack())
-                    {
-                        if (keyCode == this.mc.gameSettings.keyBindPickBlock.getKeyCode())
-                        {
-                            this.handleMouseClick(this.that.theSlot, this.that.theSlot.slotNumber, 0, 3);
-                        }
-                        else if (keyCode == this.mc.gameSettings.keyBindDrop.getKeyCode())
-                        {
-                            this.handleMouseClick(this.that.theSlot, this.that.theSlot.slotNumber, isCtrlKeyDown() ? 1 : 0, 4);
-                        }
-                    }
+                    super.keyTyped(typedChar, keyCode);
                 }
 
                 if (keyCode != 28 && keyCode != 156)
@@ -289,39 +274,22 @@ public abstract class GuiContainerMixin extends GuiScreen implements ITradeGUI, 
                 {
                     this.playerNamesFound = false;
                 }
-                info.cancel();
             }
             else if (this.isAuctionBrowser(chest.lowerChestInventory))
             {
-                if ((keyCode == 1 || keyCode == this.mc.gameSettings.keyBindInventory.getKeyCode()) && !this.priceSearch.isFocused())
-                {
-                    this.mc.thePlayer.closeScreen();
-                }
                 if (this.priceSearch.isFocused())
                 {
                     if (keyCode == 1)
                     {
                         this.priceSearch.setFocused(false);
                     }
+                    info.cancel();
                 }
                 else
                 {
-                    this.checkHotbarKeys(keyCode);
-
-                    if (this.that.theSlot != null && this.that.theSlot.getHasStack())
-                    {
-                        if (keyCode == this.mc.gameSettings.keyBindPickBlock.getKeyCode())
-                        {
-                            this.handleMouseClick(this.that.theSlot, this.that.theSlot.slotNumber, 0, 3);
-                        }
-                        else if (keyCode == this.mc.gameSettings.keyBindDrop.getKeyCode())
-                        {
-                            this.handleMouseClick(this.that.theSlot, this.that.theSlot.slotNumber, isCtrlKeyDown() ? 1 : 0, 4);
-                        }
-                    }
+                    super.keyTyped(typedChar, keyCode);
                 }
                 this.priceSearch.textboxKeyTyped(typedChar, keyCode);
-                info.cancel();
             }
         }
     }
