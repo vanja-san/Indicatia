@@ -1,6 +1,10 @@
 package stevekung.mods.indicatia.integration;
 
+import java.lang.reflect.Method;
+
 import codes.biscuit.skyblockaddons.SkyblockAddons;
+import codes.biscuit.skyblockaddons.asm.hooks.GuiContainerHook;
+import codes.biscuit.skyblockaddons.asm.hooks.GuiScreenHook;
 import codes.biscuit.skyblockaddons.utils.Backpack;
 import codes.biscuit.skyblockaddons.utils.BackpackColor;
 import codes.biscuit.skyblockaddons.utils.EnumUtils;
@@ -10,21 +14,17 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.entity.RenderItem;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import stevekung.mods.indicatia.gui.api.GuiSkyBlockData;
 
-@Deprecated
 public class SkyBlockAddonsBackpack
 {
     public static final SkyBlockAddonsBackpack INSTANCE = new SkyBlockAddonsBackpack();
     private static final ResourceLocation CHEST_GUI_TEXTURE = new ResourceLocation("textures/gui/container/generic_54.png");
-    private float zLevel;
 
-    public void drawBackpacks(int mouseX, int mouseY, float partialTicks)
+    public void drawBackpacks(GuiSkyBlockData gui, int mouseX, int mouseY, float partialTicks)
     {
         SkyblockAddons main = SkyblockAddons.getInstance();
         Backpack backpack = main.getUtils().getBackpackToRender();
@@ -54,14 +54,16 @@ public class SkyBlockAddonsBackpack
                     textColor = color.getInventoryTextColor();
                 }
 
-                this.drawTexturedModalRect(x, y, 0, 0, 176, rows * 18 + 17);
-                this.drawTexturedModalRect(x, y + rows * 18 + 17, 0, 215, 176, 7);
+                gui.drawTexturedModalRect(x, y, 0, 0, 176, rows * 18 + 17);
+                gui.drawTexturedModalRect(x, y + rows * 18 + 17, 0, 215, 176, 7);
                 mc.fontRendererObj.drawString(backpack.getBackpackName(), x+8, y+6, textColor);
                 GlStateManager.popMatrix();
                 GlStateManager.enableLighting();
                 RenderHelper.enableGUIStandardItemLighting();
                 GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
                 GlStateManager.enableRescaleNormal();
+
+                ItemStack toRenderOverlay = null;
 
                 for (int i = 0; i < length; i++)
                 {
@@ -72,13 +74,23 @@ public class SkyBlockAddonsBackpack
                         int itemX = x+8 + i % 9 * 18;
                         int itemY = y+18 + i / 9 * 18;
                         RenderItem renderItem = mc.getRenderItem();
-                        this.zLevel = 200;
+                        gui.zLevel = 200;
                         renderItem.zLevel = 200;
                         renderItem.renderItemAndEffectIntoGUI(item, itemX, itemY);
                         renderItem.renderItemOverlayIntoGUI(mc.fontRendererObj, item, itemX, itemY, null);
-                        this.zLevel = 0;
+
+                        if (GuiContainerHook.isFreezeBackpack() && mouseX > itemX && mouseX < itemX+16 && mouseY > itemY && mouseY < itemY+16)
+                        {
+                            toRenderOverlay = item;
+                        }
+
+                        gui.zLevel = 0;
                         renderItem.zLevel = 0;
                     }
+                }
+                if (toRenderOverlay != null)
+                {
+                    gui.drawHoveringText(toRenderOverlay.getTooltip(null, mc.gameSettings.advancedItemTooltips), mouseX, mouseY);
                 }
             }
             else
@@ -102,33 +114,73 @@ public class SkyBlockAddonsBackpack
                         int itemX = x + i % 9 * 16;
                         int itemY = y + i / 9 * 16;
                         RenderItem renderItem = mc.getRenderItem();
-                        this.zLevel = 200;
+                        gui.zLevel = 200;
                         renderItem.zLevel = 200;
                         renderItem.renderItemAndEffectIntoGUI(item, itemX, itemY);
                         renderItem.renderItemOverlayIntoGUI(mc.fontRendererObj, item, itemX, itemY, null);
-                        this.zLevel = 0;
+                        gui.zLevel = 0;
                         renderItem.zLevel = 0;
                     }
                 }
             }
-            main.getUtils().setBackpackToRender(null);
+            if (!GuiContainerHook.isFreezeBackpack())
+            {
+                main.getUtils().setBackpackToRender(null);
+            }
             GlStateManager.enableLighting();
             GlStateManager.enableDepth();
             RenderHelper.enableStandardItemLighting();
         }
     }
 
-    private void drawTexturedModalRect(int x, int y, int textureX, int textureY, int width, int height)
+    public void keyTyped(int keyCode)
     {
-        float f = 0.00390625F;
-        float f1 = 0.00390625F;
-        Tessellator tessellator = Tessellator.getInstance();
-        WorldRenderer worldrenderer = tessellator.getWorldRenderer();
-        worldrenderer.begin(7, DefaultVertexFormats.POSITION_TEX);
-        worldrenderer.pos(x + 0, y + height, this.zLevel).tex((textureX + 0) * f, (textureY + height) * f1).endVertex();
-        worldrenderer.pos(x + width, y + height, this.zLevel).tex((textureX + width) * f, (textureY + height) * f1).endVertex();
-        worldrenderer.pos(x + width, y + 0, this.zLevel).tex((textureX + width) * f, (textureY + 0) * f1).endVertex();
-        worldrenderer.pos(x + 0, y + 0, this.zLevel).tex((textureX + 0) * f, (textureY + 0) * f1).endVertex();
-        tessellator.draw();
+        try
+        {
+            long lastBackpackFreezeKey = 0L;
+            SkyblockAddons main = SkyblockAddons.getInstance();
+            Method lastBackpackFreezeKeyMethod = GuiScreenHook.class.getDeclaredMethod("getLastBackpackFreezeKey");
+            Method setLastBackpackFreezeKeyMethod = GuiScreenHook.class.getDeclaredMethod("setLastBackpackFreezeKey", long.class);
+            lastBackpackFreezeKeyMethod.setAccessible(true);
+            setLastBackpackFreezeKeyMethod.setAccessible(true);
+            lastBackpackFreezeKey = (long)lastBackpackFreezeKeyMethod.invoke(null);
+
+            if (keyCode == 1 || keyCode == Minecraft.getMinecraft().gameSettings.keyBindInventory.getKeyCode())
+            {
+                GuiContainerHook.setFreezeBackpack(false);
+                main.getUtils().setBackpackToRender(null);
+            }
+            if (keyCode == main.getFreezeBackpackKey().getKeyCode() && GuiContainerHook.isFreezeBackpack() && System.currentTimeMillis() - lastBackpackFreezeKey > 500)
+            {
+                setLastBackpackFreezeKeyMethod.invoke(null, System.currentTimeMillis());
+                GuiContainerHook.setFreezeBackpack(false);
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public void clearRenderBackpack()
+    {
+        try
+        {
+            SkyblockAddons main = SkyblockAddons.getInstance();
+            Method setLastBackpackFreezeKeyMethod = GuiScreenHook.class.getDeclaredMethod("setLastBackpackFreezeKey", long.class);
+            setLastBackpackFreezeKeyMethod.setAccessible(true);
+            setLastBackpackFreezeKeyMethod.invoke(null, System.currentTimeMillis());
+            GuiContainerHook.setFreezeBackpack(false);
+            main.getUtils().setBackpackToRender(null);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean isFreezeBackpack()
+    {
+        return GuiContainerHook.isFreezeBackpack();
     }
 }

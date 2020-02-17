@@ -385,6 +385,10 @@ public class GuiSkyBlockData extends GuiScreen
                 }
             }
         }
+        if (IndicatiaMod.isSkyblockAddonsLoaded)
+        {
+            SkyBlockAddonsBackpack.INSTANCE.keyTyped(keyCode);
+        }
         if (keyCode == 1)
         {
             this.mc.displayGuiScreen(null);
@@ -545,7 +549,7 @@ public class GuiSkyBlockData extends GuiScreen
                         }
                         if (IndicatiaMod.isSkyblockAddonsLoaded)
                         {
-                            SkyBlockAddonsBackpack.INSTANCE.drawBackpacks(mouseX, mouseY, partialTicks);//TODO Waiting for SBA to fix drawBackpacks method from GuiContainer to GuiScreen
+                            SkyBlockAddonsBackpack.INSTANCE.drawBackpacks(this, mouseX, mouseY, partialTicks);
                         }
                     }
                     else
@@ -620,6 +624,12 @@ public class GuiSkyBlockData extends GuiScreen
             this.currentScroll = MathHelper.clamp_float(this.currentScroll, 0.0F, 1.0F);
             this.skyBlockContainer.scrollTo(this.currentScroll);
         }
+    }
+
+    @Override
+    public void drawHoveringText(List<String> textLines, int x, int y)
+    {
+        super.drawHoveringText(textLines, x, y);
     }
 
     // Input
@@ -863,6 +873,10 @@ public class GuiSkyBlockData extends GuiScreen
         {
             return;
         }
+        if (IndicatiaMod.isSkyblockAddonsLoaded)
+        {
+            SkyBlockAddonsBackpack.INSTANCE.clearRenderBackpack();
+        }
         this.selectedTabIndex = tab.getTabIndex();
         ContainerSkyBlock container = this.skyBlockContainer;
         container.itemList.clear();
@@ -958,6 +972,11 @@ public class GuiSkyBlockData extends GuiScreen
             if (this.isMouseOverSlot(slot, mouseX, mouseY) && slot.canBeHovered())
             {
                 this.theSlot = slot;
+
+                if (IndicatiaMod.isSkyblockAddonsLoaded && SkyBlockAddonsBackpack.INSTANCE.isFreezeBackpack())
+                {
+                    continue;
+                }
                 GlStateManager.disableLighting();
                 GlStateManager.disableDepth();
                 int j1 = slot.xDisplayPosition;
