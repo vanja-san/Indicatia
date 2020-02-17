@@ -77,7 +77,7 @@ public class HypixelEventHandler
     public static final Pattern COINS_GIFT_PATTERN = Pattern.compile("(?<type>COMMON|SWEET|RARE)! \\u002B(?<coin>[0-9,]+) coins gift with " + RANKED_PATTERN + "!");
     public static final Pattern SKILL_EXP_GIFT_PATTERN = Pattern.compile("(?<type>COMMON|SWEET|RARE)! \\u002B(?<exp>[0-9,]+) (?<skill>Farming|Mining|Combat|Foraging|Fishing|Enchanting|Alchemy)+ XP gift with " + RANKED_PATTERN + "!");
     public static final Pattern ITEM_DROP_GIFT_PATTERN = Pattern.compile("(?<type>COMMON|SWEET|RARE)! " + DROP_PATTERN + " gift with " + RANKED_PATTERN + "!");
-    public static final Pattern SANTA_GIFT_PATTERN = Pattern.compile("SANTA TIER! " + DROP_PATTERN + " gifted with " + RANKED_PATTERN + "!");
+    public static final Pattern SANTA_TIER_PATTERN = Pattern.compile("SANTA TIER! " + DROP_PATTERN + " gift with " + RANKED_PATTERN + "!");
 
     private static final List<String> LEFT_PARTY_MESSAGE = new ArrayList<>(Arrays.asList("You are not in a party and have been moved to the ALL channel!", "has disbanded the party!", "The party was disbanded because all invites have expired and all members have left."));
 
@@ -255,7 +255,7 @@ public class HypixelEventHandler
             Matcher coinsGiftPattern = HypixelEventHandler.COINS_GIFT_PATTERN.matcher(message);
             Matcher skillExpGiftPattern = HypixelEventHandler.SKILL_EXP_GIFT_PATTERN.matcher(message);
             Matcher itemDropGiftPattern = HypixelEventHandler.ITEM_DROP_GIFT_PATTERN.matcher(message);
-            Matcher santaGiftPattern = HypixelEventHandler.SANTA_GIFT_PATTERN.matcher(message);
+            Matcher santaTierPattern = HypixelEventHandler.SANTA_TIER_PATTERN.matcher(message);
 
             if (event.type == 0)
             {
@@ -436,10 +436,10 @@ public class HypixelEventHandler
                         LoggerIN.logToast(message);
                         cancelMessage = !RareDropMode.getById(ExtendedConfig.instance.itemDropMode).equalsIgnoreCase("chat_and_toast");
                     }
-                    else if (santaGiftPattern.matches())
+                    else if (santaTierPattern.matches())
                     {
-                        String name = santaGiftPattern.group("item");
-                        HypixelEventHandler.ITEM_DROP_CHECK_LIST.add(new ToastUtils.ItemDropCheck(EnumChatFormatting.getTextWithoutFormattingCodes(name), ToastUtils.DropType.SANTA_GIFT, ToastUtils.ToastType.GIFT));
+                        String name = santaTierPattern.group("item");
+                        HypixelEventHandler.ITEM_DROP_CHECK_LIST.add(new ToastUtils.ItemDropCheck(EnumChatFormatting.getTextWithoutFormattingCodes(name), ToastUtils.DropType.SANTA_TIER, ToastUtils.ToastType.GIFT));
                         LoggerIN.logToast(message);
                         cancelMessage = !RareDropMode.getById(ExtendedConfig.instance.itemDropMode).equalsIgnoreCase("chat_and_toast");
                     }
@@ -607,7 +607,7 @@ public class HypixelEventHandler
                             }
                             else
                             {
-                                if (HUDRenderEventHandler.INSTANCE.getToastGui().add(new GiftToast(newItem, drop.getType(), drop.getType() == ToastUtils.DropType.SANTA_GIFT)))
+                                if (HUDRenderEventHandler.INSTANCE.getToastGui().add(new GiftToast(newItem, drop.getType(), drop.getType() == ToastUtils.DropType.SANTA_TIER)))
                                 {
                                     iterator.remove();
                                 }

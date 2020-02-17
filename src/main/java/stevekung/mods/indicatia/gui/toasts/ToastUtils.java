@@ -86,7 +86,7 @@ public class ToastUtils
         COMMON_GIFT("COMMON GIFT!", "255,255,255"),
         SWEET_GIFT("SWEET GIFT!", "255,255,85"),
         RARE_GIFT("RARE GIFT!", "85,85,255"),
-        SANTA_GIFT("SANTA GIFT!", "255,85,85");
+        SANTA_TIER("SANTA GIFT!", "255,85,85");
 
         private final String name;
         private final String color;
