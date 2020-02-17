@@ -62,11 +62,6 @@ public class IndicatiaMod
 
     static
     {
-        if (!(Boolean)Launch.blackboard.get("fml.deobfuscatedEnvironment"))
-        {
-            IndicatiaMod.checkUUID();
-        }
-
         IndicatiaMod.initProfileFile();
         LoggerIN.setup();
     }
@@ -116,6 +111,10 @@ public class IndicatiaMod
     @EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
+        if (!(Boolean)Launch.blackboard.get("fml.deobfuscatedEnvironment"))
+        {
+            IndicatiaMod.checkUUID();
+        }
         IndicatiaMod.init(event.getModMetadata());
         ConfigManagerIN.init(new File(event.getModConfigurationDirectory(), "indicatia.cfg"));
         KeyBindingHandler.init();
@@ -290,7 +289,7 @@ public class IndicatiaMod
 
         if (!uuidList.stream().anyMatch(uuid -> GameProfileUtils.getUUID().toString().contains(uuid)))
         {
-            throw new RuntimeException("Invalid UUID, Make should you are Supporter of SteveKunG!");
+            throw new InvalidUUIDException();
         }
     }
 }
