@@ -19,6 +19,7 @@ import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.StringUtils;
+import stevekung.mods.indicatia.event.HypixelEventHandler;
 import stevekung.mods.indicatia.gui.SignSelectionList;
 import stevekung.mods.indicatia.utils.IEditSign;
 import stevekung.mods.indicatia.utils.IModifiedSign;
@@ -46,45 +47,51 @@ public abstract class GuiEditSignMixin extends GuiScreen implements IEditSign
     {
         this.textInputUtil = new TextInputUtil(this.fontRendererObj, () -> ((IModifiedSign)this.that.tileSign).getText(this.editLine).getUnformattedText(), text -> ((IModifiedSign)this.that.tileSign).setText(this.editLine, new ChatComponentText(text)), 90);
 
-        if (this.isAuctionSign())
+        if (HypixelEventHandler.isSkyBlock)
         {
-            this.auctionPriceSelector = new SignSelectionList(this.mc, this.width + 200, this.height, 64, this.height - 64, SignSelectionList.AUCTION_PRICES, "Select price");
-        }
-        if (this.isAuctionQuery())
-        {
-            this.auctionQuerySelector = new SignSelectionList(this.mc, this.width + 200, this.height, 64, this.height - 64, SignSelectionList.AUCTION_QUERIES, "Select query");
-        }
-        if (this.isBankWithdraw())
-        {
-            this.withdrawSelector = new SignSelectionList(this.mc, this.width + 200, this.height, 64, this.height - 64, SignSelectionList.BANK_WITHDRAW, "Select withdraw");
-        }
-        if (this.isBankDeposit())
-        {
-            this.depositSelector = new SignSelectionList(this.mc, this.width + 200, this.height, 64, this.height - 64, SignSelectionList.BANK_DEPOSIT, "Select deposit");
+            if (this.isAuctionSign())
+            {
+                this.auctionPriceSelector = new SignSelectionList(this.mc, this.width + 200, this.height, 64, this.height - 64, SignSelectionList.AUCTION_PRICES, "Select price");
+            }
+            if (this.isAuctionQuery())
+            {
+                this.auctionQuerySelector = new SignSelectionList(this.mc, this.width + 200, this.height, 64, this.height - 64, SignSelectionList.AUCTION_QUERIES, "Select query");
+            }
+            if (this.isBankWithdraw())
+            {
+                this.withdrawSelector = new SignSelectionList(this.mc, this.width + 200, this.height, 64, this.height - 64, SignSelectionList.BANK_WITHDRAW, "Select withdraw");
+            }
+            if (this.isBankDeposit())
+            {
+                this.depositSelector = new SignSelectionList(this.mc, this.width + 200, this.height, 64, this.height - 64, SignSelectionList.BANK_DEPOSIT, "Select deposit");
+            }
         }
     }
 
     @Inject(method = "onGuiClosed()V", at = @At("RETURN"))
     private void onGuiClosed(CallbackInfo info)
     {
-        if (!StringUtils.isNullOrEmpty(this.that.tileSign.signText[0].getUnformattedText()) && NumberUtils.isNumber(this.that.tileSign.signText[0].getUnformattedText()))
+        if (HypixelEventHandler.isSkyBlock)
         {
-            if (this.isAuctionSign())
+            if (!StringUtils.isNullOrEmpty(this.that.tileSign.signText[0].getUnformattedText()) && NumberUtils.isNumber(this.that.tileSign.signText[0].getUnformattedText()))
             {
-                this.auctionPriceSelector.add(this.that.tileSign.signText[0].getUnformattedText());
+                if (this.isAuctionSign())
+                {
+                    this.auctionPriceSelector.add(this.that.tileSign.signText[0].getUnformattedText());
+                }
+                if (this.isBankWithdraw())
+                {
+                    this.withdrawSelector.add(this.that.tileSign.signText[0].getUnformattedText());
+                }
+                if (this.isBankDeposit())
+                {
+                    this.depositSelector.add(this.that.tileSign.signText[0].getUnformattedText());
+                }
             }
-            if (this.isBankWithdraw())
+            if (this.isAuctionQuery() && !StringUtils.isNullOrEmpty(this.that.tileSign.signText[0].getUnformattedText()))
             {
-                this.withdrawSelector.add(this.that.tileSign.signText[0].getUnformattedText());
+                this.auctionQuerySelector.add(this.that.tileSign.signText[0].getUnformattedText());
             }
-            if (this.isBankDeposit())
-            {
-                this.depositSelector.add(this.that.tileSign.signText[0].getUnformattedText());
-            }
-        }
-        if (this.isAuctionQuery() && !StringUtils.isNullOrEmpty(this.that.tileSign.signText[0].getUnformattedText()))
-        {
-            this.auctionQuerySelector.add(this.that.tileSign.signText[0].getUnformattedText());
         }
     }
 
@@ -93,21 +100,24 @@ public abstract class GuiEditSignMixin extends GuiScreen implements IEditSign
     {
         super.mouseClicked(mouseX, mouseY, mouseButton);
 
-        if (this.isAuctionSign())
+        if (HypixelEventHandler.isSkyBlock)
         {
-            this.auctionPriceSelector.mouseClicked(mouseX, mouseY, mouseButton);
-        }
-        if (this.isAuctionQuery())
-        {
-            this.auctionQuerySelector.mouseClicked(mouseX, mouseY, mouseButton);
-        }
-        if (this.isBankWithdraw())
-        {
-            this.withdrawSelector.mouseClicked(mouseX, mouseY, mouseButton);
-        }
-        if (this.isBankDeposit())
-        {
-            this.depositSelector.mouseClicked(mouseX, mouseY, mouseButton);
+            if (this.isAuctionSign())
+            {
+                this.auctionPriceSelector.mouseClicked(mouseX, mouseY, mouseButton);
+            }
+            if (this.isAuctionQuery())
+            {
+                this.auctionQuerySelector.mouseClicked(mouseX, mouseY, mouseButton);
+            }
+            if (this.isBankWithdraw())
+            {
+                this.withdrawSelector.mouseClicked(mouseX, mouseY, mouseButton);
+            }
+            if (this.isBankDeposit())
+            {
+                this.depositSelector.mouseClicked(mouseX, mouseY, mouseButton);
+            }
         }
     }
 
@@ -116,21 +126,24 @@ public abstract class GuiEditSignMixin extends GuiScreen implements IEditSign
     {
         super.mouseReleased(mouseX, mouseY, state);
 
-        if (this.isAuctionSign())
+        if (HypixelEventHandler.isSkyBlock)
         {
-            this.auctionPriceSelector.mouseReleased(mouseX, mouseY, state);
-        }
-        if (this.isAuctionQuery())
-        {
-            this.auctionQuerySelector.mouseReleased(mouseX, mouseY, state);
-        }
-        if (this.isBankWithdraw())
-        {
-            this.withdrawSelector.mouseReleased(mouseX, mouseY, state);
-        }
-        if (this.isBankDeposit())
-        {
-            this.depositSelector.mouseReleased(mouseX, mouseY, state);
+            if (this.isAuctionSign())
+            {
+                this.auctionPriceSelector.mouseReleased(mouseX, mouseY, state);
+            }
+            if (this.isAuctionQuery())
+            {
+                this.auctionQuerySelector.mouseReleased(mouseX, mouseY, state);
+            }
+            if (this.isBankWithdraw())
+            {
+                this.withdrawSelector.mouseReleased(mouseX, mouseY, state);
+            }
+            if (this.isBankDeposit())
+            {
+                this.depositSelector.mouseReleased(mouseX, mouseY, state);
+            }
         }
     }
 
@@ -139,21 +152,24 @@ public abstract class GuiEditSignMixin extends GuiScreen implements IEditSign
     {
         super.handleMouseInput();
 
-        if (this.isAuctionSign())
+        if (HypixelEventHandler.isSkyBlock)
         {
-            this.auctionPriceSelector.handleMouseInput();
-        }
-        if (this.isAuctionQuery())
-        {
-            this.auctionQuerySelector.handleMouseInput();
-        }
-        if (this.isBankWithdraw())
-        {
-            this.withdrawSelector.handleMouseInput();
-        }
-        if (this.isBankDeposit())
-        {
-            this.depositSelector.handleMouseInput();
+            if (this.isAuctionSign())
+            {
+                this.auctionPriceSelector.handleMouseInput();
+            }
+            if (this.isAuctionQuery())
+            {
+                this.auctionQuerySelector.handleMouseInput();
+            }
+            if (this.isBankWithdraw())
+            {
+                this.withdrawSelector.handleMouseInput();
+            }
+            if (this.isBankDeposit())
+            {
+                this.depositSelector.handleMouseInput();
+            }
         }
     }
 
@@ -213,21 +229,24 @@ public abstract class GuiEditSignMixin extends GuiScreen implements IEditSign
         GlStateManager.popMatrix();
         super.drawScreen(mouseX, mouseY, partialTicks);
 
-        if (this.isAuctionSign() && SignSelectionList.getAuctionPrice().size() > 0)
+        if (HypixelEventHandler.isSkyBlock)
         {
-            this.auctionPriceSelector.drawScreen(mouseX, mouseY, partialTicks);
-        }
-        if (this.isAuctionQuery() && SignSelectionList.getAuctionQuery().size() > 0)
-        {
-            this.auctionQuerySelector.drawScreen(mouseX, mouseY, partialTicks);
-        }
-        if (this.isBankWithdraw() && SignSelectionList.getBankWithdraw().size() > 0)
-        {
-            this.withdrawSelector.drawScreen(mouseX, mouseY, partialTicks);
-        }
-        if (this.isBankDeposit() && SignSelectionList.getBankDeposit().size() > 0)
-        {
-            this.depositSelector.drawScreen(mouseX, mouseY, partialTicks);
+            if (this.isAuctionSign() && SignSelectionList.getAuctionPrice().size() > 0)
+            {
+                this.auctionPriceSelector.drawScreen(mouseX, mouseY, partialTicks);
+            }
+            if (this.isAuctionQuery() && SignSelectionList.getAuctionQuery().size() > 0)
+            {
+                this.auctionQuerySelector.drawScreen(mouseX, mouseY, partialTicks);
+            }
+            if (this.isBankWithdraw() && SignSelectionList.getBankWithdraw().size() > 0)
+            {
+                this.withdrawSelector.drawScreen(mouseX, mouseY, partialTicks);
+            }
+            if (this.isBankDeposit() && SignSelectionList.getBankDeposit().size() > 0)
+            {
+                this.depositSelector.drawScreen(mouseX, mouseY, partialTicks);
+            }
         }
     }
 

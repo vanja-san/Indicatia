@@ -16,7 +16,7 @@ public abstract class ItemMixin
     @Inject(method = "shouldCauseReequipAnimation(Lnet/minecraft/item/ItemStack;Lnet/minecraft/item/ItemStack;Z)Z", cancellable = true, at = @At("HEAD"), remap = false)
     private void disableReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged, CallbackInfoReturnable info)
     {
-        if (HypixelEventHandler.isSkyBlock && newStack != null && oldStack != null && oldStack.getItem() == Items.bow && oldStack.getItem() == newStack.getItem())
+        if (HypixelEventHandler.isSkyBlock && newStack != null && oldStack != null && (oldStack.getItem() == Items.bow || oldStack.getItem() == Items.iron_axe) && oldStack.getItem() == newStack.getItem())
         {
             info.setReturnValue(false);
         }

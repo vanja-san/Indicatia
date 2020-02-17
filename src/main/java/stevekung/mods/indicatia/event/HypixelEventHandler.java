@@ -513,7 +513,7 @@ public class HypixelEventHandler
     @SubscribeEvent
     public void onItemTooltip(ItemTooltipEvent event)
     {
-        if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
+        if (!HypixelEventHandler.isSkyBlock || Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
         {
             return;
         }

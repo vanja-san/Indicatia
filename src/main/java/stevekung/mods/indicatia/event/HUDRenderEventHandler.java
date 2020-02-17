@@ -60,19 +60,22 @@ public class HUDRenderEventHandler
     @SubscribeEvent
     public void onGrapplingHookUse(GrapplingHookEvent event)
     {
-        long now = System.currentTimeMillis();
-        boolean isHook = EnumChatFormatting.getTextWithoutFormattingCodes(event.getItemStack().getDisplayName()).equals("Grappling Hook");
-
-        if (now - this.lastGrapplingHookUse > 2000L && isHook)
+        if (HypixelEventHandler.isSkyBlock)
         {
-            this.lastGrapplingHookUse = now;
+            long now = System.currentTimeMillis();
+            boolean isHook = EnumChatFormatting.getTextWithoutFormattingCodes(event.getItemStack().getDisplayName()).equals("Grappling Hook");
+
+            if (now - this.lastGrapplingHookUse > 2000L && isHook)
+            {
+                this.lastGrapplingHookUse = now;
+            }
         }
     }
 
     @SubscribeEvent
     public void onClientBlockBreak(ClientBlockBreakEvent event)
     {
-        if (this.mc.thePlayer.getCurrentEquippedItem() == null || this.mc.thePlayer.getCurrentEquippedItem() != null && !EnumChatFormatting.getTextWithoutFormattingCodes(this.mc.thePlayer.getCurrentEquippedItem().getDisplayName()).equals("Jungle Axe"))
+        if (!HypixelEventHandler.isSkyBlock || this.mc.thePlayer.getCurrentEquippedItem() == null || this.mc.thePlayer.getCurrentEquippedItem() != null && !EnumChatFormatting.getTextWithoutFormattingCodes(this.mc.thePlayer.getCurrentEquippedItem().getDisplayName()).equals("Jungle Axe"))
         {
             return;
         }
@@ -377,17 +380,20 @@ public class HUDRenderEventHandler
     @SubscribeEvent
     public void onEntityJoinWorld(EntityJoinWorldEvent event)
     {
-        if (HypixelEventHandler.isSkyBlock && event.entity == this.mc.thePlayer)
+        if (HypixelEventHandler.isSkyBlock)
         {
-            this.recentlyLoadedChunks.clear();
-        }
-        if (event.entity instanceof EntityDragon)
-        {
-            this.foundDragon = true;
-
-            if (ExtendedConfig.instance.showHitboxWhenDragonSpawned)
+            if (event.entity == this.mc.thePlayer)
             {
-                this.mc.getRenderManager().setDebugBoundingBox(true);
+                this.recentlyLoadedChunks.clear();
+            }
+            if (event.entity instanceof EntityDragon)
+            {
+                this.foundDragon = true;
+
+                if (ExtendedConfig.instance.showHitboxWhenDragonSpawned)
+                {
+                    this.mc.getRenderManager().setDebugBoundingBox(true);
+                }
             }
         }
     }
@@ -395,13 +401,16 @@ public class HUDRenderEventHandler
     @SubscribeEvent
     public void onLivingDeath(LivingDeathEvent event)
     {
-        if (event.entity instanceof EntityDragon)
+        if (HypixelEventHandler.isSkyBlock)
         {
-            this.foundDragon = false;
-
-            if (ExtendedConfig.instance.showHitboxWhenDragonSpawned)
+            if (event.entity instanceof EntityDragon)
             {
-                this.mc.getRenderManager().setDebugBoundingBox(false);
+                this.foundDragon = false;
+
+                if (ExtendedConfig.instance.showHitboxWhenDragonSpawned)
+                {
+                    this.mc.getRenderManager().setDebugBoundingBox(false);
+                }
             }
         }
     }
@@ -422,7 +431,7 @@ public class HUDRenderEventHandler
     {
         Entity entity = event.entity;
 
-        if (HypixelEventHandler.SKY_BLOCK_LOCATION == SkyBlockLocation.DRAGON_NEST)
+        if (HypixelEventHandler.isSkyBlock && HypixelEventHandler.SKY_BLOCK_LOCATION == SkyBlockLocation.DRAGON_NEST)
         {
             if (ZEALOT_SPAWN_AREA.stream().anyMatch(aabb -> aabb.isVecInside(new Vec3(entity.posX, entity.posY, entity.posZ))))
             {

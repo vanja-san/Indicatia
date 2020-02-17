@@ -654,7 +654,7 @@ public abstract class MinecraftMixin
             }
         }
 
-        if (ExtendedConfig.instance.sneakToOpenInventoryWhileFightDragon && foundDragon)
+        if (HypixelEventHandler.isSkyBlock && ExtendedConfig.instance.sneakToOpenInventoryWhileFightDragon && foundDragon)
         {
             while (this.that.gameSettings.keyBindInventory.isPressed() && this.that.thePlayer.isSneaking())
             {
