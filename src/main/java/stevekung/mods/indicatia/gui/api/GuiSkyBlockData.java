@@ -381,6 +381,11 @@ public class GuiSkyBlockData extends GuiScreen
                 if (extraAttrib.hasKey("id"))
                 {
                     String itemId = extraAttrib.getString("id");
+
+                    if (IndicatiaMod.isSkyblockAddonsLoaded && SkyBlockAddonsBackpack.INSTANCE.isFreezeBackpack())
+                    {
+                        return;
+                    }
                     ClientUtils.printClientMessage(JsonUtils.create("Click to view ").appendSibling(JsonUtils.create(this.theSlot.getStack().getDisplayName()).setChatStyle(JsonUtils.gold()).appendSibling(JsonUtils.create(" recipe").setChatStyle(JsonUtils.green()))).setChatStyle(JsonUtils.green().setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/viewrecipe " + itemId))));
                 }
             }
