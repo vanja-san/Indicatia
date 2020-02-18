@@ -38,7 +38,6 @@ import net.minecraft.potion.Potion;
 import net.minecraft.util.IChatComponent;
 import net.minecraft.util.MovementInput;
 import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.StringUtils;
 import net.minecraftforge.client.GuiIngameForge;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
@@ -54,7 +53,6 @@ import stevekung.mods.indicatia.gui.GuiButtonItem;
 import stevekung.mods.indicatia.gui.GuiButtonMojangStatus;
 import stevekung.mods.indicatia.gui.GuiConfirmDisconnect;
 import stevekung.mods.indicatia.gui.GuiMojangStatusChecker;
-import stevekung.mods.indicatia.gui.api.GuiSkyBlockAPIViewer;
 import stevekung.mods.indicatia.gui.config.GuiExtendedConfig;
 import stevekung.mods.indicatia.gui.config.GuiRenderPreview;
 import stevekung.mods.indicatia.handler.KeyBindingHandler;
@@ -163,21 +161,6 @@ public class IndicatiaEventHandler
         if (KeyBindingHandler.KEY_QUICK_CONFIG.isKeyDown())
         {
             this.mc.displayGuiScreen(new GuiExtendedConfig());
-        }
-
-        if (KeyBindingHandler.KEY_SB_API_VIEWER.isKeyDown())
-        {
-            if (StringUtils.isNullOrEmpty(ConfigManagerIN.hypixelApiKey))
-            {
-                ClientUtils.printClientMessage("Couldn't open API Viewer, Empty text in the Config!", JsonUtils.red());
-                return;
-            }
-            if (!ConfigManagerIN.hypixelApiKey.matches(HypixelEventHandler.UUID_PATTERN_STRING))
-            {
-                ClientUtils.printClientMessage("Invalid UUID for Hypixel API Key!", JsonUtils.red());
-                return;
-            }
-            this.mc.displayGuiScreen(new GuiSkyBlockAPIViewer(GuiSkyBlockAPIViewer.GuiState.EMPTY));
         }
 
         if (ExtendedConfig.instance.toggleSprintUseMode.equals("key_binding"))

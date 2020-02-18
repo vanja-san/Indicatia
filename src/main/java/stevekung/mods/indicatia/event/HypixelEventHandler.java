@@ -30,6 +30,7 @@ import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.StringUtils;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.sound.PlaySoundEvent;
@@ -39,6 +40,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
+import stevekung.mods.indicatia.config.ConfigManagerIN;
 import stevekung.mods.indicatia.config.ExtendedConfig;
 import stevekung.mods.indicatia.config.RareDropMode;
 import stevekung.mods.indicatia.config.VisitIslandMode;
@@ -201,22 +203,6 @@ public class HypixelEventHandler
                         if (this.mc.thePlayer.sendQueue.getPlayerInfoMap().stream().anyMatch(info -> info.getGameProfile().getName().equals(player.getName())))
                         {
                             this.mc.thePlayer.sendChatMessage("/p " + player.getName());
-                            event.setCanceled(true);
-                        }
-                    }
-                }
-            }
-            else if (event.button == 2 && event.buttonstate)
-            {
-                if (this.mc.pointedEntity != null && this.mc.pointedEntity instanceof EntityOtherPlayerMP)
-                {
-                    EntityOtherPlayerMP player = (EntityOtherPlayerMP)this.mc.pointedEntity;
-
-                    if (this.mc.thePlayer.getHeldItem() == null)
-                    {
-                        if (this.mc.thePlayer.sendQueue.getPlayerInfoMap().stream().anyMatch(info -> info.getGameProfile().getName().equals(player.getName())))
-                        {
-                            this.mc.displayGuiScreen(new GuiSkyBlockAPIViewer(GuiSkyBlockAPIViewer.GuiState.PLAYER, player.getDisplayNameString()));
                             event.setCanceled(true);
                         }
                     }
@@ -468,6 +454,36 @@ public class HypixelEventHandler
         else if (KeyBindingHandler.KEY_SB_CRAFTING_TABLE.isKeyDown())
         {
             this.mc.thePlayer.sendChatMessage("/viewcraftingtable");
+        }
+        else if (KeyBindingHandler.KEY_SB_API_VIEWER.isKeyDown())
+        {
+            if (StringUtils.isNullOrEmpty(ConfigManagerIN.hypixelApiKey))
+            {
+                ClientUtils.printClientMessage("Couldn't open API Viewer, Empty text in the Config!", JsonUtils.red());
+                return;
+            }
+            if (!ConfigManagerIN.hypixelApiKey.matches(HypixelEventHandler.UUID_PATTERN_STRING))
+            {
+                ClientUtils.printClientMessage("Invalid UUID for Hypixel API Key!", JsonUtils.red());
+                return;
+            }
+            if (this.mc.pointedEntity != null && this.mc.pointedEntity instanceof EntityOtherPlayerMP)
+            {
+                EntityOtherPlayerMP player = (EntityOtherPlayerMP)this.mc.pointedEntity;
+
+                if (this.mc.thePlayer.sendQueue.getPlayerInfoMap().stream().anyMatch(info -> info.getGameProfile().getName().equals(player.getName())))
+                {
+                    this.mc.displayGuiScreen(new GuiSkyBlockAPIViewer(GuiSkyBlockAPIViewer.GuiState.PLAYER, player.getDisplayNameString()));
+                }
+                else
+                {
+                    this.mc.displayGuiScreen(new GuiSkyBlockAPIViewer(GuiSkyBlockAPIViewer.GuiState.EMPTY));
+                }
+            }
+            else
+            {
+                this.mc.displayGuiScreen(new GuiSkyBlockAPIViewer(GuiSkyBlockAPIViewer.GuiState.EMPTY));
+            }
         }
     }
 
