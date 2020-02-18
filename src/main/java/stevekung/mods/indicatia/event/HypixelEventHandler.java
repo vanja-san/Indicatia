@@ -438,33 +438,34 @@ public class HypixelEventHandler
     @SubscribeEvent
     public void onPressKey(InputEvent.KeyInputEvent event)
     {
-        if (!HypixelEventHandler.isSkyBlock)
+        if (HypixelEventHandler.isSkyBlock)
         {
-            return;
+            if (KeyBindingHandler.KEY_SB_ENDER_CHEST.isKeyDown())
+            {
+                this.mc.thePlayer.sendChatMessage("/enderchest");
+            }
+            else if (KeyBindingHandler.KEY_SB_CRAFTED_MINIONS.isKeyDown())
+            {
+                this.mc.thePlayer.sendChatMessage("/craftedgenerators");
+            }
+            else if (KeyBindingHandler.KEY_SB_CRAFTING_TABLE.isKeyDown())
+            {
+                this.mc.thePlayer.sendChatMessage("/viewcraftingtable");
+            }
         }
 
-        if (KeyBindingHandler.KEY_SB_ENDER_CHEST.isKeyDown())
-        {
-            this.mc.thePlayer.sendChatMessage("/enderchest");
-        }
-        else if (KeyBindingHandler.KEY_SB_CRAFTED_MINIONS.isKeyDown())
-        {
-            this.mc.thePlayer.sendChatMessage("/craftedgenerators");
-        }
-        else if (KeyBindingHandler.KEY_SB_CRAFTING_TABLE.isKeyDown())
-        {
-            this.mc.thePlayer.sendChatMessage("/viewcraftingtable");
-        }
-        else if (KeyBindingHandler.KEY_SB_API_VIEWER.isKeyDown())
+        if (KeyBindingHandler.KEY_SB_API_VIEWER.isKeyDown())
         {
             if (StringUtils.isNullOrEmpty(ConfigManagerIN.hypixelApiKey))
             {
                 ClientUtils.printClientMessage("Couldn't open API Viewer, Empty text in the Config!", JsonUtils.red());
+                ClientUtils.printClientMessage(JsonUtils.create("Make sure you're in the Hypixel!").setChatStyle(JsonUtils.yellow()).appendSibling(JsonUtils.create(" Click Here to create an API key").setChatStyle(JsonUtils.gold().setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/api new")))));
                 return;
             }
             if (!ConfigManagerIN.hypixelApiKey.matches(HypixelEventHandler.UUID_PATTERN_STRING))
             {
                 ClientUtils.printClientMessage("Invalid UUID for Hypixel API Key!", JsonUtils.red());
+                ClientUtils.printClientMessage("Example UUID pattern: " + UUID.randomUUID(), JsonUtils.yellow());
                 return;
             }
             if (this.mc.pointedEntity != null && this.mc.pointedEntity instanceof EntityOtherPlayerMP)
