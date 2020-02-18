@@ -214,6 +214,11 @@ public class HypixelEventHandler
     @SubscribeEvent
     public void onClientChatReceived(ClientChatReceivedEvent event)
     {
+        if (event.message == null)
+        {
+            return;
+        }
+
         String message = event.message.getUnformattedText();
         boolean cancelMessage = false;
 
