@@ -64,7 +64,7 @@ public class HypixelEventHandler
     private static final Pattern CHAT_PATTERN = Pattern.compile("(?:(\\w+)|(?:\\[VIP?\\u002B{0,1}\\]|\\[MVP?\\u002B{0,2}\\]|\\[YOUTUBE\\]) (\\w+))+: (?:.)+");
 
     // Item Drop Stuff
-    private static final String DROP_PATTERN = "(?<item>[\\w\\u0027\\u25C6\\(\\) -]+)";
+    private static final String DROP_PATTERN = "(?<item>[\\w\\u0027\\u25C6\\u0028\\u0029 -]+)";
     public static final Pattern RARE_DROP_PATTERN = Pattern.compile("RARE DROP! " + DROP_PATTERN + " ?(?:\\u0028\\u002B(?<mf>[0-9]+)% Magic Find!\\u0029){0,1}");
     public static final Pattern RARE_DROP_WITH_BRACKET_PATTERN = Pattern.compile("(?<type>RARE|VERY RARE|CRAZY RARE) DROP!? {1,2}\\u0028" + DROP_PATTERN + "\\u0029 ?(?:\\u0028\\u002B(?<mf>[0-9]+)% Magic Find!\\u0029){0,1}");
     public static final Pattern DRAGON_DROP_PATTERN = Pattern.compile("(?:(?:" + GameProfileUtils.getUsername() + ")|(?:\\[VIP?\\u002B{0,1}\\]|\\[MVP?\\u002B{0,2}\\]|\\[YOUTUBE\\]) " + GameProfileUtils.getUsername() + ") has obtained " + DROP_PATTERN + "!");
