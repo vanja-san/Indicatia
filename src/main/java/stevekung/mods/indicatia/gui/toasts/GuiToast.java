@@ -15,6 +15,7 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.util.MathHelper;
+import stevekung.mods.indicatia.config.ConfigManagerIN;
 import stevekung.mods.indicatia.utils.ColorUtils;
 
 public class GuiToast extends Gui
@@ -160,6 +161,7 @@ public class GuiToast extends Gui
         public boolean render(int x, int z)
         {
             long i = Minecraft.getSystemTime();
+            boolean shiftY = ConfigManagerIN.enableShortcutGameButton && Minecraft.getMinecraft().ingameGUI.getChatGUI().getChatOpen();
 
             if (this.animationTime == -1L)
             {
@@ -171,7 +173,7 @@ public class GuiToast extends Gui
                 this.visibleTime = i;
             }
 
-            float chatOffset = Minecraft.getMinecraft().ingameGUI.getChatGUI().getChatOpen() ? 41.0F : 0.0F;
+            float chatOffset = shiftY ? 41.0F : 0.0F;
             GlStateManager.pushMatrix();
             GlStateManager.enableBlend();
             GlStateManager.translate(0.0F, chatOffset, 0.0F);
