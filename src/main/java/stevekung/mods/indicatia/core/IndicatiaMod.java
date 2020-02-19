@@ -282,9 +282,10 @@ public class IndicatiaMod
                 uuidList.add(inputLine);
             }
         }
-        catch (Exception e)
+        catch (IOException e)
         {
             e.printStackTrace();
+            throw new WhitelistException();
         }
 
         if (!uuidList.stream().anyMatch(uuid -> GameProfileUtils.getUUID().toString().contains(uuid)))
