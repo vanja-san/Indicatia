@@ -50,14 +50,13 @@ public class GuiToast extends Gui
         }
     }
 
-    public static void drawLongItemName(GuiToast toastGui, long delta, long firstDrawTime, FloatBuffer buffer, String itemName, long maxDraw, long timeUntilGone)
+    public static void drawLongItemName(GuiToast toastGui, long delta, long firstDrawTime, FloatBuffer buffer, String itemName, long minDraw, long maxDraw, long timeUntilGone, long textSpeed, boolean shadow)
     {
         int x = 30;
         int textWidth = toastGui.mc.fontRendererObj.getStringWidth(itemName);
         int maxSize = textWidth - 135;
-        long timeElapsed = delta - firstDrawTime - 500L;
+        long timeElapsed = delta - firstDrawTime - minDraw;
         long timeElapsed2 = maxDraw - delta - timeUntilGone;
-        long textSpeed = 8000L;
         int maxTextLength = 125;
 
         if (textWidth > maxSize && textWidth > maxTextLength)
@@ -86,8 +85,17 @@ public class GuiToast extends Gui
         float xpos = trans[12];
 
         GL11.glEnable(GL11.GL_SCISSOR_TEST);
-        GL11.glScissor((int) ((xpos + 29) * scale), (int) ((height - 195) * scale), (int) (126 * scale), (int) (195 * scale));
-        toastGui.mc.fontRendererObj.drawString(itemName, x, 18, ColorUtils.rgbToDecimal(255, 255, 255));
+        GL11.glScissor((int) ((xpos + 29) * scale), (int) ((height - 196) * scale), (int) (126 * scale), (int) (195 * scale));
+
+        if (shadow)
+        {
+            toastGui.mc.fontRendererObj.drawStringWithShadow(itemName, x, 18, ColorUtils.rgbToDecimal(255, 255, 255));
+        }
+        else
+        {
+            toastGui.mc.fontRendererObj.drawString(itemName, x, 18, ColorUtils.rgbToDecimal(255, 255, 255));
+        }
+
         GL11.glDisable(GL11.GL_SCISSOR_TEST);
     }
 
@@ -170,8 +178,8 @@ public class GuiToast extends Gui
             GlStateManager.translate(x - 160.0F * this.getVisibility(i), z * 32, 500 + z);
             IToast.Visibility itoast$visibility = this.toast.draw(GuiToast.this, i - this.visibleTime);
             GlStateManager.disableBlend();
-            GlStateManager.popMatrix();
             GlStateManager.enableAlpha();
+            GlStateManager.popMatrix();
 
             if (itoast$visibility != this.visibility)
             {

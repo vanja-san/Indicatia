@@ -106,6 +106,16 @@ public class ToastUtils
         {
             return ColorUtils.stringToRGB(this.color).toColoredFont();
         }
+
+        public boolean isSpecialDrop()
+        {
+            return this == DRAGON_DROP || this == SLAYER_RARE_DROP || this == SLAYER_VERY_RARE_DROP || this == SLAYER_CRAZY_RARE_DROP || this == SANTA_TIER;
+        }
+
+        public boolean isFishingCoins()
+        {
+            return this == GOOD_CATCH_COINS || this == GREAT_CATCH_COINS;
+        }
     }
 
     public enum ToastType

@@ -79,7 +79,7 @@ public class SkyBlockAddonsBackpack
                         renderItem.renderItemAndEffectIntoGUI(item, itemX, itemY);
                         renderItem.renderItemOverlayIntoGUI(mc.fontRendererObj, item, itemX, itemY, null);
 
-                        if (GuiContainerHook.isFreezeBackpack() && mouseX > itemX && mouseX < itemX+16 && mouseY > itemY && mouseY < itemY+16)
+                        if (GuiContainerHook.isFreezeBackpack() && mouseX > itemX && mouseX < itemX + 16 && mouseY > itemY && mouseY < itemY + 16)
                         {
                             toRenderOverlay = item;
                         }

@@ -21,6 +21,7 @@ import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.client.gui.inventory.GuiEditSign;
 import net.minecraft.event.ClickEvent;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.scoreboard.Score;
@@ -46,11 +47,8 @@ import stevekung.mods.indicatia.config.RareDropMode;
 import stevekung.mods.indicatia.config.VisitIslandMode;
 import stevekung.mods.indicatia.gui.SignSelectionList;
 import stevekung.mods.indicatia.gui.api.GuiSkyBlockAPIViewer;
-import stevekung.mods.indicatia.gui.toasts.GiftToast;
-import stevekung.mods.indicatia.gui.toasts.ItemDropsToast;
-import stevekung.mods.indicatia.gui.toasts.ToastUtils;
+import stevekung.mods.indicatia.gui.toasts.*;
 import stevekung.mods.indicatia.gui.toasts.ToastUtils.ToastType;
-import stevekung.mods.indicatia.gui.toasts.VisitIslandToast;
 import stevekung.mods.indicatia.handler.KeyBindingHandler;
 import stevekung.mods.indicatia.utils.*;
 
@@ -66,7 +64,7 @@ public class HypixelEventHandler
     private static final Pattern CHAT_PATTERN = Pattern.compile("(?:(\\w+)|(?:\\[VIP?\\u002B{0,1}\\]|\\[MVP?\\u002B{0,2}\\]|\\[YOUTUBE\\]) (\\w+))+: (?:.)+");
 
     // Item Drop Stuff
-    private static final String DROP_PATTERN = "(?<item>[\\w\\u0027\\u25C6 -]+)";
+    private static final String DROP_PATTERN = "(?<item>[\\w\\u0027\\u25C6\\(\\) -]+)";
     public static final Pattern RARE_DROP_PATTERN = Pattern.compile("RARE DROP! " + DROP_PATTERN + " ?(?:\\u0028\\u002B(?<mf>[0-9]+)% Magic Find!\\u0029){0,1}");
     public static final Pattern RARE_DROP_WITH_BRACKET_PATTERN = Pattern.compile("(?<type>RARE|VERY RARE|CRAZY RARE) DROP!? {1,2}\\u0028" + DROP_PATTERN + "\\u0029 ?(?:\\u0028\\u002B(?<mf>[0-9]+)% Magic Find!\\u0029){0,1}");
     public static final Pattern DRAGON_DROP_PATTERN = Pattern.compile("(?:(?:" + GameProfileUtils.getUsername() + ")|(?:\\[VIP?\\u002B{0,1}\\]|\\[MVP?\\u002B{0,2}\\]|\\[YOUTUBE\\]) " + GameProfileUtils.getUsername() + ") has obtained " + DROP_PATTERN + "!");
@@ -382,8 +380,7 @@ public class HypixelEventHandler
                         String coin = coinsCatchPattern.group("coin");
                         CoinType coinType = type.equals("GOOD") ? CoinType.TYPE_1 : CoinType.TYPE_2;
                         ItemStack coinSkull = RenderUtils.getSkullItemStack(coinType.getId(), coinType.getValue());
-                        coinSkull.setStackDisplayName(ColorUtils.stringToRGB("255,223,0").toColoredFont() + coin + " Coins");
-                        HUDRenderEventHandler.INSTANCE.getToastGui().add(new ItemDropsToast(coinSkull, type.equals("GOOD") ? ToastUtils.DropType.GOOD_CATCH_COINS : ToastUtils.DropType.GREAT_CATCH_COINS));
+                        NumericToast.addValueOrUpdate(HUDRenderEventHandler.INSTANCE.getToastGui(), type.equals("GOOD") ? ToastUtils.DropType.GOOD_CATCH_COINS : ToastUtils.DropType.GREAT_CATCH_COINS, Integer.valueOf(coin.replace(",", "")), coinSkull, "Coins");
                         LoggerIN.logToast(message);
                         cancelMessage = !RareDropMode.getById(ExtendedConfig.instance.itemDropMode).equalsIgnoreCase("chat_and_toast");
                     }
@@ -403,8 +400,7 @@ public class HypixelEventHandler
                         String coin = coinsGiftPattern.group("coin");
                         ToastUtils.DropType rarity = type.equals("RARE") ? ToastUtils.DropType.RARE_GIFT : type.equals("SWEET") ? ToastUtils.DropType.SWEET_GIFT : ToastUtils.DropType.COMMON_GIFT;
                         ItemStack coinSkull = RenderUtils.getSkullItemStack(CoinType.TYPE_1.getId(), CoinType.TYPE_1.getValue());
-                        coinSkull.setStackDisplayName(ColorUtils.stringToRGB("255,223,0").toColoredFont() + coin + " Coins");
-                        HUDRenderEventHandler.INSTANCE.getToastGui().add(new GiftToast(coinSkull, rarity, false));
+                        NumericToast.addValueOrUpdate(HUDRenderEventHandler.INSTANCE.getToastGui(), rarity, Integer.valueOf(coin.replace(",", "")), coinSkull, "Coins");
                         LoggerIN.logToast(message);
                         cancelMessage = !RareDropMode.getById(ExtendedConfig.instance.itemDropMode).equalsIgnoreCase("chat_and_toast");
                     }
@@ -414,7 +410,7 @@ public class HypixelEventHandler
                         String exp = skillExpGiftPattern.group("exp");
                         String skill = skillExpGiftPattern.group("skill");
                         ToastUtils.DropType rarity = type.equals("RARE") ? ToastUtils.DropType.RARE_GIFT : type.equals("SWEET") ? ToastUtils.DropType.SWEET_GIFT : ToastUtils.DropType.COMMON_GIFT;
-                        HUDRenderEventHandler.INSTANCE.getToastGui().add(new GiftToast(HypixelEventHandler.getExpItemStack(exp, skill), rarity, false));
+                        NumericToast.addValueOrUpdate(HUDRenderEventHandler.INSTANCE.getToastGui(), rarity, Integer.valueOf(exp.replace(",", "")), null, skill);
                         LoggerIN.logToast(message);
                         cancelMessage = !RareDropMode.getById(ExtendedConfig.instance.itemDropMode).equalsIgnoreCase("chat_and_toast");
                     }
@@ -642,9 +638,35 @@ public class HypixelEventHandler
         this.previousInventory = newInventory;
     }
 
-    private static ItemStack getExpItemStack(String exp, String skill)
+    public static ItemStack getSkillItemStack(String exp, String skill)
     {
-        ItemStack itemStack = new ItemStack(Items.experience_bottle);
+        ItemStack itemStack;
+
+        switch (skill)
+        {
+        default:
+        case "Farming":
+            itemStack = new ItemStack(Items.diamond_hoe);
+            break;
+        case "Mining":
+            itemStack = new ItemStack(Items.diamond_pickaxe);
+            break;
+        case "Combat":
+            itemStack = new ItemStack(Items.diamond_sword);
+            break;
+        case "Foraging":
+            itemStack = new ItemStack(Items.diamond_axe);
+            break;
+        case "Fishing":
+            itemStack = new ItemStack(Items.fishing_rod);
+            break;
+        case "Enchanting":
+            itemStack = new ItemStack(Blocks.enchanting_table);
+            break;
+        case "Alchemy":
+            itemStack = new ItemStack(Items.brewing_stand);
+            break;
+        }
         itemStack.setStackDisplayName(ColorUtils.stringToRGB("255,255,85").toColoredFont() + exp + " " + skill + " XP");
         return itemStack;
     }

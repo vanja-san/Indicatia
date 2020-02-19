@@ -21,8 +21,6 @@ public class VisitIslandToast implements IToast
     private static final ResourceLocation TEXTURE = new ResourceLocation("indicatia:textures/gui/visit_island_toasts.png");
     private final ItemStack itemStack;
     private final String name;
-    private long firstDrawTime;
-    private boolean hasVisitors;
 
     public VisitIslandToast(String name, UUID uuid)
     {
@@ -33,26 +31,13 @@ public class VisitIslandToast implements IToast
     @Override
     public IToast.Visibility draw(GuiToast toastGui, long delta)
     {
-        if (this.hasVisitors)
-        {
-            this.firstDrawTime = delta;
-            this.hasVisitors = false;
-        }
-
-        if (this.itemStack == null)
-        {
-            return IToast.Visibility.HIDE;
-        }
-        else
-        {
-            toastGui.mc.getTextureManager().bindTexture(TEXTURE);
-            GlStateManager.color(1.0F, 1.0F, 1.0F);
-            Gui.drawModalRectWithCustomSizedTexture(0, 0, 0, 0, 160, 32, 160, 32);
-            toastGui.mc.fontRendererObj.drawString(ColorUtils.stringToRGB("255,255,85").toColoredFont() + JsonUtils.create(this.name).setChatStyle(JsonUtils.style().setBold(true)).getFormattedText(), 30, 7, 16777215);
-            toastGui.mc.fontRendererObj.drawString("is visiting Your Island!", 30, 18, ColorUtils.rgbToDecimal(255, 255, 255));
-            EquipmentOverlay.renderItem(this.itemStack, 8, 8);
-            return delta - this.firstDrawTime >= 5000L ? IToast.Visibility.HIDE : IToast.Visibility.SHOW;
-        }
+        toastGui.mc.getTextureManager().bindTexture(TEXTURE);
+        GlStateManager.color(1.0F, 1.0F, 1.0F);
+        Gui.drawModalRectWithCustomSizedTexture(0, 0, 0, 0, 160, 32, 160, 32);
+        toastGui.mc.fontRendererObj.drawString(ColorUtils.stringToRGB("255,255,85").toColoredFont() + JsonUtils.create(this.name).setChatStyle(JsonUtils.style().setBold(true)).getFormattedText(), 30, 7, 16777215);
+        toastGui.mc.fontRendererObj.drawString("is visiting Your Island!", 30, 18, ColorUtils.rgbToDecimal(255, 255, 255));
+        EquipmentOverlay.renderItem(this.itemStack, 8, 8);
+        return delta >= 5000L ? IToast.Visibility.HIDE : IToast.Visibility.SHOW;
     }
 
     private static ItemStack getPlayerHead(UUID uuid, String name)

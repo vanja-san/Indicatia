@@ -65,10 +65,12 @@ public class EquipmentOverlay
         RenderHelper.enableGUIStandardItemLighting();
         GlStateManager.enableRescaleNormal();
         GlStateManager.enableBlend();
+        GlStateManager.enableDepth();
         GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
         Minecraft.getMinecraft().getRenderItem().renderItemAndEffectIntoGUI(itemStack, x, y);
         GlStateManager.disableRescaleNormal();
         GlStateManager.disableBlend();
+        GlStateManager.disableDepth();
         RenderHelper.disableStandardItemLighting();
     }
 

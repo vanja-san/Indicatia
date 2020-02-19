@@ -10,7 +10,6 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.StringUtils;
 import stevekung.mods.indicatia.event.ClientEventHandler;
 import stevekung.mods.indicatia.renderer.EquipmentOverlay;
 import stevekung.mods.indicatia.utils.ColorUtils;
@@ -21,10 +20,11 @@ public class ItemDropsToast implements IToast
     private static final ResourceLocation TEXTURE = new ResourceLocation("indicatia:textures/gui/drop_toasts.png");
     private static final ResourceLocation MAGIC_FIND_GLINT = new ResourceLocation("indicatia:textures/gui/magic_find_glint.png");
     private final ToastUtils.ItemDrop rareDropOutput;
-    private long firstDrawTime;
-    private boolean hasNewStacks;
     private final FloatBuffer buffer = GLAllocation.createDirectFloatBuffer(16);
     private String magicFind;
+    private final boolean hasMagicFind;
+    private final boolean isSpecialDrop;
+    private final long maxDrawTime;
 
     public ItemDropsToast(ItemStack itemStack, ToastUtils.DropType type)
     {
@@ -34,83 +34,82 @@ public class ItemDropsToast implements IToast
     public ItemDropsToast(ItemStack itemStack, ToastUtils.DropType type, String magicFind)
     {
         this.rareDropOutput = new ToastUtils.ItemDrop(itemStack, type);
-        this.magicFind = magicFind != null ? EnumChatFormatting.AQUA + " (" + magicFind + "% Magic Find!)" : "";
+        this.hasMagicFind = magicFind != null;
+        this.isSpecialDrop = this.hasMagicFind || type.isSpecialDrop();
+        this.magicFind = this.hasMagicFind ? EnumChatFormatting.AQUA + " (" + magicFind + "% Magic Find!)" : "";
+        this.maxDrawTime = this.isSpecialDrop ? 30000L : 15000L;
     }
 
     @Override
     public IToast.Visibility draw(GuiToast toastGui, long delta)
     {
-        if (this.hasNewStacks)
+        ToastUtils.ItemDrop drop = this.rareDropOutput;
+        ItemStack itemStack = drop.getItemStack();
+        String itemName = itemStack.getDisplayName() + this.magicFind;
+        float partialTicks = ClientEventHandler.renderPartialTicks;
+
+        if (itemStack.getItem() == Items.enchanted_book)
         {
-            this.firstDrawTime = delta;
-            this.hasNewStacks = false;
+            itemName = itemStack.getTooltip(null, false).get(1) + this.magicFind;
         }
 
-        if (this.rareDropOutput == null)
+        if (this.hasMagicFind)
         {
-            return IToast.Visibility.HIDE;
+            toastGui.mc.getTextureManager().bindTexture(TEXTURE);
+            GlStateManager.color(1.0F, 1.0F, 1.0F);
+            GlStateManager.enableDepth();
+            Gui.drawModalRectWithCustomSizedTexture(0, 0, 0, 0, 160, 32, 160, 32);
+
+            GlStateManager.enableBlend();
+            GlStateManager.depthFunc(514);
+
+            for (int i = 0; i < 2; ++i)
+            {
+                GlStateManager.disableLighting();
+                GlStateManager.blendFunc(768, 1);
+                ColorUtils.RGB rgb = ColorUtils.stringToRGB("85,255,255");
+                GlStateManager.color(rgb.floatRed(), rgb.floatGreen(), rgb.floatBlue(), 0.25F);
+                GlStateManager.matrixMode(5890);
+                GlStateManager.loadIdentity();
+                GlStateManager.scale(0.2F, 0.2F, 0.2F);
+                GlStateManager.rotate(30.0F - i * 60.0F, 0.0F, 0.0F, 1.0F);
+                GlStateManager.translate(0.0F, partialTicks * (0.001F + i * 0.003F) * 20.0F, 0.0F);
+                GlStateManager.matrixMode(5888);
+
+                toastGui.mc.getTextureManager().bindTexture(MAGIC_FIND_GLINT);
+                GlStateManager.blendFunc(770, 771);
+                GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+                Gui.drawModalRectWithCustomSizedTexture(0, 0, 0, 0, 160, 32, 160, 32);
+            }
+            GlStateManager.matrixMode(5890);
+            GlStateManager.loadIdentity();
+            GlStateManager.matrixMode(5888);
+            GlStateManager.enableLighting();
+            GlStateManager.depthFunc(515);
+            GlStateManager.disableBlend();
         }
         else
         {
-            ToastUtils.ItemDrop drop = this.rareDropOutput;
-            ItemStack itemStack = drop.getItemStack();
-            String itemName = itemStack.getDisplayName() + this.magicFind;
-            float partialTicks = ClientEventHandler.renderPartialTicks;
-
-            if (itemStack.getItem() == Items.enchanted_book)
-            {
-                itemName = itemStack.getTooltip(null, false).get(1) + this.magicFind;
-            }
-
-            if (!StringUtils.isNullOrEmpty(this.magicFind))
-            {
-                toastGui.mc.getTextureManager().bindTexture(TEXTURE);
-                GlStateManager.color(1.0F, 1.0F, 1.0F);
-                Gui.drawModalRectWithCustomSizedTexture(0, 0, 0, 0, 160, 32, 160, 32);
-
-                GlStateManager.enableBlend();
-                GlStateManager.depthFunc(514);
-
-                for (int i = 0; i < 2; ++i)
-                {
-                    GlStateManager.disableLighting();
-                    GlStateManager.blendFunc(768, 1);
-                    ColorUtils.RGB rgb = ColorUtils.stringToRGB("85,255,255");
-                    GlStateManager.color(rgb.floatRed(), rgb.floatGreen(), rgb.floatBlue(), 0.25F);
-                    GlStateManager.matrixMode(5890);
-                    GlStateManager.loadIdentity();
-                    GlStateManager.scale(0.2F, 0.2F, 0.2F);
-                    GlStateManager.rotate(30.0F - i * 60.0F, 0.0F, 0.0F, 1.0F);
-                    GlStateManager.translate(0.0F, partialTicks * (0.001F + i * 0.003F) * 20.0F, 0.0F);
-                    GlStateManager.matrixMode(5888);
-
-                    toastGui.mc.getTextureManager().bindTexture(MAGIC_FIND_GLINT);
-                    GlStateManager.blendFunc(770, 771);
-                    GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
-                    Gui.drawModalRectWithCustomSizedTexture(0, 0, 0, 0, 160, 32, 160, 32);
-                }
-
-                GlStateManager.matrixMode(5890);
-                GlStateManager.loadIdentity();
-                GlStateManager.matrixMode(5888);
-                GlStateManager.enableLighting();
-                GlStateManager.depthFunc(515);
-                GlStateManager.disableBlend();
-            }
-            else
-            {
-                toastGui.mc.getTextureManager().bindTexture(TEXTURE);
-                GlStateManager.color(1.0F, 1.0F, 1.0F);
-                Gui.drawModalRectWithCustomSizedTexture(0, 0, 0, 0, 160, 32, 160, 32);
-            }
-
-            RenderHelper.disableStandardItemLighting();
-            toastGui.mc.fontRendererObj.drawString(drop.getType().getColor() + JsonUtils.create(drop.getType().getName()).setChatStyle(JsonUtils.style().setBold(true)).getFormattedText(), 30, 7, 16777215);
-            GuiToast.drawLongItemName(toastGui, delta, this.firstDrawTime, this.buffer, itemName, 15000L, 5000L);
-            RenderHelper.enableGUIStandardItemLighting();
-
-            EquipmentOverlay.renderItem(itemStack, 8, 8);
-            return delta - this.firstDrawTime >= 15000L ? IToast.Visibility.HIDE : IToast.Visibility.SHOW;
+            toastGui.mc.getTextureManager().bindTexture(TEXTURE);
+            GlStateManager.color(1.0F, 1.0F, 1.0F);
+            Gui.drawModalRectWithCustomSizedTexture(0, 0, 0, 0, 160, 32, 160, 32);
         }
+
+        RenderHelper.disableStandardItemLighting();
+
+        if (this.hasMagicFind)
+        {
+            toastGui.mc.fontRendererObj.drawStringWithShadow(drop.getType().getColor() + JsonUtils.create(drop.getType().getName()).setChatStyle(JsonUtils.style().setBold(true)).getFormattedText(), 30, 7, 16777215);
+        }
+        else
+        {
+            toastGui.mc.fontRendererObj.drawString(drop.getType().getColor() + JsonUtils.create(drop.getType().getName()).setChatStyle(JsonUtils.style().setBold(true)).getFormattedText(), 30, 7, 16777215);
+        }
+
+        GuiToast.drawLongItemName(toastGui, delta, 0L, this.buffer, itemName, this.isSpecialDrop ? 5000L : 1000L, this.maxDrawTime, this.isSpecialDrop ? 10000L : 5000L, this.isSpecialDrop ? 10000L : 8000L, this.hasMagicFind);
+        RenderHelper.enableGUIStandardItemLighting();
+
+        EquipmentOverlay.renderItem(itemStack, 8, 8);
+        return delta >= this.maxDrawTime ? IToast.Visibility.HIDE : IToast.Visibility.SHOW;
     }
 }
