@@ -64,7 +64,8 @@ public class HypixelEventHandler
     private static final Pattern CHAT_PATTERN = Pattern.compile("(?:(\\w+)|(?:\\[VIP?\\u002B{0,1}\\]|\\[MVP?\\u002B{0,2}\\]|\\[YOUTUBE\\]) (\\w+))+: (?:.)+");
 
     // Item Drop Stuff
-    private static final String DROP_PATTERN = "(?<item>[\\w\\u0027\\u25C6\\u0028\\u0029 -]+)";
+    private static final String ITEM_PATTERN = "[\\w\\u0027\\u25C6 -]+";
+    private static final String DROP_PATTERN = "(?<item>" + ITEM_PATTERN + "(?:[\\(][^\\)]" + ITEM_PATTERN + "[\\)]){0,1})";
     public static final Pattern RARE_DROP_PATTERN = Pattern.compile("RARE DROP! " + DROP_PATTERN + " ?(?:\\u0028\\u002B(?<mf>[0-9]+)% Magic Find!\\u0029){0,1}");
     public static final Pattern RARE_DROP_WITH_BRACKET_PATTERN = Pattern.compile("(?<type>RARE|VERY RARE|CRAZY RARE) DROP!? {1,2}\\u0028" + DROP_PATTERN + "\\u0029 ?(?:\\u0028\\u002B(?<mf>[0-9]+)% Magic Find!\\u0029){0,1}");
     public static final Pattern DRAGON_DROP_PATTERN = Pattern.compile("(?:(?:" + GameProfileUtils.getUsername() + ")|(?:\\[VIP?\\u002B{0,1}\\]|\\[MVP?\\u002B{0,2}\\]|\\[YOUTUBE\\]) " + GameProfileUtils.getUsername() + ") has obtained " + DROP_PATTERN + "!");
@@ -291,9 +292,9 @@ public class HypixelEventHandler
 
                     if (VisitIslandMode.getById(ExtendedConfig.instance.visitIslandMode).equalsIgnoreCase("disabled"))
                     {
-                        cancelMessage = !VisitIslandMode.getById(ExtendedConfig.instance.visitIslandMode).equalsIgnoreCase("chat_and_toast");
+                        cancelMessage = true;
                     }
-                    else if (VisitIslandMode.getById(ExtendedConfig.instance.visitIslandMode).equalsIgnoreCase("toast"))
+                    else if (VisitIslandMode.getById(ExtendedConfig.instance.visitIslandMode).equalsIgnoreCase("toast") || VisitIslandMode.getById(ExtendedConfig.instance.visitIslandMode).equalsIgnoreCase("chat_and_toast"))
                     {
                         HypixelEventHandler.addVisitingToast(name);
                         LoggerIN.logToast(message);
@@ -344,7 +345,7 @@ public class HypixelEventHandler
                     catch (Exception e) {}
                 }
 
-                if (RareDropMode.getById(ExtendedConfig.instance.itemDropMode).equalsIgnoreCase("toast"))
+                if (RareDropMode.getById(ExtendedConfig.instance.itemDropMode).equalsIgnoreCase("toast") || RareDropMode.getById(ExtendedConfig.instance.itemDropMode).equalsIgnoreCase("chat_and_toast"))
                 {
                     if (message.contains("You destroyed an Ender Crystal!"))
                     {
