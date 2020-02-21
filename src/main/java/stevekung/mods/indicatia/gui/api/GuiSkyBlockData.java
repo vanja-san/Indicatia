@@ -184,8 +184,8 @@ public class GuiSkyBlockData extends GuiScreen
                     this.watch.start();
                     this.getPlayerData();
                     this.watch.stop();
-                    this.watch.reset();
                     LoggerIN.info("API Download finished in: {}ms", this.watch.getTime());
+                    this.watch.reset();
                 }
                 catch (Throwable e)
                 {

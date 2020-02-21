@@ -107,13 +107,13 @@ public class GuiSkyBlockAPIViewer extends GuiScreen implements GuiYesNoCallback,
                     this.watch.start();
                     this.checkAPI();
                     this.watch.stop();
-                    this.watch.reset();
                     this.openFromPlayer = false;
 
                     if (this.watch.getTime() > 0)
                     {
                         LoggerIN.info("API Download finished in: {}ms", this.watch.getTime());
                     }
+                    this.watch.reset();
                 }
                 catch (Throwable e)
                 {
@@ -184,12 +184,12 @@ public class GuiSkyBlockAPIViewer extends GuiScreen implements GuiYesNoCallback,
                         this.watch.start();
                         this.checkAPI();
                         this.watch.stop();
-                        this.watch.reset();
 
                         if (this.watch.getTime() > 0)
                         {
                             LoggerIN.info("API Download finished in: {}ms", this.watch.getTime());
                         }
+                        this.watch.reset();
                     }
                     catch (Throwable e)
                     {
