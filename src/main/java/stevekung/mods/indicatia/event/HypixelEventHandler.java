@@ -66,7 +66,7 @@ public class HypixelEventHandler
     // Item Drop Stuff
     private static final String ITEM_PATTERN = "[\\w\\u0027\\u25C6 -]+";
     private static final String DROP_PATTERN = "(?<item>" + ITEM_PATTERN + "(?:[\\(][^\\)]" + ITEM_PATTERN + "[\\)]){0,1})";
-    public static final Pattern RARE_DROP_PATTERN = Pattern.compile("RARE DROP! " + DROP_PATTERN + " ?(?:\\u0028\\u002B(?<mf>[0-9]+)% Magic Find!\\u0029){0,1}");
+    public static final Pattern RARE_DROP_PATTERN = Pattern.compile("\\u00A76\\u00A7lRARE DROP!\\u00A7r " + DROP_PATTERN + " ?(?:\\u0028\\u002B(?<mf>[0-9]+)% Magic Find!\\u0029){0,1}");
     public static final Pattern RARE_DROP_WITH_BRACKET_PATTERN = Pattern.compile("(?<type>RARE|VERY RARE|CRAZY RARE) DROP!? {1,2}\\u0028" + DROP_PATTERN + "\\u0029 ?(?:\\u0028\\u002B(?<mf>[0-9]+)% Magic Find!\\u0029){0,1}");
     public static final Pattern DRAGON_DROP_PATTERN = Pattern.compile("(?:(?:" + GameProfileUtils.getUsername() + ")|(?:\\[VIP?\\u002B{0,1}\\]|\\[MVP?\\u002B{0,2}\\]|\\[YOUTUBE\\]) " + GameProfileUtils.getUsername() + ") has obtained " + DROP_PATTERN + "!");
 
@@ -218,7 +218,8 @@ public class HypixelEventHandler
             return;
         }
 
-        String message = event.message.getUnformattedText();
+        String formatMessage = event.message.getUnformattedText();
+        String message = EnumChatFormatting.getTextWithoutFormattingCodes(event.message.getUnformattedText());
         boolean cancelMessage = false;
 
         if (InfoUtils.INSTANCE.isHypixel())
@@ -231,7 +232,7 @@ public class HypixelEventHandler
             Matcher chatMatcher = HypixelEventHandler.CHAT_PATTERN.matcher(message);
 
             // Item Drop matcher
-            Matcher rareDropPattern = HypixelEventHandler.RARE_DROP_PATTERN.matcher(message);
+            Matcher rareDropPattern = HypixelEventHandler.RARE_DROP_PATTERN.matcher(formatMessage);
             Matcher dragonDropPattern = HypixelEventHandler.DRAGON_DROP_PATTERN.matcher(message);
 
             // Fish catch matcher
