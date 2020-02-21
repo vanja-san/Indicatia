@@ -3,6 +3,8 @@ package stevekung.mods.indicatia.renderer;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.annotation.Nullable;
+
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
@@ -13,6 +15,7 @@ import net.minecraft.client.model.ModelHumanoidHead;
 import net.minecraft.client.model.ModelSkeletonHead;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.DefaultPlayerSkin;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
@@ -30,7 +33,7 @@ public class TileEntityEnchantedSkullRenderer
     private final ModelSkeletonHead humanoidHead = new ModelHumanoidHead();
     public static final TileEntityEnchantedSkullRenderer INSTANCE = new TileEntityEnchantedSkullRenderer();
 
-    public void renderSkull(float x, float y, float z, EnumFacing facing, float rotation, int meta, GameProfile profile, float partialTicks, boolean enchanted)
+    public void renderSkull(float x, float y, float z, EnumFacing facing, float rotation, int meta, GameProfile profile, float partialTicks, boolean enchanted, @Nullable EntityLivingBase entity)
     {
         ModelBase model = this.skeletonHead;
         Minecraft mc = Minecraft.getMinecraft();
@@ -116,7 +119,7 @@ public class TileEntityEnchantedSkullRenderer
         if (enchanted)
         {
             GlStateManager.pushMatrix();
-            this.renderGlint(mc, model, rotation, partialTicks);
+            this.renderGlint(entity, mc, model, rotation, partialTicks);
             GlStateManager.popMatrix();
             GlStateManager.enableBlend();
             GlStateManager.blendFunc(770, 771);
@@ -124,9 +127,15 @@ public class TileEntityEnchantedSkullRenderer
         GlStateManager.popMatrix();
     }
 
-    private void renderGlint(Minecraft mc, ModelBase model, float rotation, float partialTicks)
+    private void renderGlint(EntityLivingBase entity, Minecraft mc, ModelBase model, float rotation, float partialTicks)
     {
         float f = ClientEventHandler.ticks + partialTicks;
+
+        if (entity != null)
+        {
+            f = entity.ticksExisted + partialTicks;
+        }
+
         mc.getTextureManager().bindTexture(ENCHANTED_ITEM_GLINT_RES);
         GlStateManager.enableBlend();
         GlStateManager.depthFunc(514);

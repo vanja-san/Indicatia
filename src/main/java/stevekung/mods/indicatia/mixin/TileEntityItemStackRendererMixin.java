@@ -78,7 +78,7 @@ public abstract class TileEntityItemStackRendererMixin
                 GlStateManager.translate(-0.5F, 0.0F, -0.5F);
                 GlStateManager.scale(2.0F, 2.0F, 2.0F);
                 GlStateManager.disableCull();
-                TileEntityEnchantedSkullRenderer.INSTANCE.renderSkull(0.0F, 0.0F, 0.0F, EnumFacing.UP, 0.0F, itemStack.getMetadata(), gameprofile, Minecraft.getMinecraft().timer.renderPartialTicks, itemStack.hasEffect());
+                TileEntityEnchantedSkullRenderer.INSTANCE.renderSkull(0.0F, 0.0F, 0.0F, EnumFacing.UP, 0.0F, itemStack.getMetadata(), gameprofile, Minecraft.getMinecraft().timer.renderPartialTicks, itemStack.hasEffect(), null);
                 GlStateManager.enableCull();
                 GlStateManager.popMatrix();
             }

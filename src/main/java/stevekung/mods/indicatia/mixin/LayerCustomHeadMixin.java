@@ -106,7 +106,7 @@ public abstract class LayerCustomHeadMixin
                         }
                     }
                 }
-                TileEntityEnchantedSkullRenderer.INSTANCE.renderSkull(-0.5F, 0.0F, -0.5F, EnumFacing.UP, 180.0F, itemstack.getMetadata(), gameprofile, partialTicks, itemstack.hasEffect());
+                TileEntityEnchantedSkullRenderer.INSTANCE.renderSkull(-0.5F, 0.0F, -0.5F, EnumFacing.UP, 180.0F, itemstack.getMetadata(), gameprofile, partialTicks, itemstack.hasEffect(), entity);
             }
             GlStateManager.popMatrix();
         }
