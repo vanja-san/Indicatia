@@ -432,7 +432,15 @@ public class GuiSkyBlockAPIViewer extends GuiScreen implements GuiYesNoCallback,
         }
 
         this.username = jsonPlayer.getAsJsonObject().get("displayname").getAsString();
-        JsonElement jsonSkyBlock = jsonPlayer.getAsJsonObject().get("stats").getAsJsonObject().get("SkyBlock");
+        JsonElement stats = jsonPlayer.getAsJsonObject().get("stats");
+
+        if (stats == null)
+        {
+            this.setErrorMessage("Couldn't get stats from API, Please try again later!");
+            return;
+        }
+
+        JsonElement jsonSkyBlock = stats.getAsJsonObject().get("SkyBlock");
 
         if (jsonSkyBlock == null)
         {
