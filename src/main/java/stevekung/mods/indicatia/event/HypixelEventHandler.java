@@ -430,8 +430,8 @@ public class HypixelEventHandler
                             LoggerIN.logToast(message);
                         }
                     }
-                    event.setCanceled(cancelMessage || RareDropMode.getById(ExtendedConfig.instance.itemDropMode).equalsIgnoreCase("toast") || VisitIslandMode.getById(ExtendedConfig.instance.visitIslandMode).equalsIgnoreCase("disabled") || VisitIslandMode.getById(ExtendedConfig.instance.visitIslandMode).equalsIgnoreCase("toast"));
                 }
+                event.setCanceled(cancelMessage || RareDropMode.getById(ExtendedConfig.instance.itemDropMode).equalsIgnoreCase("toast") || VisitIslandMode.getById(ExtendedConfig.instance.visitIslandMode).equalsIgnoreCase("disabled") || VisitIslandMode.getById(ExtendedConfig.instance.visitIslandMode).equalsIgnoreCase("toast"));
             }
         }
     }
