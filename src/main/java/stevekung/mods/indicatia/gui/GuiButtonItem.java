@@ -14,6 +14,7 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
+import stevekung.mods.indicatia.core.IndicatiaMod;
 
 public class GuiButtonItem extends GuiButton
 {
@@ -54,26 +55,29 @@ public class GuiButtonItem extends GuiButton
         this.visible = condition;
         this.customName = customName;
 
-        boolean hasVisibleEffect = false;
-
-        for (PotionEffect potioneffect : this.mc.thePlayer.getActivePotionEffects())
+        if (!IndicatiaMod.isVanillaEnhancementsLoaded)
         {
-            Potion potion = Potion.potionTypes[potioneffect.getPotionID()];
+            boolean hasVisibleEffect = false;
 
-            if (potion.shouldRender(potioneffect))
+            for (PotionEffect potioneffect : this.mc.thePlayer.getActivePotionEffects())
             {
-                hasVisibleEffect = true;
-                break;
-            }
-        }
+                Potion potion = Potion.potionTypes[potioneffect.getPotionID()];
 
-        if (!this.mc.thePlayer.getActivePotionEffects().isEmpty() && hasVisibleEffect)
-        {
-            this.xPosition = this.potionX;
-        }
-        else
-        {
-            this.xPosition = this.originalX;
+                if (potion.shouldRender(potioneffect))
+                {
+                    hasVisibleEffect = true;
+                    break;
+                }
+            }
+
+            if (!this.mc.thePlayer.getActivePotionEffects().isEmpty() && hasVisibleEffect)
+            {
+                this.xPosition = this.potionX;
+            }
+            else
+            {
+                this.xPosition = this.originalX;
+            }
         }
     }
 

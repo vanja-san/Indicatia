@@ -59,6 +59,7 @@ public class IndicatiaMod
     private static final Splitter COLON_SPLITTER = Splitter.on(':');
     public static boolean isSkyblockAddonsLoaded = Loader.isModLoaded("skyblockaddons");
     public static boolean isIngameAccountSwitcherLoaded = Loader.isModLoaded("IngameAccountSwitcher");
+    public static boolean isVanillaEnhancementsLoaded = Loader.isModLoaded("enhancements");
 
     static
     {
