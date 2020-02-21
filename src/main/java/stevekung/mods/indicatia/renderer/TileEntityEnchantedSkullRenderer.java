@@ -16,6 +16,7 @@ import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import stevekung.mods.indicatia.config.ConfigManagerIN;
 import stevekung.mods.indicatia.event.ClientEventHandler;
 
 public class TileEntityEnchantedSkullRenderer
@@ -103,6 +104,13 @@ public class TileEntityEnchantedSkullRenderer
         GlStateManager.enableRescaleNormal();
         GlStateManager.scale(-1.0F, -1.0F, 1.0F);
         GlStateManager.enableAlpha();
+
+        if (meta == 3 && ConfigManagerIN.enableTransparentSkinRender)
+        {
+            GlStateManager.enableBlend();
+            GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+        }
+
         model.render(null, 0.0F, 0.0F, 0.0F, rotation, 0.0F, 0.0625F);
 
         if (enchanted)
