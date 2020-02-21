@@ -130,6 +130,7 @@ public class ExtendedConfig
     public boolean showHitboxWhenDragonSpawned = false;
     public boolean sneakToOpenInventoryWhileFightDragon = false;
     public boolean leavePartyWhenLastEyePlaced = false;
+    public boolean currentServerDay = false;
     public int itemRarityOpacity = 75;
 
     private ExtendedConfig() {}
@@ -253,6 +254,7 @@ public class ExtendedConfig
             this.showHitboxWhenDragonSpawned = ExtendedConfig.getBoolean(nbt, "ShowHitboxWhenDragonSpawned", this.showHitboxWhenDragonSpawned);
             this.sneakToOpenInventoryWhileFightDragon = ExtendedConfig.getBoolean(nbt, "SneakToOpenInventoryWhileFightDragon", this.sneakToOpenInventoryWhileFightDragon);
             this.leavePartyWhenLastEyePlaced = ExtendedConfig.getBoolean(nbt, "LeavePartyWhenLastEyePlaced", this.leavePartyWhenLastEyePlaced);
+            this.currentServerDay = ExtendedConfig.getBoolean(nbt, "CurrentServerDay", this.currentServerDay);
 
             LoggerIN.info("Loading extended config {}", ExtendedConfig.file.getPath());
         }
@@ -368,6 +370,7 @@ public class ExtendedConfig
             nbt.setBoolean("ShowHitboxWhenDragonSpawned", this.showHitboxWhenDragonSpawned);
             nbt.setBoolean("SneakToOpenInventoryWhileFightDragon", this.sneakToOpenInventoryWhileFightDragon);
             nbt.setBoolean("LeavePartyWhenLastEyePlaced", this.leavePartyWhenLastEyePlaced);
+            nbt.setBoolean("CurrentServerDay", this.currentServerDay);
             nbt.setString("HypixelNickName", this.hypixelNickName);
             nbt.setInteger("SelectedHypixelMinigame", this.selectedHypixelMinigame);
             nbt.setInteger("HypixelMinigameScrollPos", this.hypixelMinigameScrollPos);
@@ -652,6 +655,10 @@ public class ExtendedConfig
         {
             this.leavePartyWhenLastEyePlaced = !this.leavePartyWhenLastEyePlaced;
         }
+        else if (options == ExtendedConfig.Options.CURRENT_SERVER_DAY)
+        {
+            this.currentServerDay = !this.currentServerDay;
+        }
     }
 
     public void setOptionFloatValue(ExtendedConfig.Options options, float value)
@@ -921,6 +928,8 @@ public class ExtendedConfig
             return this.sneakToOpenInventoryWhileFightDragon;
         case LEAVE_PARTY_WHEN_LAST_EYE_PLACED:
             return this.leavePartyWhenLastEyePlaced;
+        case CURRENT_SERVER_DAY:
+            return this.currentServerDay;
         default:
             return false;
         }
@@ -1098,6 +1107,7 @@ public class ExtendedConfig
         SHOW_HITBOX_WHEN_DRAGON_SPAWNED(false, true),
         SNEAK_TO_OPEN_INVENTORY_WHILE_FIGHT_DRAGON(false, true),
         LEAVE_PARTY_WHEN_LAST_EYE_PLACED(false, true),
+        CURRENT_SERVER_DAY(false, true),
         ITEM_RARITY_OPACITY(true, false, 1.0F, 100.0F, 1.0F),
         ;
 
