@@ -17,12 +17,16 @@ import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import stevekung.mods.indicatia.config.ExtendedConfig;
 import stevekung.mods.indicatia.gui.api.GuiSkyBlockData;
+import stevekung.mods.indicatia.utils.RenderUtils;
 
 public class SkyBlockAddonsBackpack
 {
     public static final SkyBlockAddonsBackpack INSTANCE = new SkyBlockAddonsBackpack();
     private static final ResourceLocation CHEST_GUI_TEXTURE = new ResourceLocation("textures/gui/container/generic_54.png");
+    public static int mouseXFreeze;
+    public static int mouseYFreeze;
 
     public void drawBackpacks(GuiSkyBlockData gui, int mouseX, int mouseY, float partialTicks)
     {
@@ -37,6 +41,12 @@ public class SkyBlockAddonsBackpack
             ItemStack[] items = backpack.getItems();
             int length = items.length;
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+
+            if (!GuiContainerHook.isFreezeBackpack())
+            {
+                SkyBlockAddonsBackpack.mouseXFreeze = mouseX;
+                SkyBlockAddonsBackpack.mouseYFreeze = mouseY;
+            }
 
             if (main.getConfigValues().getBackpackStyle() == EnumUtils.BackpackStyle.GUI)
             {
@@ -53,6 +63,33 @@ public class SkyBlockAddonsBackpack
                     GlStateManager.color(color.getR(), color.getG(), color.getB(), 1);
                     textColor = color.getInventoryTextColor();
                 }
+
+                int tooltipX = SkyBlockAddonsBackpack.mouseXFreeze;
+                int tooltipTextWidth = 176;
+
+                if (tooltipX + tooltipTextWidth > gui.width)
+                {
+                    tooltipX = SkyBlockAddonsBackpack.mouseXFreeze + 150 - x;
+
+                    if (tooltipX > 340) // if the backpack doesn't fit on the screen
+                    {
+                        if (SkyBlockAddonsBackpack.mouseXFreeze > gui.width / 2)
+                        {
+                            tooltipX = SkyBlockAddonsBackpack.mouseXFreeze - tooltipTextWidth;
+                        }
+                    }
+                }
+
+                int tooltipHeight = length / 9 * 18;
+                int tooltipY = SkyBlockAddonsBackpack.mouseYFreeze;
+
+                if (tooltipY + tooltipHeight + 24 > gui.height)
+                {
+                    tooltipY = gui.height - tooltipHeight - 24;
+                }
+
+                x = tooltipX;
+                y = tooltipY;
 
                 gui.drawTexturedModalRect(x, y, 0, 0, 176, rows * 18 + 17);
                 gui.drawTexturedModalRect(x, y + rows * 18 + 17, 0, 215, 176, 7);
@@ -76,6 +113,12 @@ public class SkyBlockAddonsBackpack
                         RenderItem renderItem = mc.getRenderItem();
                         gui.zLevel = 200;
                         renderItem.zLevel = 200;
+
+                        if (ExtendedConfig.instance.showItemRarity)
+                        {
+                            RenderUtils.drawRarity(item, itemX, itemY);
+                        }
+
                         renderItem.renderItemAndEffectIntoGUI(item, itemX, itemY);
                         renderItem.renderItemOverlayIntoGUI(mc.fontRendererObj, item, itemX, itemY, null);
 
@@ -149,11 +192,15 @@ public class SkyBlockAddonsBackpack
             {
                 GuiContainerHook.setFreezeBackpack(false);
                 main.getUtils().setBackpackToRender(null);
+                SkyBlockAddonsBackpack.mouseXFreeze = 0;
+                SkyBlockAddonsBackpack.mouseYFreeze = 0;
             }
             if (keyCode == main.getFreezeBackpackKey().getKeyCode() && GuiContainerHook.isFreezeBackpack() && System.currentTimeMillis() - lastBackpackFreezeKey > 500)
             {
                 setLastBackpackFreezeKeyMethod.invoke(null, System.currentTimeMillis());
                 GuiContainerHook.setFreezeBackpack(false);
+                SkyBlockAddonsBackpack.mouseXFreeze = 0;
+                SkyBlockAddonsBackpack.mouseYFreeze = 0;
             }
         }
         catch (Exception e)
@@ -172,6 +219,8 @@ public class SkyBlockAddonsBackpack
             setLastBackpackFreezeKeyMethod.invoke(null, System.currentTimeMillis());
             GuiContainerHook.setFreezeBackpack(false);
             main.getUtils().setBackpackToRender(null);
+            SkyBlockAddonsBackpack.mouseXFreeze = 0;
+            SkyBlockAddonsBackpack.mouseYFreeze = 0;
         }
         catch (Exception e)
         {
