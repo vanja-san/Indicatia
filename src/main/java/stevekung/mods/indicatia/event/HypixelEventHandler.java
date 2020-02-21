@@ -66,8 +66,9 @@ public class HypixelEventHandler
     // Item Drop Stuff
     private static final String ITEM_PATTERN = "[\\w\\u0027\\u25C6 -]+";
     private static final String DROP_PATTERN = "(?<item>" + ITEM_PATTERN + "(?:[\\(][^\\)]" + ITEM_PATTERN + "[\\)]){0,1})";
-    public static final Pattern RARE_DROP_PATTERN = Pattern.compile("\\u00A76\\u00A7lRARE DROP!\\u00A7r " + DROP_PATTERN + " ?(?:\\u0028\\u002B(?<mf>[0-9]+)% Magic Find!\\u0029){0,1}");
-    public static final Pattern RARE_DROP_WITH_BRACKET_PATTERN = Pattern.compile("(?<type>RARE|VERY RARE|CRAZY RARE) DROP!? {1,2}\\u0028" + DROP_PATTERN + "\\u0029 ?(?:\\u0028\\u002B(?<mf>[0-9]+)% Magic Find!\\u0029){0,1}");
+    public static final Pattern RARE_DROP_PATTERN = Pattern.compile("RARE DROP! " + DROP_PATTERN + " ?(?:\\u0028\\u002B(?<mf>[0-9]+)% Magic Find!\\u0029){0,1}");
+    public static final Pattern RARE_DROP_2_SPACE_PATTERN = Pattern.compile("RARE DROP! \\u0028" + DROP_PATTERN + "\\u0029 ?(?:\\u0028\\u002B(?<mf>[0-9]+)% Magic Find!\\u0029){0,1}");
+    public static final Pattern RARE_DROP_WITH_BRACKET_PATTERN = Pattern.compile("(?<type>VERY RARE|CRAZY RARE) DROP!  \\u0028" + DROP_PATTERN + "\\u0029 ?(?:\\u0028\\u002B(?<mf>[0-9]+)% Magic Find!\\u0029){0,1}");
     public static final Pattern DRAGON_DROP_PATTERN = Pattern.compile("(?:(?:" + GameProfileUtils.getUsername() + ")|(?:\\[VIP?\\u002B{0,1}\\]|\\[MVP?\\u002B{0,2}\\]|\\[YOUTUBE\\]) " + GameProfileUtils.getUsername() + ") has obtained " + DROP_PATTERN + "!");
 
     // Fish catch stuff
@@ -218,8 +219,7 @@ public class HypixelEventHandler
             return;
         }
 
-        String formatMessage = event.message.getUnformattedText();
-        String message = EnumChatFormatting.getTextWithoutFormattingCodes(event.message.getUnformattedText());
+        String message = event.message.getUnformattedText();
         boolean cancelMessage = false;
 
         if (InfoUtils.INSTANCE.isHypixel())
@@ -232,7 +232,7 @@ public class HypixelEventHandler
             Matcher chatMatcher = HypixelEventHandler.CHAT_PATTERN.matcher(message);
 
             // Item Drop matcher
-            Matcher rareDropPattern = HypixelEventHandler.RARE_DROP_PATTERN.matcher(formatMessage);
+            Matcher rareDropPattern = HypixelEventHandler.RARE_DROP_PATTERN.matcher(message);
             Matcher dragonDropPattern = HypixelEventHandler.DRAGON_DROP_PATTERN.matcher(message);
 
             // Fish catch matcher
@@ -241,6 +241,7 @@ public class HypixelEventHandler
 
             // Slayer Drop matcher
             Matcher rareDropBracketPattern = HypixelEventHandler.RARE_DROP_WITH_BRACKET_PATTERN.matcher(message);
+            Matcher rareDrop2SpaceBracketPattern = HypixelEventHandler.RARE_DROP_2_SPACE_PATTERN.matcher(message);
 
             // Gift matcher
             Matcher coinsGiftPattern = HypixelEventHandler.COINS_GIFT_PATTERN.matcher(message);
@@ -394,8 +395,16 @@ public class HypixelEventHandler
                             String type = rareDropBracketPattern.group("type");
                             String name = rareDropBracketPattern.group("item");
                             String magicFind = rareDropBracketPattern.group(3);
-                            ToastUtils.DropType dropType = type.equals("RARE") ? ToastUtils.DropType.SLAYER_RARE_DROP : type.equals("VERY RARE") ? ToastUtils.DropType.SLAYER_VERY_RARE_DROP : ToastUtils.DropType.SLAYER_CRAZY_RARE_DROP;
+                            ToastUtils.DropType dropType = type.equals("VERY RARE") ? ToastUtils.DropType.SLAYER_VERY_RARE_DROP : ToastUtils.DropType.SLAYER_CRAZY_RARE_DROP;
                             HypixelEventHandler.ITEM_DROP_CHECK_LIST.add(new ToastUtils.ItemDropCheck(EnumChatFormatting.getTextWithoutFormattingCodes(name), magicFind, dropType, ToastType.DROP));
+                            LoggerIN.logToast(message);
+                            cancelMessage = !RareDropMode.getById(ExtendedConfig.instance.itemDropMode).equalsIgnoreCase("chat_and_toast");
+                        }
+                        else if (rareDrop2SpaceBracketPattern.matches())
+                        {
+                            String name = rareDrop2SpaceBracketPattern.group("item");
+                            String magicFind = rareDrop2SpaceBracketPattern.group(2);
+                            HypixelEventHandler.ITEM_DROP_CHECK_LIST.add(new ToastUtils.ItemDropCheck(EnumChatFormatting.getTextWithoutFormattingCodes(name), magicFind, ToastUtils.DropType.SLAYER_RARE_DROP, ToastType.DROP));
                             LoggerIN.logToast(message);
                             cancelMessage = !RareDropMode.getById(ExtendedConfig.instance.itemDropMode).equalsIgnoreCase("chat_and_toast");
                         }
