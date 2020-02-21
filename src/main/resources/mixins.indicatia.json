@@ -45,6 +45,8 @@
         "NetworkPlayerInfoMixin",
         "RenderDragonMixin",
         "RenderGuardianMixin",
-        "ImageBufferDownloadMixin"
+        "ImageBufferDownloadMixin",
+        "LayerCustomHeadMixin",
+        "TileEntityItemStackRendererMixin"
     ]
 }
