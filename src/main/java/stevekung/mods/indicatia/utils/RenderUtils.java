@@ -144,6 +144,7 @@ public class RenderUtils
         GlStateManager.disableLighting();
         GlStateManager.disableDepth();
         GlStateManager.enableBlend();
+        GlStateManager.enableAlpha();
         RenderUtils.bindTexture(RARITY);
         GlStateManager.color(color.floatRed(), color.floatGreen(), color.floatBlue(), alpha);
         GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
@@ -151,5 +152,6 @@ public class RenderUtils
         GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
         GlStateManager.enableLighting();
         GlStateManager.enableDepth();
+        GlStateManager.disableAlpha();
     }
 }
