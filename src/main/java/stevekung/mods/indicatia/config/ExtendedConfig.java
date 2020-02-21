@@ -121,7 +121,9 @@ public class ExtendedConfig
     public String hypixelNickName = "";
     public int selectedHypixelMinigame = 0;
     public int hypixelMinigameScrollPos = 0;
+    @Deprecated
     public int visitIslandMode = 1;
+    @Deprecated
     public int itemDropMode = 1;
     public int chatMode = 0;
     public boolean placedSummoningEyeTracker = false;
@@ -130,7 +132,7 @@ public class ExtendedConfig
     public boolean showHitboxWhenDragonSpawned = false;
     public boolean sneakToOpenInventoryWhileFightDragon = false;
     public boolean leavePartyWhenLastEyePlaced = false;
-    public boolean currentServerDay = false;
+    public boolean currentServerDay = true;
     public int itemRarityOpacity = 75;
 
     private ExtendedConfig() {}
