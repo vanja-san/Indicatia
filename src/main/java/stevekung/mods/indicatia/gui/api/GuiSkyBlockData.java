@@ -111,12 +111,6 @@ public class GuiSkyBlockData extends GuiScreen
     private int totalSlayerXp;
     private EntityOtherFakePlayer player;
     private String skillAvg;
-    private boolean hasDayNightCrystal;
-    private boolean hasFullSuperiorDragon;
-    private boolean hasFullLapisArmor;
-    private boolean hasFullMastiff;
-    private boolean hasFullYoungDragon;
-    private boolean hasFullSpeedster;
 
     // Info & Inventory
     private static final int SIZE = 36;
@@ -1210,29 +1204,28 @@ public class GuiSkyBlockData extends GuiScreen
 
     private void applyBonuses()
     {
-        if (this.hasDayNightCrystal)
+        if (this.checkSkyBlockItem(this.inventoryToStats, "NIGHT_CRYSTAL") == 1 || this.checkSkyBlockItem(this.inventoryToStats, "DAY_CRYSTAL") == 1)
         {
             this.allStat.addDefense(5);
             this.allStat.addStrength(5);
         }
-
-        if (this.hasFullLapisArmor)
+        if (this.checkSkyBlockItem(this.armorItems, "LAPIS_ARMOR_") == 4)
         {
             this.allStat.addHealth(60);
         }
-        else if (this.hasFullMastiff)
+        if (this.checkSkyBlockItem(this.armorItems, "MASTIFF_") == 4)
         {
             this.allStat.addHealth(50 * this.allStat.getCritDamage());
         }
-        else if (this.hasFullYoungDragon)
+        if (this.checkSkyBlockItem(this.armorItems, "YOUNG_DRAGON_") == 4)
         {
             this.allStat.addSpeed(70);
         }
-        else if (this.hasFullSpeedster)
+        if (this.checkSkyBlockItem(this.armorItems, "SPEEDSTER_") == 4)
         {
             this.allStat.addSpeed(20);
         }
-        else if (this.hasFullSuperiorDragon)
+        if (this.checkSkyBlockItem(this.armorItems, "SUPERIOR_DRAGON_") == 4)
         {
             this.allStat.setHealth((int)Math.round(this.allStat.getHealth() * 1.05D));
             this.allStat.setDefense((int)Math.round(this.allStat.getDefense() * 1.05D));
@@ -1241,6 +1234,10 @@ public class GuiSkyBlockData extends GuiScreen
             this.allStat.setCritChance((int)Math.round(this.allStat.getCritChance() * 1.05D));
             this.allStat.setCritDamage((int)Math.round(this.allStat.getCritDamage() * 1.05D));
             this.allStat.setIntelligence((int)Math.round(this.allStat.getIntelligence() * 1.05D));
+        }
+        if (this.checkSkyBlockItem(this.armorItems, "FAIRY_") == 4)
+        {
+            this.allStat.addSpeed(10);
         }
     }
 
@@ -1732,27 +1729,6 @@ public class GuiSkyBlockData extends GuiScreen
     {
         this.armorItems.addAll(SkyBlockAPIUtils.decodeItem(currentProfile, "inv_armor"));
 
-        if (this.checkSkyBlockItem(this.armorItems, "SUPERIOR_DRAGON_") == 4)
-        {
-            this.hasFullSuperiorDragon = true;
-        }
-        else if (this.checkSkyBlockItem(this.armorItems, "LAPIS_ARMOR_") == 4)
-        {
-            this.hasFullLapisArmor = true;
-        }
-        else if (this.checkSkyBlockItem(this.armorItems, "MASTIFF_") == 4)
-        {
-            this.hasFullMastiff = true;
-        }
-        else if (this.checkSkyBlockItem(this.armorItems, "YOUNG_DRAGON_") == 4)
-        {
-            this.hasFullYoungDragon = true;
-        }
-        else if (this.checkSkyBlockItem(this.armorItems, "SPEEDSTER_") == 4)
-        {
-            this.hasFullSpeedster = true;
-        }
-
         for (int i = 0; i < 4; ++i)
         {
             GuiSkyBlockData.TEMP_ARMOR_INVENTORY.setInventorySlotContents(i, this.armorItems.get(i));
@@ -1771,11 +1747,6 @@ public class GuiSkyBlockData extends GuiScreen
 
         this.inventoryToStats.addAll(mainInventory);
         this.inventoryToStats.addAll(accessoryInventory);
-
-        if (this.checkSkyBlockItem(this.inventoryToStats, "NIGHT_CRYSTAL") == 1 || this.checkSkyBlockItem(this.inventoryToStats, "DAY_CRYSTAL") == 1)
-        {
-            this.hasDayNightCrystal = true;
-        }
     }
 
     private void getSlayerInfo(JsonObject currentProfile)
