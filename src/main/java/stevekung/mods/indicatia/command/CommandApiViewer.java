@@ -11,8 +11,7 @@ import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
 import net.minecraft.util.BlockPos;
-import stevekung.mods.indicatia.gui.api.GuiSkyBlockAPIViewer;
-import stevekung.mods.indicatia.utils.InfoUtils;
+import stevekung.mods.indicatia.event.IndicatiaEventHandler;
 
 public class CommandApiViewer extends ClientCommandBase
 {
@@ -25,15 +24,13 @@ public class CommandApiViewer extends ClientCommandBase
     @Override
     public void processCommand(ICommandSender sender, String[] args) throws CommandException
     {
-        Minecraft mc = Minecraft.getMinecraft();
-
         if (args.length == 0)
         {
             throw new WrongUsageException("/sbapi <player_name>");
         }
         else
         {
-            InfoUtils.INSTANCE.schedule(() -> mc.displayGuiScreen(new GuiSkyBlockAPIViewer(GuiSkyBlockAPIViewer.GuiState.PLAYER, args[0])), 20L);
+            IndicatiaEventHandler.playerToView = args[0];
         }
     }
 

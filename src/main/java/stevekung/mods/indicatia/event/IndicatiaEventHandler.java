@@ -53,6 +53,7 @@ import stevekung.mods.indicatia.gui.GuiButtonItem;
 import stevekung.mods.indicatia.gui.GuiButtonMojangStatus;
 import stevekung.mods.indicatia.gui.GuiConfirmDisconnect;
 import stevekung.mods.indicatia.gui.GuiMojangStatusChecker;
+import stevekung.mods.indicatia.gui.api.GuiSkyBlockAPIViewer;
 import stevekung.mods.indicatia.gui.config.GuiExtendedConfig;
 import stevekung.mods.indicatia.gui.config.GuiRenderPreview;
 import stevekung.mods.indicatia.handler.KeyBindingHandler;
@@ -71,6 +72,7 @@ public class IndicatiaEventHandler
     public static boolean showChat;
     private static long sneakTimeOld;
     private static boolean sneakingOld;
+    public static String playerToView;
 
     public IndicatiaEventHandler()
     {
@@ -151,6 +153,11 @@ public class IndicatiaEventHandler
                 {
                     this.mc.thePlayer.eyeHeight = IndicatiaEventHandler.getSmoothEyeHeight(this.mc.thePlayer);
                 }
+            }
+            if (IndicatiaEventHandler.playerToView != null)
+            {
+                this.mc.displayGuiScreen(new GuiSkyBlockAPIViewer(GuiSkyBlockAPIViewer.GuiState.PLAYER, IndicatiaEventHandler.playerToView));
+                IndicatiaEventHandler.playerToView = null;
             }
         }
     }
