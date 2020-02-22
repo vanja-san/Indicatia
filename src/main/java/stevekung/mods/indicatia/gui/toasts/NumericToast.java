@@ -8,6 +8,7 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
 import stevekung.mods.indicatia.event.HypixelEventHandler;
 import stevekung.mods.indicatia.renderer.EquipmentOverlay;
@@ -23,6 +24,7 @@ public class NumericToast implements IToast
     private final String object;
     private final boolean isCoins;
     private final boolean isFishingCoins;
+    private final boolean isPet;
     private long firstDrawTime;
     private boolean hasNewValue;
     private final long maxDrawTime;
@@ -35,9 +37,10 @@ public class NumericToast implements IToast
         this.value = value;
         this.object = object;
         this.isCoins = this.object.equals("Coins");
+        this.isPet = this.object.equals("Pet");
         this.isFishingCoins = rarity.isFishingCoins();
-        this.maxDrawTime = this.isFishingCoins ? 15000L : 10000L;
-        this.texture = new ResourceLocation(this.isFishingCoins ? "indicatia:textures/gui/drop_toasts.png" : "indicatia:textures/gui/gift_toasts_" + Integer.valueOf(1 + this.rand.nextInt(2)) + ".png");
+        this.maxDrawTime = this.isFishingCoins || this.isPet ? 15000L : 10000L;
+        this.texture = new ResourceLocation(this.isFishingCoins || this.isPet ? "indicatia:textures/gui/drop_toasts.png" : "indicatia:textures/gui/gift_toasts_" + Integer.valueOf(1 + this.rand.nextInt(2)) + ".png");
     }
 
     @Override
@@ -51,13 +54,13 @@ public class NumericToast implements IToast
 
         ToastUtils.ItemDrop drop = this.output;
         String value = FORMAT.format(this.value);
-        ItemStack itemStack = this.isCoins ? drop.getItemStack() : HypixelEventHandler.getSkillItemStack(value, this.object);
-        String itemName = this.isCoins ? ColorUtils.stringToRGB("255,223,0").toColoredFont() + value + " Coins" : itemStack.getDisplayName();
+        ItemStack itemStack = this.isCoins || this.isPet ? drop.getItemStack() : HypixelEventHandler.getSkillItemStack(value, this.object);
+        String itemName = this.isCoins ? ColorUtils.stringToRGB("255,223,0").toColoredFont() + value + " Coins" : this.isPet ? EnumChatFormatting.GREEN + itemStack.getDisplayName() + " is now level " + EnumChatFormatting.BLUE + value + EnumChatFormatting.GREEN + "!" : itemStack.getDisplayName();
         toastGui.mc.getTextureManager().bindTexture(this.texture);
         GlStateManager.color(1.0F, 1.0F, 1.0F);
         Gui.drawModalRectWithCustomSizedTexture(0, 0, 0, 0, 160, 32, 160, 32);
         toastGui.mc.fontRendererObj.drawString(drop.getType().getColor() + JsonUtils.create(drop.getType().getName()).setChatStyle(JsonUtils.style().setBold(true)).getFormattedText(), 30, 7, 16777215);
-        GuiToast.drawLongItemName(toastGui, delta, this.firstDrawTime, this.buffer, itemName, this.isFishingCoins ? 1000L : 500L, this.maxDrawTime, 5000L, 8000L, false);
+        GuiToast.drawLongItemName(toastGui, delta, this.firstDrawTime, this.buffer, itemName, this.isFishingCoins || this.isPet ? 1000L : 500L, this.maxDrawTime, 5000L, 8000L, false);
         EquipmentOverlay.renderItem(itemStack, 8, 8);
         return delta - this.firstDrawTime >= this.maxDrawTime ? IToast.Visibility.HIDE : IToast.Visibility.SHOW;
     }
@@ -114,8 +117,11 @@ public class NumericToast implements IToast
             case GREAT_CATCH_COINS:
                 builder.append(GreatToast.class.getName());
                 break;
+            case PET_LEVEL_UP:
+                builder.append(PetLevelUpToast.class.getName());
+                break;
             }
-            if (!rarity.isFishingCoins())
+            if (!rarity.isFishingCoins() && rarity != ToastUtils.DropType.PET_LEVEL_UP)
             {
                 builder.append("$" + object);
             }
@@ -124,6 +130,14 @@ public class NumericToast implements IToast
         catch (Exception e)
         {
             throw new ClassNotFoundException();
+        }
+    }
+
+    static class PetLevelUpToast extends NumericToast
+    {
+        public PetLevelUpToast(int value, ItemStack itemStack, String object, ToastUtils.DropType rarity)
+        {
+            super(value, itemStack, object, rarity);
         }
     }
 

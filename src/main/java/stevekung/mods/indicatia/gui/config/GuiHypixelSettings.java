@@ -22,8 +22,11 @@ public class GuiHypixelSettings extends GuiScreen
         OPTIONS.add(ExtendedConfig.Options.JUNGLE_AXE_COOLDOWN);
         OPTIONS.add(ExtendedConfig.Options.GRAPPLING_HOOK_COOLDOWN);
         OPTIONS.add(ExtendedConfig.Options.ZEALOT_RESPAWN_COOLDOWN);
-        OPTIONS.add(ExtendedConfig.Options.VISIT_ISLAND_MODE);
-        OPTIONS.add(ExtendedConfig.Options.RARE_DROP_MODE);
+        OPTIONS.add(ExtendedConfig.Options.VISIT_ISLAND_TOAST_MODE);
+        OPTIONS.add(ExtendedConfig.Options.ITEM_DROP_TOAST_MODE);
+        OPTIONS.add(ExtendedConfig.Options.FISH_CATCH_TOAST_MODE);
+        OPTIONS.add(ExtendedConfig.Options.GIFT_TOAST_MODE);
+        OPTIONS.add(ExtendedConfig.Options.PET_TOAST_MODE);
         OPTIONS.add(ExtendedConfig.Options.GLOWING_DRAGON_ARMOR);
         OPTIONS.add(ExtendedConfig.Options.PLACED_SUMMONING_EYE_TRACKER);
         OPTIONS.add(ExtendedConfig.Options.SHOW_ITEM_RARITY);

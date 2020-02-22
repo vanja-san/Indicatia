@@ -27,8 +27,8 @@ public class ExtendedConfig
     private static final String[] POTION_STATUS_HUD_STYLE = new String[] {"indicatia.default", "potion_hud.icon_and_time"};
     private static final String[] POTION_STATUS_HUD_POSITION = new String[] {"indicatia.left", "indicatia.right", "indicatia.hotbar_left", "indicatia.hotbar_right"};
     private static final String[] PING_MODE = new String[] {"indicatia.only_ping", "indicatia.ping_and_delay"};
-    private static final String[] VISIT_ISLAND_MODE = new String[] {"indicatia.chat", "indicatia.toast", "indicatia.chat_and_toast", "indicatia.disabled"};
-    private static final String[] RARE_DROP_MODE = new String[] {"indicatia.chat", "indicatia.toast", "indicatia.chat_and_toast"};
+    private static final String[] TOAST_MODE_DISABLED = new String[] {"indicatia.chat", "indicatia.toast", "indicatia.chat_and_toast", "indicatia.disabled"};
+    private static final String[] TOAST_MODE = new String[] {"indicatia.chat", "indicatia.toast", "indicatia.chat_and_toast"};
     private static File file;
 
     // Render Info
@@ -121,10 +121,11 @@ public class ExtendedConfig
     public String hypixelNickName = "";
     public int selectedHypixelMinigame = 0;
     public int hypixelMinigameScrollPos = 0;
-    @Deprecated
-    public int visitIslandMode = 1;
-    @Deprecated
-    public int itemDropMode = 1;
+    public int visitIslandToastMode = 2;
+    public int itemDropToastMode = 2;
+    public int fishCatchToastMode = 2;
+    public int giftToastMode = 2;
+    public int petToastMode = 2;
     public int chatMode = 0;
     public boolean placedSummoningEyeTracker = false;
     public boolean showItemRarity = true;
@@ -182,8 +183,11 @@ public class ExtendedConfig
             this.potionHUDStyle = ExtendedConfig.getInteger(nbt, "PotionHUDStyle", this.potionHUDStyle);
             this.potionHUDPosition = ExtendedConfig.getInteger(nbt, "PotionHUDPosition", this.potionHUDPosition);
             this.pingMode = ExtendedConfig.getInteger(nbt, "PingMode", this.pingMode);
-            this.visitIslandMode = ExtendedConfig.getInteger(nbt, "VisitIslandMode", this.visitIslandMode);
-            this.itemDropMode = ExtendedConfig.getInteger(nbt, "ItemDropMode", this.itemDropMode);
+            this.visitIslandToastMode = ExtendedConfig.getInteger(nbt, "VisitIslandToastMode", this.visitIslandToastMode);
+            this.itemDropToastMode = ExtendedConfig.getInteger(nbt, "ItemDropToastMode", this.itemDropToastMode);
+            this.fishCatchToastMode = ExtendedConfig.getInteger(nbt, "FishCatchToastMode", this.fishCatchToastMode);
+            this.giftToastMode = ExtendedConfig.getInteger(nbt, "GiftToastMode", this.giftToastMode);
+            this.petToastMode = ExtendedConfig.getInteger(nbt, "PetToastMode", this.petToastMode);
             this.chatMode = ExtendedConfig.getInteger(nbt, "ChatMode", this.chatMode);
 
             // Movement
@@ -302,8 +306,11 @@ public class ExtendedConfig
             nbt.setInteger("PotionHUDStyle", this.potionHUDStyle);
             nbt.setInteger("PotionHUDPosition", this.potionHUDPosition);
             nbt.setInteger("PingMode", this.pingMode);
-            nbt.setInteger("VisitIslandMode", this.visitIslandMode);
-            nbt.setInteger("ItemDropMode", this.itemDropMode);
+            nbt.setInteger("VisitIslandToastMode", this.visitIslandToastMode);
+            nbt.setInteger("ItemDropToastMode", this.itemDropToastMode);
+            nbt.setInteger("FishCatchToastMode", this.fishCatchToastMode);
+            nbt.setInteger("GiftToastMode", this.giftToastMode);
+            nbt.setInteger("PetToastMode", this.petToastMode);
             nbt.setInteger("ChatMode", this.chatMode);
 
             // Movement
@@ -483,13 +490,25 @@ public class ExtendedConfig
         {
             return name + this.getTranslation(PING_MODE, this.pingMode);
         }
-        else if (options == ExtendedConfig.Options.VISIT_ISLAND_MODE)
+        else if (options == ExtendedConfig.Options.VISIT_ISLAND_TOAST_MODE)
         {
-            return name + this.getTranslation(VISIT_ISLAND_MODE, this.visitIslandMode);
+            return name + this.getTranslation(TOAST_MODE_DISABLED, this.visitIslandToastMode);
         }
-        else if (options == ExtendedConfig.Options.RARE_DROP_MODE)
+        else if (options == ExtendedConfig.Options.ITEM_DROP_TOAST_MODE)
         {
-            return name + this.getTranslation(RARE_DROP_MODE, this.itemDropMode);
+            return name + this.getTranslation(TOAST_MODE, this.itemDropToastMode);
+        }
+        else if (options == ExtendedConfig.Options.FISH_CATCH_TOAST_MODE)
+        {
+            return name + this.getTranslation(TOAST_MODE, this.fishCatchToastMode);
+        }
+        else if (options == ExtendedConfig.Options.GIFT_TOAST_MODE)
+        {
+            return name + this.getTranslation(TOAST_MODE, this.giftToastMode);
+        }
+        else if (options == ExtendedConfig.Options.PET_TOAST_MODE)
+        {
+            return name + this.getTranslation(TOAST_MODE, this.petToastMode);
         }
         else
         {
@@ -527,13 +546,25 @@ public class ExtendedConfig
         {
             this.pingMode = (this.pingMode + value) % 2;
         }
-        else if (options == ExtendedConfig.Options.VISIT_ISLAND_MODE)
+        else if (options == ExtendedConfig.Options.VISIT_ISLAND_TOAST_MODE)
         {
-            this.visitIslandMode = (this.visitIslandMode + value) % 4;
+            this.visitIslandToastMode = (this.visitIslandToastMode + value) % 4;
         }
-        else if (options == ExtendedConfig.Options.RARE_DROP_MODE)
+        else if (options == ExtendedConfig.Options.ITEM_DROP_TOAST_MODE)
         {
-            this.itemDropMode = (this.itemDropMode + value) % 3;
+            this.itemDropToastMode = (this.itemDropToastMode + value) % 3;
+        }
+        else if (options == ExtendedConfig.Options.FISH_CATCH_TOAST_MODE)
+        {
+            this.fishCatchToastMode = (this.fishCatchToastMode + value) % 3;
+        }
+        else if (options == ExtendedConfig.Options.GIFT_TOAST_MODE)
+        {
+            this.giftToastMode = (this.giftToastMode + value) % 3;
+        }
+        else if (options == ExtendedConfig.Options.PET_TOAST_MODE)
+        {
+            this.petToastMode = (this.petToastMode + value) % 3;
         }
 
         else if (options == ExtendedConfig.Options.FPS)
@@ -1033,8 +1064,11 @@ public class ExtendedConfig
         POTION_HUD_STYLE(false, false),
         POTION_HUD_POSITION(false, false),
         PING_MODE(false, false),
-        VISIT_ISLAND_MODE(false, false),
-        RARE_DROP_MODE(false, false),
+        VISIT_ISLAND_TOAST_MODE(false, false),
+        ITEM_DROP_TOAST_MODE(false, false),
+        FISH_CATCH_TOAST_MODE(false, false),
+        GIFT_TOAST_MODE(false, false),
+        PET_TOAST_MODE(false, false),
 
         FPS(false, true),
         XYZ(false, true),

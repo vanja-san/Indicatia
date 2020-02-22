@@ -1,10 +1,10 @@
 package stevekung.mods.indicatia.config;
 
-public enum RareDropMode
+public enum ToastMode
 {
-    CHAT, TOAST, CHAT_AND_TOAST;
+    CHAT, TOAST, CHAT_AND_TOAST, DISABLED;
 
-    private static final RareDropMode[] values = values();
+    private static final ToastMode[] values = values();
 
     public static String getById(int mode)
     {

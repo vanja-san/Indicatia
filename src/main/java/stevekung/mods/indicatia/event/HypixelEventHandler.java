@@ -43,8 +43,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import stevekung.mods.indicatia.config.ConfigManagerIN;
 import stevekung.mods.indicatia.config.ExtendedConfig;
-import stevekung.mods.indicatia.config.RareDropMode;
-import stevekung.mods.indicatia.config.VisitIslandMode;
+import stevekung.mods.indicatia.config.ToastMode;
 import stevekung.mods.indicatia.gui.SignSelectionList;
 import stevekung.mods.indicatia.gui.api.GuiSkyBlockAPIViewer;
 import stevekung.mods.indicatia.gui.toasts.*;
@@ -58,7 +57,7 @@ public class HypixelEventHandler
     private static final Pattern JOINED_PARTY_PATTERN = Pattern.compile("(?<name>\\w+) joined the party!");
     private static final Pattern VISIT_ISLAND_PATTERN = Pattern.compile("(?:\\[SkyBlock\\]|\\[SkyBlock\\] (?:\\[VIP?\\u002B{0,1}\\]|\\[MVP?\\u002B{0,2}\\]|\\[YOUTUBE\\])) (?<name>\\w+) is visiting Your Island!");
     private static final Pattern NICK_PATTERN = Pattern.compile("^You are now nicked as (?<nick>\\w+)!");
-    public static final String UUID_PATTERN_STRING = "[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}";
+    private static final String UUID_PATTERN_STRING = "[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}";
     private static final Pattern UUID_PATTERN = Pattern.compile("Your new API key is (?<uuid>" + HypixelEventHandler.UUID_PATTERN_STRING + ")");
     private static final String RANKED_PATTERN = "(?:(?:\\w)|(?:\\[VIP?\\u002B{0,1}\\]|\\[MVP?\\u002B{0,2}\\]|\\[YOUTUBE\\]) \\w)+";
     private static final Pattern CHAT_PATTERN = Pattern.compile("(?:(\\w+)|(?:\\[VIP?\\u002B{0,1}\\]|\\[MVP?\\u002B{0,2}\\]|\\[YOUTUBE\\]) (\\w+))+: (?:.)+");
@@ -66,20 +65,23 @@ public class HypixelEventHandler
     // Item Drop Stuff
     private static final String ITEM_PATTERN = "[\\w\\u0027\\u25C6 -]+";
     private static final String DROP_PATTERN = "(?<item>" + ITEM_PATTERN + "(?:[\\(][^\\)]" + ITEM_PATTERN + "[\\)]){0,1})";
-    public static final Pattern RARE_DROP_PATTERN = Pattern.compile("RARE DROP! " + DROP_PATTERN + " ?(?:\\u0028\\u002B(?<mf>[0-9]+)% Magic Find!\\u0029){0,1}");
-    public static final Pattern RARE_DROP_2_SPACE_PATTERN = Pattern.compile("RARE DROP! \\u0028" + DROP_PATTERN + "\\u0029 ?(?:\\u0028\\u002B(?<mf>[0-9]+)% Magic Find!\\u0029){0,1}");
-    public static final Pattern RARE_DROP_WITH_BRACKET_PATTERN = Pattern.compile("(?<type>VERY RARE|CRAZY RARE) DROP!  \\u0028" + DROP_PATTERN + "\\u0029 ?(?:\\u0028\\u002B(?<mf>[0-9]+)% Magic Find!\\u0029){0,1}");
-    public static final Pattern DRAGON_DROP_PATTERN = Pattern.compile("(?:(?:" + GameProfileUtils.getUsername() + ")|(?:\\[VIP?\\u002B{0,1}\\]|\\[MVP?\\u002B{0,2}\\]|\\[YOUTUBE\\]) " + GameProfileUtils.getUsername() + ") has obtained " + DROP_PATTERN + "!");
+    private static final Pattern RARE_DROP_PATTERN = Pattern.compile("RARE DROP! " + DROP_PATTERN + " ?(?:\\u0028\\u002B(?<mf>[0-9]+)% Magic Find!\\u0029){0,1}");
+    private static final Pattern RARE_DROP_2_SPACE_PATTERN = Pattern.compile("RARE DROP! \\u0028" + DROP_PATTERN + "\\u0029 ?(?:\\u0028\\u002B(?<mf>[0-9]+)% Magic Find!\\u0029){0,1}");
+    private static final Pattern RARE_DROP_WITH_BRACKET_PATTERN = Pattern.compile("(?<type>VERY RARE|CRAZY RARE) DROP!  \\u0028" + DROP_PATTERN + "\\u0029 ?(?:\\u0028\\u002B(?<mf>[0-9]+)% Magic Find!\\u0029){0,1}");
+    private static final Pattern DRAGON_DROP_PATTERN = Pattern.compile("(?:(?:" + GameProfileUtils.getUsername() + ")|(?:\\[VIP?\\u002B{0,1}\\]|\\[MVP?\\u002B{0,2}\\]|\\[YOUTUBE\\]) " + GameProfileUtils.getUsername() + ") has obtained " + DROP_PATTERN + "!");
 
     // Fish catch stuff
-    public static final Pattern FISH_CATCH_PATTERN = Pattern.compile("(?<type>GOOD|GREAT) CATCH! You found a " + DROP_PATTERN + ".");
-    public static final Pattern COINS_CATCH_PATTERN = Pattern.compile("(?<type>GOOD|GREAT) CATCH! You found (?<coin>[0-9,]+) Coins.");
+    private static final Pattern FISH_CATCH_PATTERN = Pattern.compile("(?<type>GOOD|GREAT) CATCH! You found a " + DROP_PATTERN + ".");
+    private static final Pattern COINS_CATCH_PATTERN = Pattern.compile("(?<type>GOOD|GREAT) CATCH! You found (?<coin>[0-9,]+) Coins.");
 
     // Winter island stuff
-    public static final Pattern COINS_GIFT_PATTERN = Pattern.compile("(?<type>COMMON|SWEET|RARE)! \\u002B(?<coin>[0-9,]+) coins gift with " + RANKED_PATTERN + "!");
-    public static final Pattern SKILL_EXP_GIFT_PATTERN = Pattern.compile("(?<type>COMMON|SWEET|RARE)! \\u002B(?<exp>[0-9,]+) (?<skill>Farming|Mining|Combat|Foraging|Fishing|Enchanting|Alchemy)+ XP gift with " + RANKED_PATTERN + "!");
-    public static final Pattern ITEM_DROP_GIFT_PATTERN = Pattern.compile("(?<type>COMMON|SWEET|RARE)! " + DROP_PATTERN + " gift with " + RANKED_PATTERN + "!");
-    public static final Pattern SANTA_TIER_PATTERN = Pattern.compile("SANTA TIER! " + DROP_PATTERN + " gift with " + RANKED_PATTERN + "!");
+    private static final Pattern COINS_GIFT_PATTERN = Pattern.compile("(?<type>COMMON|SWEET|RARE)! \\u002B(?<coin>[0-9,]+) coins gift with " + RANKED_PATTERN + "!");
+    private static final Pattern SKILL_EXP_GIFT_PATTERN = Pattern.compile("(?<type>COMMON|SWEET|RARE)! \\u002B(?<exp>[0-9,]+) (?<skill>Farming|Mining|Combat|Foraging|Fishing|Enchanting|Alchemy)+ XP gift with " + RANKED_PATTERN + "!");
+    private static final Pattern ITEM_DROP_GIFT_PATTERN = Pattern.compile("(?<type>COMMON|SWEET|RARE)! " + DROP_PATTERN + " gift with " + RANKED_PATTERN + "!");
+    private static final Pattern SANTA_TIER_PATTERN = Pattern.compile("SANTA TIER! " + DROP_PATTERN + " gift with " + RANKED_PATTERN + "!");
+
+    // Pet
+    private static final Pattern PET_LEVEL_UP_PATTERN = Pattern.compile("Your (?<name>\\w+) levelled up to level (?<level>\\d+)!");
 
     private static final List<String> LEFT_PARTY_MESSAGE = new ArrayList<>(Arrays.asList("You are not in a party and have been moved to the ALL channel!", "has disbanded the party!", "The party was disbanded because all invites have expired and all members have left."));
 
@@ -249,6 +251,9 @@ public class HypixelEventHandler
             Matcher itemDropGiftPattern = HypixelEventHandler.ITEM_DROP_GIFT_PATTERN.matcher(message);
             Matcher santaTierPattern = HypixelEventHandler.SANTA_TIER_PATTERN.matcher(message);
 
+            // Pet
+            Matcher petLevelUpPattern = HypixelEventHandler.PET_LEVEL_UP_PATTERN.matcher(message);
+
             if (event.type == 0)
             {
                 if (message.contains("Illegal characters in chat") || message.contains("A kick occurred in your connection"))
@@ -269,13 +274,13 @@ public class HypixelEventHandler
                 {
                     String name = visitIslandMatcher.group("name");
 
-                    if (VisitIslandMode.getById(ExtendedConfig.instance.visitIslandMode).equalsIgnoreCase("toast") || VisitIslandMode.getById(ExtendedConfig.instance.visitIslandMode).equalsIgnoreCase("chat_and_toast"))
+                    if (ToastMode.getById(ExtendedConfig.instance.visitIslandToastMode).equalsIgnoreCase("toast") || ToastMode.getById(ExtendedConfig.instance.visitIslandToastMode).equalsIgnoreCase("chat_and_toast"))
                     {
                         HypixelEventHandler.addVisitingToast(name);
                         LoggerIN.logToast(message);
                     }
 
-                    cancelMessage = VisitIslandMode.getById(ExtendedConfig.instance.visitIslandMode).equalsIgnoreCase("toast") || VisitIslandMode.getById(ExtendedConfig.instance.visitIslandMode).equalsIgnoreCase("disabled");
+                    cancelMessage = ToastMode.getById(ExtendedConfig.instance.visitIslandToastMode).equalsIgnoreCase("toast") || ToastMode.getById(ExtendedConfig.instance.visitIslandToastMode).equalsIgnoreCase("disabled");
 
                     if (ExtendedConfig.instance.addPartyVisitIsland && !HypixelEventHandler.PARTY_LIST.stream().anyMatch(pname -> name.equals(pname)))
                     {
@@ -348,35 +353,13 @@ public class HypixelEventHandler
                         catch (Exception e) {}
                     }
 
-                    if (RareDropMode.getById(ExtendedConfig.instance.itemDropMode).equalsIgnoreCase("toast") || RareDropMode.getById(ExtendedConfig.instance.itemDropMode).equalsIgnoreCase("chat_and_toast"))
+                    if (ToastMode.getById(ExtendedConfig.instance.fishCatchToastMode).equalsIgnoreCase("toast") || ToastMode.getById(ExtendedConfig.instance.fishCatchToastMode).equalsIgnoreCase("chat_and_toast"))
                     {
-                        if (message.contains("You destroyed an Ender Crystal!"))
-                        {
-                            HypixelEventHandler.ITEM_DROP_CHECK_LIST.add(new ToastUtils.ItemDropCheck("Crystal Fragment", ToastUtils.DropType.DRAGON_CRYSTAL_FRAGMENT, ToastType.DROP));
-                            LoggerIN.logToast(message);
-                            cancelMessage = RareDropMode.getById(ExtendedConfig.instance.itemDropMode).equalsIgnoreCase("toast");
-                        }
-
-                        if (rareDropPattern.matches())
-                        {
-                            String name = rareDropPattern.group("item");
-                            String magicFind = rareDropPattern.group("mf");
-                            HypixelEventHandler.ITEM_DROP_CHECK_LIST.add(new ToastUtils.ItemDropCheck(EnumChatFormatting.getTextWithoutFormattingCodes(name), magicFind, ToastUtils.DropType.RARE_DROP, ToastType.DROP));
-                            LoggerIN.logToast(message);
-                            cancelMessage = RareDropMode.getById(ExtendedConfig.instance.itemDropMode).equalsIgnoreCase("toast");
-                        }
-                        else if (fishCatchPattern.matches())
+                        if (fishCatchPattern.matches())
                         {
                             HypixelEventHandler.addFishLoot(fishCatchPattern);
                             LoggerIN.logToast(message);
-                            cancelMessage = RareDropMode.getById(ExtendedConfig.instance.itemDropMode).equalsIgnoreCase("toast");
-                        }
-                        else if (dragonDropPattern.matches())
-                        {
-                            String name = dragonDropPattern.group("item");
-                            HypixelEventHandler.ITEM_DROP_CHECK_LIST.add(new ToastUtils.ItemDropCheck(EnumChatFormatting.getTextWithoutFormattingCodes(name), ToastUtils.DropType.DRAGON_DROP, ToastType.DROP));
-                            LoggerIN.logToast(message);
-                            cancelMessage = RareDropMode.getById(ExtendedConfig.instance.itemDropMode).equalsIgnoreCase("toast");
+                            cancelMessage = ToastMode.getById(ExtendedConfig.instance.fishCatchToastMode).equalsIgnoreCase("toast");
                         }
                         else if (coinsCatchPattern.matches())
                         {
@@ -386,27 +369,13 @@ public class HypixelEventHandler
                             ItemStack coinSkull = RenderUtils.getSkullItemStack(coinType.getId(), coinType.getValue());
                             NumericToast.addValueOrUpdate(HUDRenderEventHandler.INSTANCE.getToastGui(), type.equals("GOOD") ? ToastUtils.DropType.GOOD_CATCH_COINS : ToastUtils.DropType.GREAT_CATCH_COINS, Integer.valueOf(coin.replace(",", "")), coinSkull, "Coins");
                             LoggerIN.logToast(message);
-                            cancelMessage = RareDropMode.getById(ExtendedConfig.instance.itemDropMode).equalsIgnoreCase("toast");
+                            cancelMessage = ToastMode.getById(ExtendedConfig.instance.fishCatchToastMode).equalsIgnoreCase("toast");
                         }
-                        else if (rareDropBracketPattern.matches())
-                        {
-                            String type = rareDropBracketPattern.group("type");
-                            String name = rareDropBracketPattern.group("item");
-                            String magicFind = rareDropBracketPattern.group(3);
-                            ToastUtils.DropType dropType = type.equals("VERY RARE") ? ToastUtils.DropType.SLAYER_VERY_RARE_DROP : ToastUtils.DropType.SLAYER_CRAZY_RARE_DROP;
-                            HypixelEventHandler.ITEM_DROP_CHECK_LIST.add(new ToastUtils.ItemDropCheck(EnumChatFormatting.getTextWithoutFormattingCodes(name), magicFind, dropType, ToastType.DROP));
-                            LoggerIN.logToast(message);
-                            cancelMessage = RareDropMode.getById(ExtendedConfig.instance.itemDropMode).equalsIgnoreCase("toast");
-                        }
-                        else if (rareDrop2SpaceBracketPattern.matches())
-                        {
-                            String name = rareDrop2SpaceBracketPattern.group("item");
-                            String magicFind = rareDrop2SpaceBracketPattern.group(2);
-                            HypixelEventHandler.ITEM_DROP_CHECK_LIST.add(new ToastUtils.ItemDropCheck(EnumChatFormatting.getTextWithoutFormattingCodes(name), magicFind, ToastUtils.DropType.SLAYER_RARE_DROP, ToastType.DROP));
-                            LoggerIN.logToast(message);
-                            cancelMessage = RareDropMode.getById(ExtendedConfig.instance.itemDropMode).equalsIgnoreCase("toast");
-                        }
-                        else if (coinsGiftPattern.matches())
+                    }
+
+                    if (ToastMode.getById(ExtendedConfig.instance.giftToastMode).equalsIgnoreCase("toast") || ToastMode.getById(ExtendedConfig.instance.giftToastMode).equalsIgnoreCase("chat_and_toast"))
+                    {
+                        if (coinsGiftPattern.matches())
                         {
                             String type = coinsGiftPattern.group("type");
                             String coin = coinsGiftPattern.group("coin");
@@ -414,7 +383,7 @@ public class HypixelEventHandler
                             ItemStack coinSkull = RenderUtils.getSkullItemStack(CoinType.TYPE_1.getId(), CoinType.TYPE_1.getValue());
                             NumericToast.addValueOrUpdate(HUDRenderEventHandler.INSTANCE.getToastGui(), rarity, Integer.valueOf(coin.replace(",", "")), coinSkull, "Coins");
                             LoggerIN.logToast(message);
-                            cancelMessage = RareDropMode.getById(ExtendedConfig.instance.itemDropMode).equalsIgnoreCase("toast");
+                            cancelMessage = ToastMode.getById(ExtendedConfig.instance.giftToastMode).equalsIgnoreCase("toast");
                         }
                         else if (skillExpGiftPattern.matches())
                         {
@@ -424,7 +393,7 @@ public class HypixelEventHandler
                             ToastUtils.DropType rarity = type.equals("RARE") ? ToastUtils.DropType.RARE_GIFT : type.equals("SWEET") ? ToastUtils.DropType.SWEET_GIFT : ToastUtils.DropType.COMMON_GIFT;
                             NumericToast.addValueOrUpdate(HUDRenderEventHandler.INSTANCE.getToastGui(), rarity, Integer.valueOf(exp.replace(",", "")), null, skill);
                             LoggerIN.logToast(message);
-                            cancelMessage = RareDropMode.getById(ExtendedConfig.instance.itemDropMode).equalsIgnoreCase("toast");
+                            cancelMessage = ToastMode.getById(ExtendedConfig.instance.giftToastMode).equalsIgnoreCase("toast");
                         }
                         else if (itemDropGiftPattern.matches())
                         {
@@ -433,14 +402,74 @@ public class HypixelEventHandler
                             ToastUtils.DropType rarity = type.equals("RARE") ? ToastUtils.DropType.RARE_GIFT : type.equals("SWEET") ? ToastUtils.DropType.SWEET_GIFT : ToastUtils.DropType.COMMON_GIFT;
                             HypixelEventHandler.ITEM_DROP_CHECK_LIST.add(new ToastUtils.ItemDropCheck(EnumChatFormatting.getTextWithoutFormattingCodes(name), rarity, ToastUtils.ToastType.GIFT));
                             LoggerIN.logToast(message);
-                            cancelMessage = RareDropMode.getById(ExtendedConfig.instance.itemDropMode).equalsIgnoreCase("toast");
+                            cancelMessage = ToastMode.getById(ExtendedConfig.instance.giftToastMode).equalsIgnoreCase("toast");
                         }
                         else if (santaTierPattern.matches())
                         {
                             String name = santaTierPattern.group("item");
                             HypixelEventHandler.ITEM_DROP_CHECK_LIST.add(new ToastUtils.ItemDropCheck(EnumChatFormatting.getTextWithoutFormattingCodes(name), ToastUtils.DropType.SANTA_TIER, ToastUtils.ToastType.GIFT));
                             LoggerIN.logToast(message);
-                            cancelMessage = RareDropMode.getById(ExtendedConfig.instance.itemDropMode).equalsIgnoreCase("toast");
+                            cancelMessage = ToastMode.getById(ExtendedConfig.instance.giftToastMode).equalsIgnoreCase("toast");
+                        }
+                    }
+
+                    if (ToastMode.getById(ExtendedConfig.instance.itemDropToastMode).equalsIgnoreCase("toast") || ToastMode.getById(ExtendedConfig.instance.itemDropToastMode).equalsIgnoreCase("chat_and_toast"))
+                    {
+                        boolean isToast = ToastMode.getById(ExtendedConfig.instance.itemDropToastMode).equalsIgnoreCase("toast");
+
+                        if (message.contains("You destroyed an Ender Crystal!"))
+                        {
+                            HypixelEventHandler.ITEM_DROP_CHECK_LIST.add(new ToastUtils.ItemDropCheck("Crystal Fragment", ToastUtils.DropType.DRAGON_CRYSTAL_FRAGMENT, ToastType.DROP));
+                            LoggerIN.logToast(message);
+                            cancelMessage = isToast;
+                        }
+
+                        if (rareDropPattern.matches())
+                        {
+                            String name = rareDropPattern.group("item");
+                            String magicFind = rareDropPattern.group("mf");
+                            HypixelEventHandler.ITEM_DROP_CHECK_LIST.add(new ToastUtils.ItemDropCheck(EnumChatFormatting.getTextWithoutFormattingCodes(name), magicFind, ToastUtils.DropType.RARE_DROP, ToastType.DROP));
+                            LoggerIN.logToast(message);
+                            cancelMessage = isToast;
+                        }
+                        else if (dragonDropPattern.matches())
+                        {
+                            String name = dragonDropPattern.group("item");
+                            HypixelEventHandler.ITEM_DROP_CHECK_LIST.add(new ToastUtils.ItemDropCheck(EnumChatFormatting.getTextWithoutFormattingCodes(name), ToastUtils.DropType.DRAGON_DROP, ToastType.DROP));
+                            LoggerIN.logToast(message);
+                            cancelMessage = isToast;
+                        }
+                        else if (rareDropBracketPattern.matches())
+                        {
+                            String type = rareDropBracketPattern.group("type");
+                            String name = rareDropBracketPattern.group("item");
+                            String magicFind = rareDropBracketPattern.group(3);
+                            ToastUtils.DropType dropType = type.equals("VERY RARE") ? ToastUtils.DropType.SLAYER_VERY_RARE_DROP : ToastUtils.DropType.SLAYER_CRAZY_RARE_DROP;
+                            HypixelEventHandler.ITEM_DROP_CHECK_LIST.add(new ToastUtils.ItemDropCheck(EnumChatFormatting.getTextWithoutFormattingCodes(name), magicFind, dropType, ToastType.DROP));
+                            LoggerIN.logToast(message);
+                            cancelMessage = isToast;
+                        }
+                        else if (rareDrop2SpaceBracketPattern.matches())
+                        {
+                            String name = rareDrop2SpaceBracketPattern.group("item");
+                            String magicFind = rareDrop2SpaceBracketPattern.group(2);
+                            HypixelEventHandler.ITEM_DROP_CHECK_LIST.add(new ToastUtils.ItemDropCheck(EnumChatFormatting.getTextWithoutFormattingCodes(name), magicFind, ToastUtils.DropType.SLAYER_RARE_DROP, ToastType.DROP));
+                            LoggerIN.logToast(message);
+                            cancelMessage = isToast;
+                        }
+                    }
+
+                    if (ToastMode.getById(ExtendedConfig.instance.petToastMode).equalsIgnoreCase("toast") || ToastMode.getById(ExtendedConfig.instance.petToastMode).equalsIgnoreCase("chat_and_toast"))
+                    {
+                        if (petLevelUpPattern.matches())
+                        {
+                            String name = petLevelUpPattern.group("name");
+                            String level = petLevelUpPattern.group("level");
+                            ItemStack itemStack = new ItemStack(Items.bone);
+                            itemStack.setStackDisplayName(name);
+                            NumericToast.addValueOrUpdate(HUDRenderEventHandler.INSTANCE.getToastGui(), ToastUtils.DropType.PET_LEVEL_UP, Integer.valueOf(level), itemStack, "Pet");
+                            LoggerIN.logToast(message);
+                            cancelMessage = ToastMode.getById(ExtendedConfig.instance.petToastMode).equalsIgnoreCase("toast");
                         }
                     }
                 }
