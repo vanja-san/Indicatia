@@ -74,6 +74,7 @@ public class ToastUtils
     public enum DropType
     {
         RARE_DROP("RARE DROP!", "255,170,0"),
+        PET_DROP("PET DROP!", "255,170,0"),
         DRAGON_CRYSTAL_FRAGMENT("RARE DROP!", "170,0,170"),
         DRAGON_DROP("DRAGON DROP!", "127,255,212"),
         GOOD_CATCH("GOOD CATCH!", "255,170,0"),
