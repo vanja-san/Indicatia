@@ -10,7 +10,6 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
-import stevekung.mods.indicatia.event.ClientEventHandler;
 import stevekung.mods.indicatia.renderer.EquipmentOverlay;
 import stevekung.mods.indicatia.utils.ColorUtils;
 import stevekung.mods.indicatia.utils.JsonUtils;
@@ -46,7 +45,6 @@ public class ItemDropsToast implements IToast
         ToastUtils.ItemDrop drop = this.rareDropOutput;
         ItemStack itemStack = drop.getItemStack();
         String itemName = itemStack.getDisplayName() + this.magicFind;
-        float partialTicks = ClientEventHandler.renderPartialTicks;
 
         if (itemStack.getItem() == Items.enchanted_book)
         {
@@ -72,8 +70,7 @@ public class ItemDropsToast implements IToast
                 GlStateManager.matrixMode(5890);
                 GlStateManager.loadIdentity();
                 GlStateManager.scale(0.2F, 0.2F, 0.2F);
-                GlStateManager.rotate(30.0F - i * 60.0F, 0.0F, 0.0F, 1.0F);
-                GlStateManager.translate(0.0F, partialTicks * (0.001F + i * 0.003F) * 20.0F, 0.0F);
+                GlStateManager.translate(0.0F, delta / 100 * (0.001F + i * 0.003F) * 20.0F, 0.0F);
                 GlStateManager.matrixMode(5888);
 
                 toastGui.mc.getTextureManager().bindTexture(MAGIC_FIND_GLINT);
