@@ -70,7 +70,7 @@ public abstract class GuiEditSignMixin extends GuiScreen implements IEditSign
         if (HypixelEventHandler.isSkyBlock)
         {
             String text = this.that.tileSign.signText[0].getUnformattedText();
-            
+
             for (int i = 0; i < text.length(); i++)
             {
                 char ch = text.charAt(i);
