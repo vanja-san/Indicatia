@@ -2,7 +2,6 @@ package stevekung.mods.indicatia.mixin;
 
 import java.io.IOException;
 
-import org.apache.commons.lang3.math.NumberUtils;
 import org.lwjgl.input.Keyboard;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -21,10 +20,7 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.StringUtils;
 import stevekung.mods.indicatia.event.HypixelEventHandler;
 import stevekung.mods.indicatia.gui.SignSelectionList;
-import stevekung.mods.indicatia.utils.IEditSign;
-import stevekung.mods.indicatia.utils.IModifiedSign;
-import stevekung.mods.indicatia.utils.LangUtils;
-import stevekung.mods.indicatia.utils.TextInputUtil;
+import stevekung.mods.indicatia.utils.*;
 
 @Mixin(GuiEditSign.class)
 public abstract class GuiEditSignMixin extends GuiScreen implements IEditSign
@@ -73,21 +69,29 @@ public abstract class GuiEditSignMixin extends GuiScreen implements IEditSign
     {
         if (HypixelEventHandler.isSkyBlock)
         {
-            if (!StringUtils.isNullOrEmpty(this.that.tileSign.signText[0].getUnformattedText()) && NumberUtils.isNumber(this.that.tileSign.signText[0].getUnformattedText()))
+            String text = this.that.tileSign.signText[0].getUnformattedText();
+            
+            for (int i = 0; i < text.length(); i++)
             {
-                if (this.isAuctionSign())
+                char ch = text.charAt(i);
+
+                if (!StringUtils.isNullOrEmpty(this.that.tileSign.signText[0].getUnformattedText()) && NumberUtils.isNumber(ch))
                 {
-                    this.auctionPriceSelector.add(this.that.tileSign.signText[0].getUnformattedText());
+                    if (this.isAuctionSign())
+                    {
+                        this.auctionPriceSelector.add(this.that.tileSign.signText[0].getUnformattedText());
+                    }
+                    if (this.isBankWithdraw())
+                    {
+                        this.withdrawSelector.add(this.that.tileSign.signText[0].getUnformattedText());
+                    }
+                    if (this.isBankDeposit())
+                    {
+                        this.depositSelector.add(this.that.tileSign.signText[0].getUnformattedText());
+                    }
                 }
-                if (this.isBankWithdraw())
-                {
-                    this.withdrawSelector.add(this.that.tileSign.signText[0].getUnformattedText());
-                }
-                if (this.isBankDeposit())
-                {
-                    this.depositSelector.add(this.that.tileSign.signText[0].getUnformattedText());
-                }
-            }
+            } 
+
             if (this.isAuctionQuery() && !StringUtils.isNullOrEmpty(this.that.tileSign.signText[0].getUnformattedText()))
             {
                 this.auctionQuerySelector.add(this.that.tileSign.signText[0].getUnformattedText());

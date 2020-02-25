@@ -42,6 +42,6 @@ public class NumberUtils
 
     public static boolean isNumber(char character)
     {
-        return character >= 48 && character <= 57 || character == '.';
+        return character >= 48 && character <= 57 || character == '.' || character == 'k' || character == 'm';
     }
 }
