@@ -140,9 +140,13 @@ public class HypixelEventHandler
 
                         if (scoreText.startsWith("Dragon Health: "))
                         {
-                            HypixelEventHandler.dragonHealth = Float.valueOf(scoreText.replaceAll("[^\\d]", ""));
-                            foundDrag = true;
-                            break;
+                            try
+                            {
+                                HypixelEventHandler.dragonHealth = Float.valueOf(scoreText.replaceAll("[^\\d]", ""));
+                                foundDrag = true;
+                                break;
+                            }
+                            catch (Exception e) {}
                         }
                     }
 
