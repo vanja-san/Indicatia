@@ -47,6 +47,7 @@
         "RenderGuardianMixin",
         "ImageBufferDownloadMixin",
         "LayerCustomHeadMixin",
-        "TileEntityItemStackRendererMixin"
+        "TileEntityItemStackRendererMixin",
+        "EntityMixin"
     ]
 }
