@@ -1640,14 +1640,11 @@ public class GuiSkyBlockData extends GuiScreen
                 currentXp = playerXp - xpTotal;
             }
 
-            if (progress == SkillProgress.RUNE_SKILL && currentXp <= 0) // fix for runecrafting 23 to 24
+            if (currentXp <= 0 && levelToCheck <= progress.length) // fix for skill level almost reach to limit
             {
-                if (levelToCheck <= progress.length)
-                {
-                    xpToNextLvl = xpTotal - playerXp;
-                    currentXp = (int)(xpRequired - xpToNextLvl);
-                    currentLvl = progress.length - 1;
-                }
+                xpToNextLvl = xpTotal - playerXp;
+                currentXp = (int)(xpRequired - xpToNextLvl);
+                currentLvl = progress.length - 1;
             }
             if (type != SkillType.RUNECRAFTING && type != SkillType.CARPENTRY)
             {
