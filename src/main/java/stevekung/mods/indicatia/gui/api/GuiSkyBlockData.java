@@ -1752,17 +1752,21 @@ public class GuiSkyBlockData extends GuiScreen
 
         if (slayerBosses != null)
         {
-            if (!this.getSlayer(slayerBosses, SlayerType.ZOMBIE).isEmpty())
+            List<SkyBlockSlayerInfo> zombie = this.getSlayer(slayerBosses, SlayerType.ZOMBIE);
+            List<SkyBlockSlayerInfo> spider = this.getSlayer(slayerBosses, SlayerType.SPIDER);
+            List<SkyBlockSlayerInfo> wolf = this.getSlayer(slayerBosses, SlayerType.WOLF);
+
+            if (!zombie.isEmpty())
             {
-                this.slayerInfo.addAll(this.getSlayer(slayerBosses, SlayerType.ZOMBIE));
+                this.slayerInfo.addAll(zombie);
             }
-            if (!this.getSlayer(slayerBosses, SlayerType.SPIDER).isEmpty())
+            if (!spider.isEmpty())
             {
-                this.slayerInfo.addAll(this.getSlayer(slayerBosses, SlayerType.SPIDER));
+                this.slayerInfo.addAll(spider);
             }
-            if (!this.getSlayer(slayerBosses, SlayerType.WOLF).isEmpty())
+            if (!wolf.isEmpty())
             {
-                this.slayerInfo.addAll(this.getSlayer(slayerBosses, SlayerType.WOLF));
+                this.slayerInfo.addAll(wolf);
             }
         }
         if (this.slayerInfo.isEmpty())
