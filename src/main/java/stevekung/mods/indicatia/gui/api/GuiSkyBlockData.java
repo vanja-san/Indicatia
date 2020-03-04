@@ -578,7 +578,7 @@ public class GuiSkyBlockData extends GuiScreen
                             ++i;
                         }
                         int x = this.width / 2 - 46;
-                        int y = this.height - 32 - this.height / 7;
+                        int y = this.height - 35 - this.height / 7;
                         this.renderSkillBar(this.carpentrySkill.getName(), x, y + 28, x + 46, y + 8, this.carpentrySkill.getCurrentXp(), this.carpentrySkill.getXpRequired(), this.carpentrySkill.getCurrentLvl(), this.carpentrySkill.isReachLimit());
 
                         if (this.skillAvg != null)
@@ -1655,7 +1655,7 @@ public class GuiSkyBlockData extends GuiScreen
         }
         else
         {
-            return new SkyBlockSkillInfo(EnumChatFormatting.RED + "API is not enabled!", 0, 0, 0, 0, false);
+            return new SkyBlockSkillInfo(EnumChatFormatting.RED + type.getName() + " is not available!", 0, 0, 0, 0, false);
         }
     }
 
@@ -1724,23 +1724,23 @@ public class GuiSkyBlockData extends GuiScreen
 
     private void getInventories(JsonObject currentProfile)
     {
-        this.armorItems.addAll(SkyBlockAPIUtils.decodeItem(currentProfile, "inv_armor"));
+        this.armorItems.addAll(SkyBlockAPIUtils.decodeItem(currentProfile, SkyBlockInventoryType.ARMOR));
 
         for (int i = 0; i < 4; ++i)
         {
             GuiSkyBlockData.TEMP_ARMOR_INVENTORY.setInventorySlotContents(i, this.armorItems.get(i));
         }
 
-        List<ItemStack> mainInventory = SkyBlockAPIUtils.decodeItem(currentProfile, "inv_contents");
-        List<ItemStack> accessoryInventory = SkyBlockAPIUtils.decodeItem(currentProfile, "talisman_bag");
+        List<ItemStack> mainInventory = SkyBlockAPIUtils.decodeItem(currentProfile, SkyBlockInventoryType.INVENTORY);
+        List<ItemStack> accessoryInventory = SkyBlockAPIUtils.decodeItem(currentProfile, SkyBlockInventoryType.ACCESSORY_BAG);
 
         SKYBLOCK_INV.add(new SkyBlockInventory(mainInventory, SkyBlockInventoryTabs.INVENTORY));
-        SKYBLOCK_INV.add(new SkyBlockInventory(SkyBlockAPIUtils.decodeItem(currentProfile, "ender_chest_contents"), SkyBlockInventoryTabs.ENDER_CHEST));
+        SKYBLOCK_INV.add(new SkyBlockInventory(SkyBlockAPIUtils.decodeItem(currentProfile, SkyBlockInventoryType.ENDER_CHEST), SkyBlockInventoryTabs.ENDER_CHEST));
         SKYBLOCK_INV.add(new SkyBlockInventory(accessoryInventory, SkyBlockInventoryTabs.ACCESSORY));
-        SKYBLOCK_INV.add(new SkyBlockInventory(SkyBlockAPIUtils.decodeItem(currentProfile, "potion_bag"), SkyBlockInventoryTabs.POTION));
-        SKYBLOCK_INV.add(new SkyBlockInventory(SkyBlockAPIUtils.decodeItem(currentProfile, "fishing_bag"), SkyBlockInventoryTabs.FISHING));
-        SKYBLOCK_INV.add(new SkyBlockInventory(SkyBlockAPIUtils.decodeItem(currentProfile, "quiver"), SkyBlockInventoryTabs.QUIVER));
-        SKYBLOCK_INV.add(new SkyBlockInventory(SkyBlockAPIUtils.decodeItem(currentProfile, "candy_inventory_contents"), SkyBlockInventoryTabs.CANDY));
+        SKYBLOCK_INV.add(new SkyBlockInventory(SkyBlockAPIUtils.decodeItem(currentProfile, SkyBlockInventoryType.POTION_BAG), SkyBlockInventoryTabs.POTION));
+        SKYBLOCK_INV.add(new SkyBlockInventory(SkyBlockAPIUtils.decodeItem(currentProfile, SkyBlockInventoryType.FISHING_BAG), SkyBlockInventoryTabs.FISHING));
+        SKYBLOCK_INV.add(new SkyBlockInventory(SkyBlockAPIUtils.decodeItem(currentProfile, SkyBlockInventoryType.QUIVER), SkyBlockInventoryTabs.QUIVER));
+        SKYBLOCK_INV.add(new SkyBlockInventory(SkyBlockAPIUtils.decodeItem(currentProfile, SkyBlockInventoryType.CANDY), SkyBlockInventoryTabs.CANDY));
 
         this.inventoryToStats.addAll(mainInventory);
         this.inventoryToStats.addAll(accessoryInventory);
@@ -1752,13 +1752,22 @@ public class GuiSkyBlockData extends GuiScreen
 
         if (slayerBosses != null)
         {
-            this.slayerInfo.addAll(this.getSlayer(slayerBosses, SlayerType.ZOMBIE));
-            this.slayerInfo.addAll(this.getSlayer(slayerBosses, SlayerType.SPIDER));
-            this.slayerInfo.addAll(this.getSlayer(slayerBosses, SlayerType.WOLF));
+            if (!this.getSlayer(slayerBosses, SlayerType.ZOMBIE).isEmpty())
+            {
+                this.slayerInfo.addAll(this.getSlayer(slayerBosses, SlayerType.ZOMBIE));
+            }
+            if (!this.getSlayer(slayerBosses, SlayerType.SPIDER).isEmpty())
+            {
+                this.slayerInfo.addAll(this.getSlayer(slayerBosses, SlayerType.SPIDER));
+            }
+            if (!this.getSlayer(slayerBosses, SlayerType.WOLF).isEmpty())
+            {
+                this.slayerInfo.addAll(this.getSlayer(slayerBosses, SlayerType.WOLF));
+            }
         }
-        else
+        if (this.slayerInfo.isEmpty())
         {
-            this.slayerInfo.add(new SkyBlockSlayerInfo(EnumChatFormatting.RED + "Slayer Info: Slayer data not available!"));
+            this.slayerInfo.add(new SkyBlockSlayerInfo(EnumChatFormatting.RED + "Empty Slayer data!"));
         }
     }
 
@@ -1857,10 +1866,7 @@ public class GuiSkyBlockData extends GuiScreen
             list.add(SkyBlockSlayerInfo.empty());
             return list;
         }
-        else
-        {
-            return Collections.singletonList(new SkyBlockSlayerInfo(EnumChatFormatting.RED + "Slayer Info: No " + type.name().toLowerCase() + " slayer data!"));
-        }
+        return new ArrayList<>();
     }
 
     private void setSlayerSkillLevel(SlayerType type, int currentLevel)
@@ -2304,7 +2310,7 @@ public class GuiSkyBlockData extends GuiScreen
             this.stats = stats;
             this.parent = parent;
 
-            if (this.stats.size() <= 3)
+            if (this.stats.size() == 1)
             {
                 this.setHeaderInfo(false, 0);
             }
@@ -2378,7 +2384,7 @@ public class GuiSkyBlockData extends GuiScreen
                 GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
                 break;
             default:
-                if (this.getSize() <= 3)
+                if (this.getSize() == 1)
                 {
                     this.parent.drawString(this.parent.mc.fontRendererObj, stat.getText(), this.left + 8, top, 16777215);
                 }

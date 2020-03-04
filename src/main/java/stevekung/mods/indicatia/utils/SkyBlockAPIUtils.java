@@ -40,23 +40,23 @@ public class SkyBlockAPIUtils
         SkyBlockAPIUtils.setApiKey();
     }
 
-    public static List<ItemStack> decodeItem(JsonObject currentProfile, String invName)
+    public static List<ItemStack> decodeItem(JsonObject currentProfile, SkyBlockInventoryType type)
     {
-        if (currentProfile.has(invName))
+        if (currentProfile.has(type.getApiName()))
         {
             List<ItemStack> itemStack = new ArrayList<>();
-            byte[] decode = Base64.getDecoder().decode(currentProfile.get(invName).getAsJsonObject().get("data").getAsString().replace("\\u003d", "="));
+            byte[] decode = Base64.getDecoder().decode(currentProfile.get(type.getApiName()).getAsJsonObject().get("data").getAsString().replace("\\u003d", "="));
 
             try
             {
                 NBTTagCompound compound = CompressedStreamTools.readCompressed(new ByteArrayInputStream(decode));
                 NBTTagList list = compound.getTagList("i", 10);
 
-                for (int i = invName.equals("inv_contents") ? 9 : 0; i < list.tagCount(); ++i)
+                for (int i = type == SkyBlockInventoryType.INVENTORY ? 9 : 0; i < list.tagCount(); ++i)
                 {
                     itemStack.add(ItemStack.loadItemStackFromNBT(list.getCompoundTagAt(i)));
                 }
-                if (invName.equals("inv_contents"))
+                if (type == SkyBlockInventoryType.INVENTORY)
                 {
                     for (int i = 0; i < 9; ++i)
                     {
@@ -74,7 +74,7 @@ public class SkyBlockAPIUtils
         {
             List<ItemStack> itemStack = new ArrayList<>();
             ItemStack barrier = new ItemStack(Blocks.barrier);
-            barrier.setStackDisplayName(EnumChatFormatting.RESET + "" + EnumChatFormatting.RED + "Inventory API is not enabled!");
+            barrier.setStackDisplayName(EnumChatFormatting.RESET + "" + EnumChatFormatting.RED + type.getName() + " is not available!");
 
             for (int i = 0; i < 36; ++i)
             {
